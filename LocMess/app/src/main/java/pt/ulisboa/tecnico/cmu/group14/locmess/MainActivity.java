@@ -22,7 +22,8 @@ public class MainActivity extends AppCompatActivity {
 
     TextView t;
 
-    String url = "http://10.42.0.1:8080/list";
+    //String url = "http://10.42.0.1:8080/list";
+    String url = "http://web.tecnico.ulisboa.pt/ist177965/t";
 
     // Will show the string "data" that holds the results
     TextView results;
