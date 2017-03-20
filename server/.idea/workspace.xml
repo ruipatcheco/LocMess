@@ -80,7 +80,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="LocationImpl.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="LocationImpl.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/pt/ulisboa/tecnico/cmu/tg14/Implementation/LocationImpl.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="246">
@@ -99,11 +99,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Beans.xml" pinned="false" current-in-tab="false">
+      <file leaf-file-name="Beans.xml" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/resources/Beans.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="180">
-              <caret line="25" column="14" selection-start-line="25" selection-start-column="14" selection-end-line="25" selection-end-column="29" />
+            <state relative-caret-position="630">
+              <caret line="35" column="8" selection-start-line="35" selection-start-column="8" selection-end-line="35" selection-end-column="8" />
               <folding />
             </state>
           </provider>
@@ -210,11 +210,11 @@
         <option value="$PROJECT_DIR$/src/main/java/pt/ulisboa/tecnico/cmu/tg14/Model/Coordinates.java" />
         <option value="$PROJECT_DIR$/src/main/java/pt/ulisboa/tecnico/cmu/tg14/Controller/UserController.java" />
         <option value="$PROJECT_DIR$/src/main/java/pt/ulisboa/tecnico/cmu/tg14/dao/LocationDao.java" />
-        <option value="$PROJECT_DIR$/src/main/resources/Beans.xml" />
         <option value="$PROJECT_DIR$/src/main/java/pt/ulisboa/tecnico/cmu/tg14/dao/CoordinatesDao.java" />
         <option value="$PROJECT_DIR$/src/main/java/pt/ulisboa/tecnico/cmu/tg14/Implementation/CoordinatesImpl.java" />
         <option value="$PROJECT_DIR$/src/main/java/pt/ulisboa/tecnico/cmu/tg14/Controller/LocationController.java" />
         <option value="$PROJECT_DIR$/src/main/java/pt/ulisboa/tecnico/cmu/tg14/Implementation/LocationImpl.java" />
+        <option value="$PROJECT_DIR$/src/main/resources/Beans.xml" />
       </list>
     </option>
   </component>
@@ -968,12 +968,12 @@
       <workItem from="1489333004665" duration="71000" />
       <workItem from="1490012581110" duration="7165000" />
       <workItem from="1490023651918" duration="5046000" />
-      <workItem from="1490041132415" duration="10814000" />
+      <workItem from="1490041132415" duration="11213000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="32264000" />
+    <option name="totallyTimeSpent" value="32663000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="27" width="1366" height="741" extended-state="1" />
@@ -1312,22 +1312,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/resources/Beans.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="25" column="14" selection-start-line="25" selection-start-column="14" selection-end-line="25" selection-end-column="29" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/resources/CreateTable.sql">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="216">
-          <caret line="25" column="24" selection-start-line="25" selection-start-column="24" selection-end-line="25" selection-end-column="24" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/pt/ulisboa/tecnico/cmu/tg14/Controller/LocationController.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="388">
@@ -1366,6 +1350,22 @@
             <marker date="1490052178445" expanded="true" signature="2159:2197" ph="Select * fro... Location" />
             <marker date="1490052178445" expanded="true" signature="2517:2552" ph="delete from " />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/resources/CreateTable.sql">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="216">
+          <caret line="25" column="24" selection-start-line="25" selection-start-column="24" selection-end-line="25" selection-end-column="24" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/resources/Beans.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="630">
+          <caret line="35" column="8" selection-start-line="35" selection-start-column="8" selection-end-line="35" selection-end-column="8" />
+          <folding />
         </state>
       </provider>
     </entry>

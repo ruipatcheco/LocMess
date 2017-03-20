@@ -23,8 +23,14 @@
           class="pt.ulisboa.tecnico.cmu.tg14.Implementation.LocationImpl">
         <property name="dataSource"  ref="dataSource" />
     </bean>
+
     <bean id="coordinatesImpl"
     class="pt.ulisboa.tecnico.cmu.tg14.Implementation.CoordinatesImpl">
     <property name="dataSource"  ref="dataSource" />
-</bean>
+    </bean>
+
+    <bean id="messageImpl"
+          class="pt.ulisboa.tecnico.cmu.tg14.Implementation.MessageImpl">
+        <property name="dataSource"  ref="dataSource" />
+    </bean>
 </beans>
