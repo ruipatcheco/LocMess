@@ -2,9 +2,7 @@ package pt.ulisboa.tecnico.cmu.tg14.Implementation;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import pt.ulisboa.tecnico.cmu.tg14.Mapper.CoordinatesMapper;
-import pt.ulisboa.tecnico.cmu.tg14.Mapper.UserMapper;
 import pt.ulisboa.tecnico.cmu.tg14.Model.Coordinates;
-import pt.ulisboa.tecnico.cmu.tg14.Model.User;
 import pt.ulisboa.tecnico.cmu.tg14.dao.CoordinatesDao;
 
 import javax.sql.DataSource;
@@ -25,11 +23,11 @@ public class CoordinatesImpl implements CoordinatesDao {
     }
 
     @Override
-    public void create(float latitude, float longitude, int radius) {
+    public UUID create(float latitude, float longitude, int radius) {
         String SQL = "insert into Coordinates (id, lat, lon,radius) values (?, ?,?, ?)";
-        String id = UUID.randomUUID().toString();
-        jdbcTemplateObject.update( SQL,id, latitude, longitude,radius);
-        return;
+        UUID id = UUID.randomUUID();
+        jdbcTemplateObject.update( SQL,id.toString(), latitude, longitude,radius);
+        return id;
     }
 
     @Override

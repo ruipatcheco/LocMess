@@ -14,6 +14,7 @@ import java.util.List;
  * Created by trosado on 20/03/17.
  */
 @RestController
+@RequestMapping("/user")
 public class UserController {
 
     ApplicationContext context =
