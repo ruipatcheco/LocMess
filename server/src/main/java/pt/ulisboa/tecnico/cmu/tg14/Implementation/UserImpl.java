@@ -61,13 +61,4 @@ public class UserImpl implements UserDao {
         System.out.println("Updated Record with username = " + username);
         return;
     }
-
-    @Override
-    public User findByUsername(String username) {
-        String SQL = "Select * from User where username=?";
-        List<User> users = jdbcTemplateObject.query(SQL,
-                new UserMapper());
-
-        return users.get(0);
-    }
 }

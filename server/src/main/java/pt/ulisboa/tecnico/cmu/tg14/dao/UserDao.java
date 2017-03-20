@@ -42,5 +42,4 @@ public interface UserDao {
     */
    void update(String name, String password);
 
-    User findByUsername(String username);
 }
