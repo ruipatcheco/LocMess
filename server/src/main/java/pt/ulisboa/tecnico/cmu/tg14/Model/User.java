@@ -5,9 +5,7 @@ import java.io.Serializable;
 /**
  * Created by trosado on 20/03/17.
  */
-public class User  implements Serializable{
-
-    private static final long serialVersionUID = 1L;
+public class User  {
 
     private String username;
     private String password;
