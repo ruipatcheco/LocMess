@@ -33,4 +33,9 @@
           class="pt.ulisboa.tecnico.cmu.tg14.Implementation.MessageImpl">
         <property name="dataSource"  ref="dataSource" />
     </bean>
+
+    <bean id="profileImpl"
+          class="pt.ulisboa.tecnico.cmu.tg14.Implementation.ProfileImpl">
+        <property name="dataSource"  ref="dataSource" />
+    </bean>
 </beans>
