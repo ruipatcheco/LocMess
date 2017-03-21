@@ -27,8 +27,11 @@ public class MessageController {
             (MessageImpl)context.getBean("messageImpl");
 
     @RequestMapping("/create")
-    public String create(@RequestParam(value="startTime") Timestamp startTime,@RequestParam(value="endTime") Timestamp endTime,@RequestParam(value="creationTime") Timestamp creationTime,@RequestParam(value="content") String content,@RequestParam(value="publisher") String publisher,@RequestParam(value="coordinatesID") UUID coordinatesID){
-        messageImpl.create(startTime,endTime,creationTime,content,publisher,coordinatesID);
+    public String create(@RequestParam(value="startTime") Long startTime,@RequestParam(value="endTime") Long endTime,@RequestParam(value="creationTime") Long creationTime,@RequestParam(value="content") String content,@RequestParam(value="publisher") String publisher,@RequestParam(value="location") String location){
+        Timestamp startTimeStamp = new Timestamp(startTime);
+        Timestamp endTimeStamp = new Timestamp(endTime);
+        Timestamp creationTimeStamp = new Timestamp(creationTime);
+        messageImpl.create(startTimeStamp,endTimeStamp,creationTimeStamp,content,publisher,location);
         return "OK";
     }
 

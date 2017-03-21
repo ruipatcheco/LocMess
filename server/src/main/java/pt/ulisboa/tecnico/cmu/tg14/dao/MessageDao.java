@@ -18,7 +18,7 @@ public interface MessageDao {
     */
    void setDataSource(DataSource ds);
 
-   void create(Timestamp startTime, Timestamp endTime, Timestamp creationTime, String content, String publisher, UUID coordinatesID);
+   void create(Timestamp startTime, Timestamp endTime, Timestamp creationTime, String content, String publisher, String location);
 
    void delete(UUID id);
 

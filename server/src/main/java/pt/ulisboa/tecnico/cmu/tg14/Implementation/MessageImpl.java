@@ -42,11 +42,12 @@ public class MessageImpl implements MessageDao {
     */
 
     @Override
-    public void create(Timestamp startTime, Timestamp endTime, Timestamp creationTime, String content, String publisher, UUID coordinatesID) {
-        String SQL = "insert into Message (id, coordid, content, creationtime, starttime, endtime, publisher) values (?,?,?,?,?,?,?)";
+    public void create(Timestamp startTime, Timestamp endTime, Timestamp creationTime, String content, String publisher, String location) {
+        String SQL = "insert into Message (id, location, content, creationtime, starttime, endtime, publisher) values (?,?,?,?,?,?,?)";
         String id = UUID.randomUUID().toString();
-        jdbcTemplateObject.update( SQL,id,coordinatesID,content,creationTime,startTime,endTime,publisher);
+        jdbcTemplateObject.update( SQL,id,location,content,creationTime,startTime,endTime,publisher);
         return;
+
     }
 
     @Override
@@ -68,6 +69,8 @@ public class MessageImpl implements MessageDao {
 
     @Override
     public List<Message> getMessagesByLocation(String location) {
+        //TODO a faltar consideracao sobre a timeframe util das mensagens
+
         String SQL = "" +
                 "select * from Message where location=?";
 
