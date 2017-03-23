@@ -7,7 +7,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import pt.ulisboa.tecnico.cmu.tg14.Implementation.UserImpl;
 import pt.ulisboa.tecnico.cmu.tg14.Model.User;
+import pt.ulisboa.tecnico.cmu.tg14.PasswordHasher;
 
+import java.util.Base64;
 import java.util.List;
 
 /**
@@ -25,7 +27,8 @@ public class UserController {
 
     @RequestMapping("/create")
     public String createUser(@RequestParam(value="username") String username, @RequestParam(value="password") String password){
-        userImpl.create(username,password);
+
+        userImpl.create(username,PasswordHasher.hashToString(password));
         return "OK";
     }
 
