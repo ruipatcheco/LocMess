@@ -28,7 +28,7 @@ public class ProfileImpl implements ProfileDao {
 
     @Override
     public String create(String username, String key, String value) {
-        String SQL = "insert into Profile (username, key, value) values (?,?,?)";
+        String SQL = "insert into Profile (username, name, value) values (?,?,?)";
         jdbcTemplateObject.update( SQL,username,key,value);
         return "OK";
     }

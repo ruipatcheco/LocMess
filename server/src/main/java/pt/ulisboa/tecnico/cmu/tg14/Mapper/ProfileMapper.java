@@ -15,7 +15,7 @@ public class ProfileMapper implements RowMapper<Profile> {
     public Profile mapRow(ResultSet resultSet, int i) throws SQLException {
         Profile p = new Profile();
         p.setUsername(resultSet.getString("username"));
-        p.setKey(resultSet.getString("key"));
+        p.setKey(resultSet.getString("name"));
         p.setValue(resultSet.getString("value"));
         return p;
     }

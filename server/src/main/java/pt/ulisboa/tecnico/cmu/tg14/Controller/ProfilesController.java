@@ -17,7 +17,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/profile")
-public class ProfileController {
+public class ProfilesController {
 
     ApplicationContext context =
             new ClassPathXmlApplicationContext("Beans.xml");
