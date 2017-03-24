@@ -27,3 +27,4 @@ pt/ulisboa/tecnico/cmu/tg14/Mapper/UserMapper.class
 pt/ulisboa/tecnico/cmu/tg14/Mapper/KeyListMapper.class
 pt/ulisboa/tecnico/cmu/tg14/Mapper/MessageMapper.class
 pt/ulisboa/tecnico/cmu/tg14/Model/Coordinates.class
+pt/ulisboa/tecnico/cmu/tg14/PasswordHasher.class

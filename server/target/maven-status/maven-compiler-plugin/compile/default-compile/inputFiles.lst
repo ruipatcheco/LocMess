@@ -27,3 +27,4 @@
 /home/trosado/Repositories/LocMess/server/src/main/java/pt/ulisboa/tecnico/cmu/tg14/Implementation/LocationImpl.java
 /home/trosado/Repositories/LocMess/server/src/main/java/pt/ulisboa/tecnico/cmu/tg14/dao/LocationDao.java
 /home/trosado/Repositories/LocMess/server/src/main/java/pt/ulisboa/tecnico/cmu/tg14/Controller/LocationController.java
+/home/trosado/Repositories/LocMess/server/src/main/java/pt/ulisboa/tecnico/cmu/tg14/PasswordHasher.java
