@@ -45,6 +45,9 @@ import static android.R.attr.id;
 
 /**
  * A login screen that offers login via email/password.
+ * TODO
+ *  - Lançar error quando não se tem internet
+ *
  */
 public class RegisterActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
 
@@ -77,7 +80,7 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
         // Set up the login form.
-        mUsernameView = (AutoCompleteTextView) findViewById(R.id.email);
+        mUsernameView = (AutoCompleteTextView) findViewById(R.id.username);
         populateAutoComplete();
 
         mPasswordView = (EditText) findViewById(R.id.password);
@@ -185,7 +188,7 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
             focusView = mUsernameView;
             cancel = true;
         } else if (!isUsernameValid(username)) {
-            mUsernameView.setError(getString(R.string.error_invalid_email));
+            mUsernameView.setError(getString(R.string.error_invalid_username));
             focusView = mUsernameView;
             cancel = true;
         }
