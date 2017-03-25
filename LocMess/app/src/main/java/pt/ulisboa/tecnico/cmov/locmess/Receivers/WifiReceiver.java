@@ -11,7 +11,6 @@ import android.net.wifi.WifiManager;
 
 public class WifiReceiver extends BroadcastReceiver {
 
-    WifiManager
 
     @Override
     public void onReceive(Context context, Intent intent) {
