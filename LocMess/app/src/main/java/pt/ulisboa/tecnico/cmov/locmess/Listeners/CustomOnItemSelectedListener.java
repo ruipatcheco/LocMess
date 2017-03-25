@@ -1,5 +1,9 @@
 package pt.ulisboa.tecnico.cmov.locmess.Listeners;
 
+import android.app.Activity;
+import android.app.admin.SystemUpdatePolicy;
+import android.content.Context;
+import android.provider.Settings;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Toast;
@@ -11,14 +15,30 @@ import pt.ulisboa.tecnico.cmov.locmess.R;
  */
 
 public class CustomOnItemSelectedListener implements AdapterView.OnItemSelectedListener {
+    Context mContext;
+    OnLocationTypeListener mActivity;
+
+    public CustomOnItemSelectedListener(Context context){
+        mContext = context.getApplicationContext();
+        mActivity = (OnLocationTypeListener) context;
+    }
+
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        String str = "";
 
-        String[] items = parent.getResources().getStringArray(R.array.location_types_list);
+        final String option = parent.getItemAtPosition(position).toString();
 
-        Toast.makeText(parent.getContext(),
-                "OnItemSelectedListener : " + parent.getItemAtPosition(position).toString(),
-                Toast.LENGTH_SHORT).show();
+
+        if(option.equals(mContext.getString(R.string.location_type_GPS)))
+            mActivity.onGPSSelected();
+        else if(option.equals(mContext.getString(R.string.location_type_WIFI)))
+            mActivity.onWifiSelected();
+        else if(option.equals(mContext.getString(R.string.location_type_BLE)))
+            mActivity.onBleSelected();
+
+
+
     }
 
     @Override

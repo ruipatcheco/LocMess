@@ -21,21 +21,46 @@
         android:id="@+id/location_name_text"
         android:hint="@string/location_name" />
 
+    <TextView
+        android:text="TextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/location_submit_button"
+        android:layout_alignLeft="@+id/location_radius_text"
+        android:layout_alignStart="@+id/location_radius_text"
+        android:layout_marginTop="37dp"
+        android:id="@+id/location_type_info"
+        android:layout_alignRight="@+id/location_radius_text"
+        android:layout_alignEnd="@+id/location_radius_text" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:ems="10"
+        android:layout_marginTop="65dp"
+        android:id="@+id/location_radius_text"
+        android:hint="@string/location_radius"
+        android:layout_below="@+id/location_name_text"
+        android:layout_alignLeft="@+id/location_name_text"
+        android:layout_alignStart="@+id/location_name_text" />
+
     <Spinner
         android:layout_width="match_parent"
         android:id="@+id/location_type"
         android:layout_height="wrap_content"
+        android:layout_marginTop="21dp"
         android:layout_below="@+id/location_name_text"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="28dp" />
+        android:layout_alignLeft="@+id/location_radius_text"
+        android:layout_alignStart="@+id/location_radius_text"
+        android:layout_alignRight="@+id/location_radius_text"
+        android:layout_alignEnd="@+id/location_radius_text" />
 
     <Button
         android:text="@string/location_submit_button_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/location_type"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="47dp"
-        android:id="@+id/location_submit_button" />
+        android:id="@+id/location_submit_button"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true" />
 </RelativeLayout>

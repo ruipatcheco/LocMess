@@ -25,8 +25,9 @@ import static pt.ulisboa.tecnico.cmov.locmess.R.id.textView;
 
 public class GPSService extends Service {
 
-    public final static String GPS = "GPS";
+    public final static String GPS = "pt.ulisboa.tecnico.cmov.locmess.Services.GPS";
 
+    public final static int UPDATE_TIME = 1000;
 
     private LocationListener listener;
     private LocationManager locationManager;
@@ -40,14 +41,10 @@ public class GPSService extends Service {
     @Override
     public void onCreate() {
 
-        System.out.println("THis is a test");
 
         listener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-                System.out.println("Location change");
-                Toast.makeText(getApplicationContext(),"GPS: "+location.getLatitude(),Toast.LENGTH_LONG);
-                System.out.println("GPS Lat:"+location.getLatitude()+" Lon:"+location.getLongitude());
                 Intent i = new Intent(GPS);
                 i.putExtra("Lon",location.getLongitude());
                 i.putExtra("Lat",location.getLatitude());
@@ -78,7 +75,7 @@ public class GPSService extends Service {
         locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 
         //noinspection MissingPermission
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,100,0,listener);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,UPDATE_TIME,0,listener);
 
     }
 

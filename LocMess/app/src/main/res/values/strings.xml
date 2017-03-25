@@ -28,10 +28,11 @@
     <string name="action_settings">Settings</string>
     <string name="location_name">Name</string>
     <string name="location_submit_button_text">Submit</string>
+    <string name="location_radius">Location Radius (meters)</string>
 
-    <string-array name="location_types_list">
-        <item>GPS</item>
-        <item>Wifi hotspot</item>
-        <item>Bluetooth Beacon</item>
-    </string-array>
+
+    <string name="location_type_GPS">GPS</string>
+    <string name="location_type_WIFI">Wifi hotspot</string>
+    <string name="location_type_BLE">Bluetooth Beacon</string>
+
 </resources>
