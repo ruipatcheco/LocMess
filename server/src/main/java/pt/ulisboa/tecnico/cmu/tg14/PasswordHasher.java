@@ -69,7 +69,6 @@ public class PasswordHasher {
             ByteArrayOutputStream out =  new ByteArrayOutputStream();
             out.write(salt);
             out.write(hashed);
-            System.out.print("hhhhh:  "+new String(Base64.getEncoder().encode(out.toByteArray())).length());
             return new String(Base64.getEncoder().encode(out.toByteArray()));
 
         } catch (IOException e) {
@@ -89,13 +88,10 @@ public class PasswordHasher {
      */
     public static boolean isExpectedPassword(char[] password, String storedHash) {
         byte[] stored = Base64.getDecoder().decode(storedHash);
-        byte[] salt = new byte[SALTBYTES];
-        ByteBuffer bb = ByteBuffer.wrap(stored);
-        bb.get(salt,0,SALTBYTES);
-        byte[] hashedPass = new byte[stored.length-SALTBYTES];
-        bb.get(hashedPass,SALTBYTES,stored.length);
+        byte[] salt = Arrays.copyOfRange(stored,0,SALTBYTES);
+        byte[] hashedPass = Arrays.copyOfRange(stored,SALTBYTES,stored.length);
+
         byte[] pwdHash = hash(password, salt);
-        Arrays.fill(password, Character.MIN_VALUE);
         if (pwdHash.length != hashedPass.length) return false;
         for (int i = 0; i < pwdHash.length; i++) {
             if (pwdHash[i] != hashedPass[i]) return false;

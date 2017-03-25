@@ -324,7 +324,7 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
 
                 RequestQueue queue = Volley.newRequestQueue(getBaseContext());
                 //FIXME meter urls num ficheiro de config
-                String url = "http://194.210.220.147:8080/user/create?username="+mUsername+"&password="+mPassword;
+                String url = "http://194.210.220.190:8080/user/create?username="+mUsername+"&password="+mPassword;
 
                 // Request a string response from the provided URL.
                 StringRequest stringRequest = new StringRequest(Request.Method.GET, url,

@@ -42,4 +42,11 @@ public class UserController {
         userImpl.update(username,password);
     }
 
+    @RequestMapping("/checkPassword")
+    public boolean checkPassword(@RequestParam(value="username") String username, @RequestParam(value="password") String password){
+        User u = userImpl.getUser(username);
+        return PasswordHasher.isExpectedPassword(password.toCharArray(),u.getPassword());
+    }
+
+
     }
