@@ -40,3 +40,5 @@ server/.idea/workspace.xml
 # Keystore files
 *.jks
 LocMesServer/.idea
+GPSexample/.idea/
+server/.idea/
