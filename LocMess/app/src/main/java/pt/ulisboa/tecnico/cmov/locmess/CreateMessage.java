@@ -14,6 +14,8 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import java.sql.Timestamp;
+
 public class CreateMessage extends AppCompatActivity {
     Calendar c = Calendar.getInstance();
     int sday = -1, smonth = -1, syear = -1;
@@ -152,6 +154,32 @@ public class CreateMessage extends AppCompatActivity {
             display2.setText("Choosen time is:" + ehour + ":" + eminute);
         }
     };
+
+
+    private void sendMessage(){
+
+        Timestamp startDate = Timestamp.valueOf(String.format("%04d-%02d-%02d %02d:%02d:00",
+                syear, smonth, sday, shour, sminute));
+        Long startDateLong = startDate.getTime();
+
+        Timestamp endDate = Timestamp.valueOf(String.format("%04d-%02d-%02d %02d:%02d:00",
+                eyear, emonth, eday, ehour, eminute));
+        Long endDateLong = endDate.getTime();
+
+        Calendar c = Calendar.getInstance();
+
+        Timestamp creationDate = Timestamp.valueOf(String.format("%04d-%02d-%02d %02d:%02d:00",
+                c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH), c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE));
+        Long creationDateLong = creationDate.getTime();
+
+        //TODO obtain publisher name
+        String publisher = "Quim DA SIRENE!!!!";
+
+        //TODO obtain location name
+        String location = "BAR DA SIRENE!!!";
+
+        String createMessageURL = "http://194.210.220.190:8080/message/create?startTime="+startDateLong+"&endTime="+endDateLong+"&creationTime="+creationDateLong+"&content="+messageContent.getText().toString()+"&publisher="+publisher+"&location="+location;
+    }
 }
 
 
