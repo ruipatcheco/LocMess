@@ -16,3 +16,7 @@ CMU Project
      
  - LocMess[OLD] folder
     exemplo de como fazer requests ao servidor com json
+
+# To See
+ - Wi-Fi P2P
+   - https://developer.android.com/guide/topics/connectivity/wifip2p.html
