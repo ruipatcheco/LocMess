@@ -169,7 +169,7 @@ public class CreateMessage extends AppCompatActivity {
         Calendar c = Calendar.getInstance();
 
         Timestamp creationDate = Timestamp.valueOf(String.format("%04d-%02d-%02d %02d:%02d:00",
-                c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH), c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE));
+                c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH), c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE)));
         Long creationDateLong = creationDate.getTime();
 
         //TODO obtain publisher name
