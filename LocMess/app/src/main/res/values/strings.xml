@@ -34,5 +34,18 @@
     <string name="location_type_GPS">GPS</string>
     <string name="location_type_WIFI">Wifi hotspot</string>
     <string name="location_type_BLE">Bluetooth Beacon</string>
+    <string name="title_activity_home_page">HomePageActivity</string>
+    <string name="title_activity_create_message">CreateMessage</string>
+
+
+    <!-- Strings related to create message -->
+    <string name="message_input">write your message here</string>
+    <string name="start_date_input">pick Start Date</string>
+    <string name="start_time_input">pick Start Time</string>
+    <string name="end_date_input">pick End Date</string>
+    <string name="end_time_input">pick End Time</string>
+
+    <string name="submit_input">Submit!</string>
+
 
 </resources>
