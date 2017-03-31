@@ -2,6 +2,7 @@ package pt.ulisboa.tecnico.cmov.locmess;
 
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.content.Context;
 import android.content.Intent;
@@ -36,7 +37,9 @@ import pt.ulisboa.tecnico.cmov.locmess.DataObjects.Location;
 import pt.ulisboa.tecnico.cmov.locmess.Listeners.CustomOnItemSelectedListener;
 import pt.ulisboa.tecnico.cmov.locmess.Listeners.OnLocationReceivedListener;
 import pt.ulisboa.tecnico.cmov.locmess.Listeners.OnLocationTypeListener;
+import pt.ulisboa.tecnico.cmov.locmess.Receivers.BluetoothReceiver;
 import pt.ulisboa.tecnico.cmov.locmess.Receivers.GPSReceiver;
+import pt.ulisboa.tecnico.cmov.locmess.Services.BluetoothService;
 import pt.ulisboa.tecnico.cmov.locmess.Services.GPSService;
 
 public class AddLocationActivity extends AppCompatActivity implements OnLocationReceivedListener,OnLocationTypeListener {
@@ -66,6 +69,12 @@ public class AddLocationActivity extends AppCompatActivity implements OnLocation
         gpsIntentFilter.addAction(GPSService.GPS);
         registerReceiver(GPSReceiver, gpsIntentFilter);
 
+        BluetoothReceiver BTReceiver = new BluetoothReceiver(this);
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BluetoothDevice.ACTION_FOUND);
+        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
+        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+        registerReceiver(BTReceiver,filter);
 
         location = new Location();
 
@@ -100,6 +109,14 @@ public class AddLocationActivity extends AppCompatActivity implements OnLocation
     }
 
 
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopServices();
+    }
+
+
     private void startServices(){
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
@@ -110,7 +127,7 @@ public class AddLocationActivity extends AppCompatActivity implements OnLocation
         }else{
             System.out.print("Started Services");
             startService(new Intent(getApplicationContext(),GPSService.class));
-
+            startService(new Intent(getApplicationContext(), BluetoothService.class));
             wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
             wifiManager.setWifiEnabled(true);
         }
@@ -119,7 +136,6 @@ public class AddLocationActivity extends AppCompatActivity implements OnLocation
     private void stopServices(){
         stopService(new Intent(getApplicationContext(),GPSService.class));
     }
-
 
     @Override
     public void onGPSReceived(double lat, double lon) {
@@ -138,6 +154,7 @@ public class AddLocationActivity extends AppCompatActivity implements OnLocation
     @Override
     public void onBleReceived(String ble) {
         mLocationInfo.setText("BLE: "+ble);
+        System.out.println("Bluetooth: "+ble);
     }
 
 
@@ -156,7 +173,8 @@ public class AddLocationActivity extends AppCompatActivity implements OnLocation
 
         List<ScanResult> results = wifiManager.getScanResults();
         for(ScanResult result: results)
-            locationResults.add(result.SSID);
+            if(!locationResults.contains(result.SSID))
+                locationResults.add(result.SSID);
 
         ArrayAdapter<String> adapter1 = new ArrayAdapter<String>(this,R.layout.support_simple_spinner_dropdown_item,locationResults);
         adapter1.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
@@ -234,7 +252,6 @@ public class AddLocationActivity extends AppCompatActivity implements OnLocation
             System.out.println("Radius: "+mRadius);
 
 /*
-
             RequestQueue queue = Volley.newRequestQueue(getBaseContext());
             //FIXME meter urls num ficheiro de config
             String url = "http://194.210.220.190:8080/user/create?username="+mUsername+"&password="+mPassword;
