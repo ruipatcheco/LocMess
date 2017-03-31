@@ -13,6 +13,7 @@ import android.os.IBinder;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.util.Log;
 import android.widget.Toast;
 
 import pt.ulisboa.tecnico.cmov.locmess.AddLocationActivity;
@@ -40,6 +41,7 @@ public class GPSService extends Service {
 
     @Override
     public void onCreate() {
+        Log.d("GPSService","GPS Started");
 
 
         listener = new LocationListener() {
