@@ -47,6 +47,7 @@ public class BluetoothService extends Service {
                 Log.d("BluetoothReceiver","Bluetooth still running");
                 if(mBTAdapter == null){
                     //FIXME Bluetooth not supported
+                    return;
                 }
 
                 if(!mBTAdapter.isEnabled()){
