@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -20,8 +21,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
 
+
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener,LocationFragment.OnFragmentInteractionListener {
+        implements NavigationView.OnNavigationItemSelectedListener,ListMessages.OnFragmentInteractionListener,LocationFragment.OnFragmentInteractionListener {
 
     private ListView mDrawerList;
 
@@ -53,6 +55,12 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        FragmentManager fm = getFragmentManager();
+        FragmentTransaction fragmentTransaction = fm.beginTransaction();
+        fragmentTransaction.replace(R.id.fragment_place, new ListMessages());
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+
     }
 
     @Override
@@ -92,20 +100,29 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
+        FragmentManager fm = getFragmentManager();
 
         if (id == R.id.nav_messages) {
             // Handle the camera action
+            FragmentTransaction fragmentTransaction = fm.beginTransaction();
+            fragmentTransaction.replace(R.id.fragment_place, new ListMessages());
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();
+            Log.d("Menu","msg");
+
         } else if (id == R.id.nav_my_messages) {
-            FragmentManager fm = getFragmentManager();
+            Log.d("Menu","Mymsg");
+        } else if (id == R.id.nav_location) {
             FragmentTransaction fragmentTransaction = fm.beginTransaction();
             fragmentTransaction.replace(R.id.fragment_place, new LocationFragment());
+            fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
-
-        } else if (id == R.id.nav_location) {
-
+            Log.d("Menu","location");
         } else if (id == R.id.nav_profile) {
+            Log.d("Menu","profile");
 
         } else if (id == R.id.nav_log_out) {
+            Log.d("Menu","Log");
 
         }
 
