@@ -37,4 +37,10 @@
     <string name="profile_value_text">Value</string>
     <string name="button_finish">Finish</string>
     <string name="add_text">Add</string>
+
+
+    <!-- Strings related to add location -->
+    <string name="add_location_name_text">Your location name</string>
+    <string name="add_location_text">Add</string>
+
 </resources>
