@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Switch;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,32 +46,37 @@ public class MessagePolicyActivity extends AppCompatActivity {
         final ArrayAdapter<String> adapterWhite = new ArrayAdapter<String>(activity,android.R.layout.simple_dropdown_item_1line,whiteList);
         final ArrayAdapter<String> adapterBlack = new ArrayAdapter<String>(activity,android.R.layout.simple_dropdown_item_1line,blackList);
 
-
         mBlack.setAdapter(adapterBlack);
         mWhite.setAdapter(adapterWhite);
-
 
         mAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d("TAG","Click");
 
-                String key = mKey.getText().toString();
-                String value = mValue.getText().toString();
+                if (!isValidInput(mKey.getText().toString(), mValue.getText().toString())) {
+                    Toast.makeText(activity, "Invalid Key Value Pair", Toast.LENGTH_LONG).show();
+                    return;
+                }
+                String message = mKey.getText().toString() + " -> " + mValue.getText().toString();
 
                 if(mSwitch.isChecked()){
-                    blackList.add(key+"="+value);
+                    blackList.add(message);
                     adapterBlack.notifyDataSetChanged();
                 }else {
-                    whiteList.add(key+"="+value);
+                    whiteList.add(message);
                     adapterWhite.notifyDataSetChanged();
                 }
 
-                Log.d("TAG",key+"="+value);
+                Log.d("TAG", message);
+
+                mKey.setText("");
+                mValue.setText("");
             }
         });
+    }
 
-
-
+    private boolean isValidInput(String key, String value) {
+        return key.length() > 0 && value.length() > 0;
     }
 }

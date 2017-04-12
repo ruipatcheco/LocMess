@@ -31,7 +31,8 @@
         </activity>
         <activity android:name=".AddMessage" />
         <activity android:name=".MessageLocationActivity" />
-        <activity android:name=".MessagePolicyActivity"></activity>
+        <activity android:name=".MessagePolicyActivity"
+                  android:windowSoftInputMode="adjustNothing" />
     </application>
 
 </manifest>
