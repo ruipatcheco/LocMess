@@ -29,7 +29,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".AddMessage"></activity>
+        <activity android:name=".AddMessage" />
+        <activity android:name=".MessageLocationActivity" />
+        <activity android:name=".MessagePolicyActivity"></activity>
     </application>
 
 </manifest>

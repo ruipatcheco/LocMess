@@ -29,4 +29,12 @@
     <string name="add_message_start_time_text">Start Time</string>
     <string name="add_message_end_time_text">End Time</string>
     <string name="optional_text">Optional</string>
+    <string name="key_text">Key</string>
+    <string name="button_next">Next</string>
+    <string name="white_list_text">White List</string>
+    <string name="black_list_text">Black List</string>
+    <string name="profile_key_text">Key</string>
+    <string name="profile_value_text" >Value</string>
+    <string name="button_finish">Finish</string>
+    <string name="add_text">Add</string>
 </resources>
