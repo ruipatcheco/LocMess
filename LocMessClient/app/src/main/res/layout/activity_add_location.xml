@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+tools:context="pt.ulisboa.tecnico.cmu.tg14.locmessclient.AddLocationActivity">
+
+<EditText
+    android:id="@+id/add_location_name"
+    android:layout_width="0dp"
+    android:layout_height="40dp"
+    android:layout_marginLeft="11dp"
+    android:layout_marginTop="365dp"
+    android:ems="10"
+    android:hint="@string/add_location_name_text"
+    android:inputType="textPersonName"
+    app:layout_constraintLeft_toLeftOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
+    tools:layout_constraintLeft_creator="1" />
+
+<RadioGroup
+    android:id="@+id/add_location_radio"
+    android:layout_width="342dp"
+    android:layout_height="91dp"
+    android:layout_marginLeft="8dp"
+    android:layout_marginRight="8dp"
+    app:layout_constraintLeft_toLeftOf="parent"
+    app:layout_constraintRight_toRightOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
+    tools:layout_constraintLeft_creator="1"
+    tools:layout_constraintRight_creator="1"
+    tools:layout_constraintTop_creator="1" />
+
+    <ListView
+    android:id="@+id/possible_locations_list"
+    android:layout_width="363dp"
+    android:layout_height="179dp"
+    tools:layout_constraintTop_creator="1"
+    tools:layout_constraintBottom_creator="1"
+    app:layout_constraintBottom_toBottomOf="parent"
+    tools:layout_constraintLeft_creator="1"
+    app:layout_constraintLeft_toLeftOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
+    android:layout_marginLeft="11dp" />
+
+<Button
+    android:id="@+id/add_location"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="@string/add_location_text"
+    tools:layout_constraintRight_creator="1"
+    tools:layout_constraintBottom_creator="1"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintRight_toRightOf="parent"
+    android:layout_marginBottom="16dp"
+    android:layout_marginRight="27dp" />
+</android.support.constraint.ConstraintLayout>

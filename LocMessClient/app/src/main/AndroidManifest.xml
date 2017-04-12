@@ -31,8 +31,10 @@
         </activity>
         <activity android:name=".AddMessage" />
         <activity android:name=".MessageLocationActivity" />
-        <activity android:name=".MessagePolicyActivity"
-                  android:windowSoftInputMode="adjustNothing" />
+        <activity
+            android:name=".MessagePolicyActivity"
+            android:windowSoftInputMode="adjustNothing" />
+        <activity android:name=".AddLocationActivity"></activity>
     </application>
 
 </manifest>
