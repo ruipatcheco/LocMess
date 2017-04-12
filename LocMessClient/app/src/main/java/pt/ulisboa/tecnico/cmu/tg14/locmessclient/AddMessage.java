@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
@@ -31,13 +32,14 @@ public class AddMessage extends AppCompatActivity {
     private EditText mEndTime;
     private Calendar mCalendar;
     private Button mNext;
+    private Activity activity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_message);
         setTitle(R.string.title_activity_add_message);
-        final Activity activity = this;
+        activity = this;
 
         mCalendar = Calendar.getInstance();
 
@@ -78,13 +80,26 @@ public class AddMessage extends AppCompatActivity {
         mNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v){
-                Intent intent = new Intent(activity,MessageLocationActivity.class);
+                if (!isValidInput()) {
+                    return;
+                }
+                Intent i = new Intent(activity,MessageLocationActivity.class);
+                i.putExtra("mMessageContent",mMessageContent.getText());
+                i.putExtra("mStartTime",mStartTime.getText());
+                i.putExtra("mEndTime",mEndTime.getText());
+
                 //TODO add message arguments to activity or save to disk
-                startActivity(intent);
+                startActivity(i);
             }
         });
+    }
 
-
-
+    private boolean isValidInput() {
+        if (mMessageContent.length() <= 0) {
+            Toast.makeText(activity, "You need to write a message", Toast.LENGTH_LONG).show();
+        } else if (mStartTime.length() <= 0) {
+            Toast.makeText(activity, "You need to set the Start Time", Toast.LENGTH_LONG).show();
+        }
+        return mMessageContent.length() > 0 && mStartTime.length() > 0;
     }
 }

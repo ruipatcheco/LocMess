@@ -1,6 +1,7 @@
 package pt.ulisboa.tecnico.cmu.tg14.locmessclient;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,6 +18,14 @@ import java.util.List;
 
 public class MessagePolicyActivity extends AppCompatActivity {
 
+    // === PREV ACTIVITY ===
+    private String mMessageContent;
+    private String mStartTime;
+    private String mEndTime;
+    private String mType;
+    private String mID;
+    // ======================
+
     private EditText mKey;
     private EditText mValue;
     private Switch mSwitch;
@@ -24,13 +33,16 @@ public class MessagePolicyActivity extends AppCompatActivity {
     private ListView mWhite;
     private ListView mBlack;
     private Button mFinish;
+    Activity activity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_message_policy);
 
-        final Activity activity = this;
+        getExtrasIntent(getIntent());
+
+        activity = this;
 
         mKey = (EditText) findViewById(R.id.message_profile_key);
         mValue = (EditText) findViewById(R.id.message_profile_value);
@@ -54,8 +66,7 @@ public class MessagePolicyActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Log.d("TAG","Click");
 
-                if (!isValidInput(mKey.getText().toString(), mValue.getText().toString())) {
-                    Toast.makeText(activity, "Invalid Key Value Pair", Toast.LENGTH_LONG).show();
+                if (!isValidInput()) {
                     return;
                 }
                 String message = mKey.getText().toString() + " -> " + mValue.getText().toString();
@@ -74,9 +85,30 @@ public class MessagePolicyActivity extends AppCompatActivity {
                 mValue.setText("");
             }
         });
+
+        mFinish.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(activity, MainActivity.class);
+                //TODO send message
+                startActivity(intent);
+            }
+        });
     }
 
-    private boolean isValidInput(String key, String value) {
-        return key.length() > 0 && value.length() > 0;
+    private boolean isValidInput() {
+        boolean b = mKey.getText().toString().length() > 0 && mValue.getText().toString().length() > 0;
+        if (!b) {
+            Toast.makeText(activity, "Invalid Key Value Pair", Toast.LENGTH_LONG).show();
+        }
+        return b;
+    }
+
+    private void getExtrasIntent(Intent i) {
+        mMessageContent = i.getExtras().getString("mMessageContent");
+        mStartTime = i.getExtras().getString("mStartTime");
+        mEndTime = i.getExtras().getString("mEndTime");
+        mType = i.getExtras().getString("mType");
+        mID = i.getExtras().getString("mID");
     }
 }
