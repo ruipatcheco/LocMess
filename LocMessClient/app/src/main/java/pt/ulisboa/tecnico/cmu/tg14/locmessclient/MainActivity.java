@@ -118,6 +118,10 @@ public class MainActivity extends AppCompatActivity
             fragmentTransaction.commit();
             Log.d("Menu","location");
         } else if (id == R.id.nav_profile) {
+            FragmentTransaction fragmentTransaction = fm.beginTransaction();
+            fragmentTransaction.replace(R.id.fragment_place, new Profile());
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();
             Log.d("Menu","profile");
 
         } else if (id == R.id.nav_log_out) {
