@@ -1,14 +1,12 @@
 package pt.ulisboa.tecnico.cmu.tg14.locmessclient;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -23,7 +21,7 @@ import android.widget.ListView;
 
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener,ListMessages.OnFragmentInteractionListener,LocationFragment.OnFragmentInteractionListener {
+        implements NavigationView.OnNavigationItemSelectedListener,ListMessages.OnFragmentInteractionListener,ListLocations.OnFragmentInteractionListener {
 
     private ListView mDrawerList;
 
@@ -114,7 +112,7 @@ public class MainActivity extends AppCompatActivity
             Log.d("Menu","Mymsg");
         } else if (id == R.id.nav_location) {
             FragmentTransaction fragmentTransaction = fm.beginTransaction();
-            fragmentTransaction.replace(R.id.fragment_place, new LocationFragment());
+            fragmentTransaction.replace(R.id.fragment_place, new ListLocations());
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
             Log.d("Menu","location");

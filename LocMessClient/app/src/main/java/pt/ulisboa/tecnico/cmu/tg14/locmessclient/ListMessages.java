@@ -76,10 +76,10 @@ public class ListMessages extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_list_messages, container, false);
         List<String> list = new ArrayList<>();
-        list.add("This");
-        list.add("Thas");
-        list.add("Thbs");
-        list.add("Thds");
+        list.add("Mess1");
+        list.add("Mess2");
+        list.add("Mess3");
+        list.add("Mess4");
 
         ListView listView = (ListView) view.findViewById(R.id.list_messages_list);
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1,list);
