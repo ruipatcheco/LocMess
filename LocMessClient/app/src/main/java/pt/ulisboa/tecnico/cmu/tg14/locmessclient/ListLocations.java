@@ -70,7 +70,7 @@ public class ListLocations extends Fragment {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getActivity(),LoginActivity.class); //FIXME Change to activity of Location add
+                Intent intent = new Intent(getActivity(),AddLocationActivity.class);
                 startActivity(intent);
             }});
     }
