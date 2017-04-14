@@ -24,6 +24,7 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,ListMessages.OnFragmentInteractionListener,ListLocations.OnFragmentInteractionListener {
 
     private ListView mDrawerList;
+    private FloatingActionButton mFab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,8 +37,8 @@ public class MainActivity extends AppCompatActivity
         mDrawerList = (ListView) findViewById(R.id.nav_options);
         //mDrawerList.setItemChecked(0,true);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        mFab = (FloatingActionButton) findViewById(R.id.fab);
+        mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(activity,AddMessage.class);
@@ -131,6 +132,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onFragmentInteraction(Uri uri) {
-
+        Log.d("URI",uri.toString());
     }
 }
