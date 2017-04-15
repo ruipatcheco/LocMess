@@ -39,6 +39,8 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
     private Spinner mLocationList;
     private Button mNext;
     private EditText mLocationName;
+    private EditText mLocationRadius;
+
     List<String> mLocationsGPS;
     List<String> mLocationsWIFI;
     List<String> mLocationsBLE;
@@ -66,6 +68,10 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
         mLocationList = (Spinner) findViewById(R.id.add_location_spinner);
         mNext = (Button) findViewById(R.id.add_location_button);
         mLocationName = (EditText) findViewById(R.id.add_location_name);
+        mLocationRadius = (EditText) findViewById(R.id.add_location_radius);
+
+        //Set visibility for radius
+        mLocationRadius.setVisibility(View.INVISIBLE);
 
         mLocationsGPS = new ArrayList<>();
         mLocationsWIFI = new ArrayList<>();
@@ -145,17 +151,23 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
                     // GPS
                     mLocationList.setAdapter(mAdapterGPS);
                     mType = "GPS";
+                    mLocationList.setVisibility(View.INVISIBLE);
+                    mLocationRadius.setVisibility(View.VISIBLE);
                     break;
                 case 1:
                     // WIFI
                     mLocationList.setAdapter(mAdapterWIFI);
                     mType = "WIFI";
+                    mLocationList.setVisibility(View.VISIBLE);
+                    mLocationRadius.setVisibility(View.INVISIBLE);
                     break;
                 case 2:
                     // BTL
                     ArrayAdapter<String> mAdapterBLE = new ArrayAdapter<String>(activity, android.R.layout.simple_dropdown_item_1line, mLocationsBLE);
                     mLocationList.setAdapter(mAdapterBLE);
                     mType = "BTL";
+                    mLocationList.setVisibility(View.VISIBLE);
+                    mLocationRadius.setVisibility(View.INVISIBLE);
                     break;
             }
         }

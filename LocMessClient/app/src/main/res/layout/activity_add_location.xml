@@ -67,4 +67,20 @@ tools:context="pt.ulisboa.tecnico.cmu.tg14.locmessclient.AddLocationActivity"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginLeft="13dp"
         android:layout_marginRight="13dp" />
+
+    <EditText
+        android:id="@+id/add_location_radius"
+        android:layout_width="0dp"
+        android:layout_height="62dp"
+        android:ems="10"
+        android:hint="@string/add_location_radius_text"
+        android:inputType="number"
+        tools:layout_constraintTop_creator="1"
+        tools:layout_constraintRight_creator="1"
+        app:layout_constraintRight_toRightOf="parent"
+        tools:layout_constraintLeft_creator="1"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/add_location_spinner"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="12dp" />
 </android.support.constraint.ConstraintLayout>
