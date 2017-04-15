@@ -56,6 +56,10 @@ public class MyMessagesFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        getActivity().setTitle(R.string.fragment_my_messages_title);
+
+
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
@@ -67,6 +71,7 @@ public class MyMessagesFragment extends Fragment {
                 Intent intent = new Intent(getActivity(),AddMessage.class); //FIXME Change to activity of Location add
                 startActivity(intent);
             }});
+
     }
 
     @Override

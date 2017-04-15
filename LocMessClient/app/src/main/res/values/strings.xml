@@ -43,4 +43,12 @@
     <string name="add_location_name_text">Your location name</string>
     <string name="add_location_text">Add</string>
 
+    <!-- Strings related to fragments -->
+    <string name="fragment_my_messages_title">Your Messages</string>
+    <string name="fragment_list_messages_title">Messages Near You</string>
+    <string name="fragment_profile_title">Your Profile Key Pairs</string>
+    <string name="fragment_list_locations_title">Locations Near You</string>
+
+
+
 </resources>
