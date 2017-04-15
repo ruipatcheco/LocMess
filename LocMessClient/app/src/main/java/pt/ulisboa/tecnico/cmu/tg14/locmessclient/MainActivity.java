@@ -21,7 +21,9 @@ import android.widget.ListView;
 
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener,ListMessages.OnFragmentInteractionListener,ListLocations.OnFragmentInteractionListener {
+        implements NavigationView.OnNavigationItemSelectedListener,ListMessages.OnFragmentInteractionListener,
+        MyMessagesFragment.OnFragmentInteractionListener,ListLocations.OnFragmentInteractionListener,
+        ProfileFragment.OnFragmentInteractionListener {
 
     private ListView mDrawerList;
     private FloatingActionButton mFab;
@@ -124,7 +126,7 @@ public class MainActivity extends AppCompatActivity
             Log.d("Menu","location");
         } else if (id == R.id.nav_profile) {
             FragmentTransaction fragmentTransaction = fm.beginTransaction();
-            fragmentTransaction.replace(R.id.fragment_place, new Profile());
+            fragmentTransaction.replace(R.id.fragment_place, new ProfileFragment());
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
             Log.d("Menu","profile");
