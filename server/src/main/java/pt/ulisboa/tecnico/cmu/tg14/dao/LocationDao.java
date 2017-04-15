@@ -4,6 +4,7 @@ import pt.ulisboa.tecnico.cmu.tg14.Model.Coordinates;
 import pt.ulisboa.tecnico.cmu.tg14.Model.Location;
 
 import javax.sql.DataSource;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -17,5 +18,6 @@ public interface LocationDao {
     Location getLocationBySSID(String ssid);
     Location getLocationByBle(String ble);
     Location getLocationByCoord(float lat,float lon);
+    List<Location> getLocationList();
     void delete(String name);
 }

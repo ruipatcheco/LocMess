@@ -8,6 +8,8 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import static android.support.v4.app.ActivityCompat.startActivityForResult;
+
 /**
  * Created by tiago on 30/03/2017.
  */
@@ -41,8 +43,9 @@ public class BluetoothService extends Service {
                 }
 
                 if(!mBTAdapter.isEnabled()){
-                    Intent enableBT = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                    startActivity(enableBT);
+                    Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                    enableBtIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(enableBtIntent);
                 }
 
                 if(mBTAdapter.isDiscovering())
@@ -52,11 +55,11 @@ public class BluetoothService extends Service {
 
 
 
-                handler.postDelayed(runnable, 20000);
+                handler.postDelayed(runnable, 60000);
             }
         };
 
-        handler.postDelayed(runnable, 20000);
+        handler.postDelayed(runnable, 2000);
 
     }
 }

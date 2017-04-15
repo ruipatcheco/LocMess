@@ -9,6 +9,7 @@ import pt.ulisboa.tecnico.cmu.tg14.Implementation.CoordinatesImpl;
 import pt.ulisboa.tecnico.cmu.tg14.Implementation.LocationImpl;
 import pt.ulisboa.tecnico.cmu.tg14.Model.Location;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -26,14 +27,24 @@ public class LocationController {
 
 
     @RequestMapping("/create")
-    public String createLocation(@RequestParam(value="name") String name,@RequestParam(value="ssid",required = false) String ssid,@RequestParam(value="ble",required = false) String ble,@RequestParam(value="lat",required = false) float lat,@RequestParam(value="lon",required = false) float lon,@RequestParam(value="radius",required = false) int radius){
-        CoordinatesImpl coord = (CoordinatesImpl) context.getBean("coordinatesImpl");
-        UUID cid = coord.create(lat,lon,radius);
+    public String createLocation(@RequestParam(value="name") String name,@RequestParam(value="ssid",required = false) String ssid,@RequestParam(value="ble",required = false) String ble,@RequestParam(value="lat",required = false) Float lat,@RequestParam(value="lon",required = false) Float lon,@RequestParam(value="radius",required = false) Integer radius){
+        UUID cid = null;
+        if(lat!=null&&lon!=null&&radius!=null){
+            CoordinatesImpl coord = (CoordinatesImpl) context.getBean("coordinatesImpl");
+            cid = coord.create(lat,lon,radius);
+        }
         locationImpl.create(name,ssid,ble,cid);
+
         return name;
     }
 
     @RequestMapping("/listByCoord")
     public Location getLocation(@RequestParam(value="lat") float lat,@RequestParam(value="lon") float lon){
         return locationImpl.getLocationByCoord(lat,lon);
-    }}
+    }
+
+    @RequestMapping("/list") //FIXME to remove
+    public List<Location> getLocationList(){
+        return locationImpl.getLocationList();
+    }
+}

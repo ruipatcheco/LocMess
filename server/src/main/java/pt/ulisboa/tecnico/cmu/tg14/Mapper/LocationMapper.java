@@ -16,7 +16,9 @@ public class LocationMapper implements RowMapper<Location>{
         Location location = new Location();
         location.setSsid(resultSet.getString("SSID"));
         location.setBle(resultSet.getString("BLE"));
-        location.setCoordinates(UUID.fromString(resultSet.getString("COORDID")));
+        String uuid = resultSet.getString("COORDID");
+        if(uuid != null)
+            location.setCoordinates(UUID.fromString(uuid));
         location.setName(resultSet.getString("NAME"));
         return location;
     }
