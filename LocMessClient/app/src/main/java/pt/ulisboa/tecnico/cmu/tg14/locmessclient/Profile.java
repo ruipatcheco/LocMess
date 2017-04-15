@@ -76,7 +76,7 @@ public class Profile extends Fragment {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getActivity(),AddLocationActivity.class); //FIXME change to profile specific add
+                Intent intent = new Intent(getActivity(),AddProfileKey.class);
                 startActivity(intent);
             }});
 

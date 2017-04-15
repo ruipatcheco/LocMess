@@ -34,7 +34,8 @@
         <activity
             android:name=".MessagePolicyActivity"
             android:windowSoftInputMode="adjustNothing" />
-        <activity android:name=".AddLocationActivity"></activity>
+        <activity android:name=".AddLocationActivity" />
+        <activity android:name=".AddProfileKey"></activity>
     </application>
 
 </manifest>
