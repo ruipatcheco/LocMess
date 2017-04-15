@@ -9,6 +9,12 @@ import android.support.design.widget.FloatingActionButton;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -59,7 +65,6 @@ public class MyMessagesFragment extends Fragment {
 
         getActivity().setTitle(R.string.fragment_my_messages_title);
 
-
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
@@ -68,7 +73,7 @@ public class MyMessagesFragment extends Fragment {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getActivity(),AddMessage.class); //FIXME Change to activity of Location add
+                Intent intent = new Intent(getActivity(),AddMessage.class);
                 startActivity(intent);
             }});
 
@@ -77,8 +82,24 @@ public class MyMessagesFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        getActivity().setTitle(R.string.fragment_my_messages_title);
+
+
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_my_messages, container, false);
+        View view = inflater.inflate(R.layout.fragment_my_messages, container, false);
+        List<String> list = new ArrayList<>();
+        list.add("MyMess1");
+        list.add("MyMess2");
+        list.add("MyMess3");
+        list.add("MyMess4");
+
+        ListView listView = (ListView) view.findViewById(R.id.list_my_messages_list);
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1,list);
+
+        listView.setAdapter(arrayAdapter);
+
+        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event

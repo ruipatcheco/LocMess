@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,7 +76,7 @@ public class ListMessages extends Fragment {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getActivity(),AddMessage.class); //FIXME Change to activity of Location add
+                Intent intent = new Intent(getActivity(),AddMessage.class);
                 startActivity(intent);
             }});
 
@@ -85,6 +86,9 @@ public class ListMessages extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+
+        getActivity().setTitle(R.string.fragment_list_messages_title);
+
         View view = inflater.inflate(R.layout.fragment_list_messages, container, false);
         List<String> list = new ArrayList<>();
         list.add("Mess1");

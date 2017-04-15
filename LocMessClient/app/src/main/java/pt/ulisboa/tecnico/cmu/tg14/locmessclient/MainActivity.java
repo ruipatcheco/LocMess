@@ -110,7 +110,12 @@ public class MainActivity extends AppCompatActivity
             Log.d("Menu","msg");
 
         } else if (id == R.id.nav_my_messages) {
+            FragmentTransaction fragmentTransaction = fm.beginTransaction();
+            fragmentTransaction.replace(R.id.fragment_place, new MyMessagesFragment());
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();
             Log.d("Menu","Mymsg");
+
         } else if (id == R.id.nav_location) {
             FragmentTransaction fragmentTransaction = fm.beginTransaction();
             fragmentTransaction.replace(R.id.fragment_place, new ListLocations());
