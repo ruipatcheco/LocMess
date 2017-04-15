@@ -8,5 +8,6 @@ public interface OnLocationReceivedListener {
      void onGPSReceived(double lat, double lon);
      void onWifiReceived(String ssid);
      void onBleReceived(String ble);
-     void cleanBluetoothList();
+     void clearBluetoothList();
+     void clearGPSList();
 }

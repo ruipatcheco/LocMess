@@ -202,20 +202,32 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
         Log.d(TAG, "onGPSReceived: gps");
         mLocation.setLatitude(lat);
         mLocation.setLongitude(lon);
-        mLocationsGPS.add("Lat: "+lat);
-        mLocationsGPS.add("Lon: "+lon);
+        mLocationsGPS.add("Lat: "+lat +" Lon: "+ lon);
+        mAdapterGPS.notifyDataSetChanged();
         //mLocationInfo.setText("Lat: "+lat+"\nLon: "+lon);
     }
 
     @Override
+    public void clearGPSList() {
+        mLocationsGPS.clear();
+    }
+
+    @Override
     public void onWifiReceived(String ssid) {
-        /*if(!locationResults.contains(ssid)){
-            locationResults.add(ssid);
-            mLocationResultsAdapter.notifyDataSetChanged();
-        }*/
+        if(!mLocationsWIFI.contains(ssid)){
+            mLocationsWIFI.add(ssid);
+            mAdapterWIFI.notifyDataSetChanged();
+        }
         Log.d("AddLocationActivity","Wifi: "+ssid);
 
     }
+
+    /*
+    @Override
+    public void clearWifiList() {
+        mLocationsWIFI.clear();
+    }
+    */
 
     @Override
     public void onBleReceived(String ble) {
@@ -229,8 +241,8 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
     }
 
     @Override
-    public void cleanBluetoothList() {
-        //bluetoothResults.clear();
+    public void clearBluetoothList() {
+        mLocationsBLE.clear();
     }
 
 }

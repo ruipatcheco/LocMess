@@ -22,8 +22,10 @@ public class GPSReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
+        //mActivity.clearGPSList(); FIXME clear the list somehow
         double latitude = intent.getDoubleExtra("Lat",0);
         double longitude = intent.getDoubleExtra("Lon",0);
         mActivity.onGPSReceived(latitude,longitude);
+
     }
 }

@@ -34,7 +34,7 @@ public class BluetoothReceiver extends BroadcastReceiver {
             Log.d(TAG, "onReceive: addr:"+device.getAddress());
             mActivity.onBleReceived(device.getAddress());
         }else if(BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)){
-            mActivity.cleanBluetoothList();
+            mActivity.clearBluetoothList();
         }
     }
 }
