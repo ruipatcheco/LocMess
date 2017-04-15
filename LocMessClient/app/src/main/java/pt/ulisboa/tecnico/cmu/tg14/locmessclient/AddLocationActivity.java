@@ -44,6 +44,8 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
     private Spinner mLocationList;
     private Button mNext;
     private EditText mLocationName;
+    private EditText mLocationRadius;
+
     List<String> mLocationsGPS;
     List<String> mLocationsWIFI;
     List<String> mLocationsBLE;
@@ -71,6 +73,10 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
         mLocationList = (Spinner) findViewById(R.id.add_location_spinner);
         mNext = (Button) findViewById(R.id.add_location_button);
         mLocationName = (EditText) findViewById(R.id.add_location_name);
+        mLocationRadius = (EditText) findViewById(R.id.add_location_radius);
+
+        //Set visibility for radius
+        mLocationRadius.setVisibility(View.INVISIBLE);
 
         mLocationsGPS = new ArrayList<>();
         mLocationsWIFI = new ArrayList<>();
@@ -137,17 +143,18 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
                 if (!isValidInput()) {
                     return;
                 }
-                Intent i = new Intent(activity, MainActivity.class);
+
                 //TODO add message arguments to activity or save to disk
 
                 mID = mLocationList.getSelectedItem().toString();
 
                 mLocation.setName(mLocationName.getText().toString());
-                //FIXME                 mLocation.setBle();
+
                 ServerActions serverActions = new ServerActions(getApplicationContext());
                 serverActions.createLocation(mLocation);
-                startActivity(i);
-                //finish();
+
+                finish();
+
             }
         });
     }
@@ -178,18 +185,31 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
                 case 0:
                     // GPS
                     mLocationList.setAdapter(mAdapterGPS);
-                    mType = GPS; //FIXME Change to static variable
+
+                    mType = GPS;
+
+                    mLocationList.setVisibility(View.INVISIBLE);
+                    mLocationRadius.setVisibility(View.VISIBLE);
+
                     break;
                 case 1:
                     // WIFI
                     mLocationList.setAdapter(mAdapterWIFI);
+
                     mType = WIFI;
+
+                    mLocationList.setVisibility(View.VISIBLE);
+                    mLocationRadius.setVisibility(View.INVISIBLE);
+
                     break;
                 case 2:
                     // BTL
                     ArrayAdapter<String> mAdapterBLE = new ArrayAdapter<String>(activity, android.R.layout.simple_dropdown_item_1line, mLocationsBLE);
                     mLocationList.setAdapter(mAdapterBLE);
                     mType = BLE;
+                    mLocationList.setVisibility(View.VISIBLE);
+                    mLocationRadius.setVisibility(View.INVISIBLE);
+
                     break;
             }
         }
@@ -239,19 +259,32 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
         }
         mLocationsGPS.add("Lat: "+lat);
         mLocationsGPS.add("Lon: "+lon);
+
         //mLocationInfo.setText("Lat: "+lat+"\nLon: "+lon);
         mAdapterGPS.notifyDataSetChanged();
     }
 
     @Override
+    public void clearGPSList() {
+        mLocationsGPS.clear();
+    }
+
+    @Override
     public void onWifiReceived(String ssid) {
-        /*if(!locationResults.contains(ssid)){
-            locationResults.add(ssid);
-            mLocationResultsAdapter.notifyDataSetChanged();
-        }*/
+        if(!mLocationsWIFI.contains(ssid)){
+            mLocationsWIFI.add(ssid);
+            mAdapterWIFI.notifyDataSetChanged();
+        }
         Log.d("AddLocationActivity","Wifi: "+ssid);
 
     }
+
+    /*
+    @Override
+    public void clearWifiList() {
+        mLocationsWIFI.clear();
+    }
+    */
 
     @Override
     public void onBleReceived(String ble) {
@@ -265,7 +298,8 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
     }
 
     @Override
-    public void cleanBluetoothList() {
+    public void clearBluetoothList() {
+
         mLocationsBLE.clear();
     }
 

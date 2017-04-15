@@ -89,9 +89,7 @@ public class MessagePolicyActivity extends AppCompatActivity {
         mFinish.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(activity, MainActivity.class);
-                //TODO send message
-                startActivity(intent);
+                finish();
             }
         });
     }
