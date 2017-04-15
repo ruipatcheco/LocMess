@@ -106,14 +106,12 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
                 if (!isValidInput()) {
                     return;
                 }
-                //Intent i = new Intent(activity, MainActivity.class);
                 //TODO add message arguments to activity or save to disk
 
                 mID = mLocationList.getSelectedItem().toString();
 
                 mLocation.setName(mLocationName.getText().toString());
                 //FIXME                 mLocation.setBle();
-               // startActivity(i);
                 finish();
             }
         });

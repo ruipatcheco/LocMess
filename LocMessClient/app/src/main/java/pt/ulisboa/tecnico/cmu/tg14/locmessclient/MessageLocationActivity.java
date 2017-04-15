@@ -94,6 +94,7 @@ public class MessageLocationActivity extends AppCompatActivity implements Compou
                 i.putExtra("mID", mID);
 
                 startActivity(i);
+                finish();
             }
         });
 

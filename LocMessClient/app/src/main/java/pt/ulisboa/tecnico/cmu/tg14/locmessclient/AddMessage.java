@@ -90,6 +90,7 @@ public class AddMessage extends AppCompatActivity {
 
                 //TODO add message arguments to activity or save to disk
                 startActivity(i);
+                finish();
             }
         });
     }
