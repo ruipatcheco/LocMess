@@ -10,8 +10,11 @@ import pt.ulisboa.tecnico.cmu.tg14.Model.User;
 import pt.ulisboa.tecnico.cmu.tg14.dao.LocationDao;
 
 import javax.sql.DataSource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 /**
  * Created by trosado on 20/03/17.
@@ -49,10 +52,30 @@ public class LocationImpl implements LocationDao {
     }
 
     @Override
+    public List<Location> getLocationBySSID(List<String> ssids){
+        System.out.print("<<<<<<<<<<<<<<<<<<<<"+ssids);
+        if(ssids != null)
+            return ssids.stream().map(this::getLocationBySSID).collect(Collectors.toList());
+        else
+            return new ArrayList<>();
+    }
+
+
+    @Override
     public Location getLocationByBle(String ble) {
         String SQL = "Select * from Location where ble=?";
-        Location loc = jdbcTemplateObject.queryForObject(SQL,new Object[]{ble},new LocationMapper());
-        return loc;
+        List<Location> loc = jdbcTemplateObject.query(SQL,new Object[]{ble},new LocationMapper());
+        if(loc.isEmpty())
+            return null;
+        else
+            return loc.get(0);
+    }
+    @Override
+    public List<Location> getLocationByBle(List<String> bles) {
+        if(bles != null)
+            return bles.stream().map(this::getLocationByBle).collect(Collectors.toList());
+        else
+            return new ArrayList<>();
     }
 
     @Override

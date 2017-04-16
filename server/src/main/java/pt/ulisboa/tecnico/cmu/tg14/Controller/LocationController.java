@@ -2,13 +2,13 @@ package pt.ulisboa.tecnico.cmu.tg14.Controller;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import pt.ulisboa.tecnico.cmu.tg14.DTO.LocationQuery;
 import pt.ulisboa.tecnico.cmu.tg14.Implementation.CoordinatesImpl;
 import pt.ulisboa.tecnico.cmu.tg14.Implementation.LocationImpl;
 import pt.ulisboa.tecnico.cmu.tg14.Model.Location;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -39,12 +39,32 @@ public class LocationController {
     }
 
     @RequestMapping("/listByCoord")
-    public Location getLocation(@RequestParam(value="lat") float lat,@RequestParam(value="lon") float lon){
+    public Location getLocation(@RequestParam(value="lat") Float lat,@RequestParam(value="lon") Float lon){
         return locationImpl.getLocationByCoord(lat,lon);
     }
 
+
+    @RequestMapping(value = "/nearByLocations", method = RequestMethod.POST)
+    public List<Location> getNearByLocations(@RequestBody LocationQuery queryString){
+
+        List<Location> locations = new ArrayList<>();
+
+        locations.addAll(locationImpl.getLocationByBle(queryString.getBleList()));
+        locations.addAll(locationImpl.getLocationBySSID(queryString.getSsidList()));
+        Float lat = queryString.getLatitude();
+        Float lon = queryString.getLongitude();
+        if(lat != 0 && lon!=0)
+            locations.add(locationImpl.getLocationByCoord(lat,lon));
+
+        return locations;
+    }
+
+
     @RequestMapping("/list") //FIXME to remove
     public List<Location> getLocationList(){
+
         return locationImpl.getLocationList();
     }
+
+
 }

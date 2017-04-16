@@ -16,7 +16,9 @@ public interface LocationDao {
 
     void create(String name, String ssid,String ble,UUID coord);
     Location getLocationBySSID(String ssid);
+    List<Location> getLocationBySSID(List<String> ssids);
     Location getLocationByBle(String ble);
+    List<Location> getLocationByBle(List<String> bles);
     Location getLocationByCoord(float lat,float lon);
     List<Location> getLocationList();
     void delete(String name);
