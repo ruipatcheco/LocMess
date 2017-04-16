@@ -7,7 +7,7 @@ package pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners;
 public interface OnLocationReceivedListener {
      void onGPSReceived(double lat, double lon);
      void onWifiReceived(String ssid);
-     void onBleReceived(String ble);
+     void onBleReceived(String name, String ble);
      void clearBluetoothList();
      void clearGPSList();
 }
