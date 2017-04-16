@@ -19,12 +19,19 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.LocationQuery;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServerActions;
+
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,ListMessages.OnFragmentInteractionListener,
         MyMessagesFragment.OnFragmentInteractionListener,ListLocations.OnFragmentInteractionListener,
         ProfileFragment.OnFragmentInteractionListener {
 
+    private static final String TAG = "Main Activity" ;
     private ListView mDrawerList;
     private FloatingActionButton mFab;
 
@@ -32,6 +39,8 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         final Activity activity = this;
@@ -43,6 +52,7 @@ public class MainActivity extends AppCompatActivity
         mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 Intent intent = new Intent(activity,AddMessage.class);
                 startActivity(intent);
             }
@@ -62,6 +72,16 @@ public class MainActivity extends AppCompatActivity
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
 
+     /*FIXME to remove
+
+       List<String> ble = new ArrayList<>();
+        ble.add("34:4D:F7:D7:DF:E7");
+
+        LocationQuery locationQuery = new LocationQuery(new Float(0),new Float(0),null,ble);
+        Log.d(TAG, "onCreate: "+locationQuery.toJSON());
+        ServerActions serverActions = new ServerActions(getApplicationContext());
+        serverActions.getNearLocations(locationQuery);
+        */
     }
 
     @Override
