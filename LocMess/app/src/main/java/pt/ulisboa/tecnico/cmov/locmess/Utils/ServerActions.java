@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils;
+package pt.ulisboa.tecnico.cmov.locmess.Utils;
 
 import android.content.Context;
 import android.util.Log;
@@ -10,15 +10,16 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
+import java.util.concurrent.Callable;
+import java.util.function.Function;
 
-import static android.content.ContentValues.TAG;
+import pt.ulisboa.tecnico.cmov.locmess.DataObjects.Location;
 
 /**
  * Created by trosado on 31/03/17.
  */
 public class ServerActions {
-    private final String addr = "192.168.1.112";
+    private final String addr = "194.210.222.57";
     private final String port = "8080";
     private RequestQueue queue;
 
@@ -61,17 +62,28 @@ public class ServerActions {
     }
 
     public void createLocation(Location location){
-        Log.d(TAG, "createLocation: SSID: " + location.getSsid());
-        String radius = location.getRadius()>0 ? "&radius="+location.getRadius() : "";
-        //FIXME add stuff the miners names with spaces
-        String url = "http://"+addr+":"+port+"/location/create?name="+location.getName()+"&ssid="+location.getSsid()+"&ble="
-                +location.getBle()+"&lat="+location.getLatitude()+"&lon="+location.getLongitude()+radius;
-        Log.d(TAG, "createLocation URL: " +  url);
 
+        String radius = location.getRadius()>0 ? "&radius="+location.getRadius() : "";
+        String url = "http://"+addr+":"+port+"/location/create?name="+location.getName()+"&ssid="+location.getSsid()+"&ble="
+                +location.getBle()+"&lat="+location.getLatitutde()+"&lon="+location.getLongitude()+radius;
+         makeRequest(url);
+    }
+
+    public void getLocationByCoord(float lat,float lon){
+        String url = getURL()+"/listByCoord?lat="+lat+"&lon="+lon;
         makeRequest(url);
     }
 
+    public void getLocationByWifi(String ssid){
 
+    }
+
+    public void getLocationByBle(String bladd){
+
+    }
+
+
+    private String getURL(){
+        return "http://"+addr+":"+port;
+    }
 }
-
-

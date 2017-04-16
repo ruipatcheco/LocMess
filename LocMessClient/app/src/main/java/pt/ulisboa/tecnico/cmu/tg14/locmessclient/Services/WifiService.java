@@ -20,10 +20,11 @@ import java.util.List;
 
 public class WifiService extends Service {
     public final static String WIFI = "pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.WIFI";
+    public final static String SERVICE_RESULT = "Result";
 
     private Handler handler = null;
     private static Runnable runnable = null;
-    private WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+    private WifiManager wifiManager;
 
     @Nullable
     @Override
@@ -35,6 +36,7 @@ public class WifiService extends Service {
     public void onCreate() {
 
         Log.d("WifiService","Wifi Started");
+        wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         wifiManager.setWifiEnabled(true);
 
         handler = new Handler();
@@ -45,7 +47,7 @@ public class WifiService extends Service {
 
                 List<ScanResult> results = wifiManager.getScanResults();
                 Intent i = new Intent(WIFI);
-                i.putParcelableArrayListExtra("Result",new ArrayList<ScanResult>(results));
+                i.putParcelableArrayListExtra(SERVICE_RESULT,new ArrayList<ScanResult>(results));
                 sendBroadcast(i);
 
                 handler.postDelayed(runnable, 60000);

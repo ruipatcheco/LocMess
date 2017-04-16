@@ -7,7 +7,6 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.net.wifi.WifiManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -44,6 +43,11 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
     private static final String GPS="GPS";
     private static final String WIFI="WIFI";
     private static final String BLE="BLE";
+
+    private WifiReceiver mWifiReceiver;
+    private BluetoothReceiver mBTReceiver;
+    private GPSReceiver mGPSReceiver;
+
     private RadioGroup mLocationRadio;
     private Spinner mLocationList;
     private Button mNext;
@@ -51,10 +55,12 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
     private EditText mLocationRadius;
 
     List<String> mLocationsGPS;
-    List<String> mLocationsWIFI;
 
     private HashMap<String, String> nameBLEMAP;
     private List<String> namesBLE;
+
+    private HashMap<String, String> nameWifiMap;
+    private List<String> namesWifi;
 
     Activity activity;
     private boolean someOptionChecked; // to check if user selected an item
@@ -88,11 +94,13 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
         nameBLEMAP = new HashMap<>();
         namesBLE = new ArrayList<>();
 
+        nameWifiMap = new HashMap<>();
+        namesWifi = new ArrayList<>();
+
         mLocationsGPS = new ArrayList<>();
-        mLocationsWIFI = new ArrayList<>();
 
         mAdapterGPS = new ArrayAdapter<String>(activity, android.R.layout.simple_dropdown_item_1line, mLocationsGPS);
-        mAdapterWIFI = new ArrayAdapter<String>(activity, android.R.layout.simple_dropdown_item_1line, mLocationsWIFI);
+        mAdapterWIFI = new ArrayAdapter<String>(activity, android.R.layout.simple_dropdown_item_1line, namesWifi);
         mAdapterBLE = new ArrayAdapter<String>(activity, android.R.layout.simple_dropdown_item_1line, namesBLE);
 
         List<String> options = new ArrayList<>();
@@ -115,29 +123,35 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
 
         namesBLE.add("BLE2");
         mLocationsGPS.add("GPS3");
-        mLocationsWIFI.add("WIFI14");
+        namesWifi.add("WIFI14");
         mLocationsGPS.add("GPS5");
 
-        //TODO Add network communication
+        //Setting default location type to GPS
+        mType=GPS;
+        mLocationRadio.check(0); // default position for GPS
 
 
 
         mLocationList.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String address = parent.getItemAtPosition(position).toString();
-
+                String name = parent.getItemAtPosition(position).toString();
+                //FIXME set first element of list if nothing is set
                 switch (mType){
                     case BLE:
-                        mLocation.setBle(nameBLEMAP.get(address));
+                        mLocation.setBle(nameBLEMAP.get(name));
+                        Log.d(TAG, "onItemSelected: BT Namae : "+name);
+                        Log.d(TAG, "onItemSelected: BT Selected : "+nameBLEMAP.get(name));
                         break;
                     case WIFI:
-                        mLocation.setSsid(address);
+                        Log.d(TAG, "onItemSelected: WIFI Namae : "+name);
+                        Log.d(TAG, "onItemSelected: WIFI Selected : "+nameWifiMap.get(name));
+                        mLocation.setSsid(nameWifiMap.get(name));
                         break;
 
                 }
 
-                Log.d(TAG, "onItemSelected: "+address);
+                Log.d(TAG, "onItemSelected: "+name);
             }
 
             @Override
@@ -156,7 +170,9 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
                 mID = mLocationList.getSelectedItem().toString();
 
                 mLocation.setName(mLocationName.getText().toString());
-                mLocation.setRadius(Integer.parseInt(mLocationRadius.getText().toString()));
+
+                if(!mLocationRadius.getText().toString().equals(""))
+                    mLocation.setRadius(Integer.parseInt(mLocationRadius.getText().toString()));
                 ServerActions serverActions = new ServerActions(getApplicationContext());
                 serverActions.createLocation(mLocation);
 
@@ -167,22 +183,22 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
     }
 
     private void initReceivers() {
-        GPSReceiver GPSReceiver = new GPSReceiver(this);
+        mGPSReceiver = new GPSReceiver(this);
         IntentFilter gpsIntentFilter = new IntentFilter();
         gpsIntentFilter.addAction(GPSService.GPS);
-        registerReceiver(GPSReceiver, gpsIntentFilter);
+        registerReceiver(mGPSReceiver, gpsIntentFilter);
 
-        BluetoothReceiver BTReceiver = new BluetoothReceiver(this);
+        mBTReceiver = new BluetoothReceiver(this);
         IntentFilter filter = new IntentFilter();
         filter.addAction(BluetoothDevice.ACTION_FOUND);
         filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
         filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
-        registerReceiver(BTReceiver,filter);
+        registerReceiver(mBTReceiver,filter);
 
-        WifiReceiver wifiReceiver = new WifiReceiver(this);
+        mWifiReceiver = new WifiReceiver(this);
         IntentFilter wifiIntentFilter = new IntentFilter();
         wifiIntentFilter.addAction(WifiService.WIFI);
-        registerReceiver(wifiReceiver, wifiIntentFilter);
+        registerReceiver(mWifiReceiver, wifiIntentFilter);
 
     }
 
@@ -216,7 +232,9 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
                 case 2:
                     // BTL
                     mLocationList.setAdapter(mAdapterBLE);
+
                     mType = BLE;
+
                     mLocationList.setVisibility(View.VISIBLE);
                     mLocationRadius.setVisibility(View.INVISIBLE);
 
@@ -283,21 +301,23 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
     }
 
     @Override
-    public void onWifiReceived(String ssid) {
-        if(!mLocationsWIFI.contains(ssid)){
-            mLocationsWIFI.add(ssid);
+    public void onWifiReceived(String name,String ssid) {
+        if(!nameWifiMap.containsKey(name)){
+            namesWifi.add(name);
+            nameWifiMap.put(name,ssid);
             mAdapterWIFI.notifyDataSetChanged();
         }
         Log.d("AddLocationActivity","Wifi: "+ssid);
 
     }
 
-/*
+
     @Override
     public void clearWifiList() {
-        mLocationsWIFI.clear();
+        nameWifiMap.clear();
+        namesWifi.clear();
     }
-*/
+
     @Override
     public void onBleReceived(String name, String ble) {
         Log.d(TAG, "onBleReceived: ble");
@@ -316,4 +336,12 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
         namesBLE.clear();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(mBTReceiver);
+        unregisterReceiver(mGPSReceiver);
+        unregisterReceiver(mWifiReceiver);
+
+    }
 }
