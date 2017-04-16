@@ -16,7 +16,7 @@ import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
  * Created by trosado on 31/03/17.
  */
 public class ServerActions {
-    private final String addr = "194.210.222.57";
+    private final String addr = "194.210.220.229";
     private final String port = "8080";
     private RequestQueue queue;
 
@@ -61,7 +61,7 @@ public class ServerActions {
     public void createLocation(Location location){
 
         String radius = location.getRadius()>0 ? "&radius="+location.getRadius() : "";
-
+        //FIXME add stuff the miners names with spaces
         String url = "http://"+addr+":"+port+"/location/create?name="+location.getName()+"&ssid="+location.getSsid()+"&ble="
                 +location.getBle()+"&lat="+location.getLatitude()+"&lon="+location.getLongitude()+radius;
         makeRequest(url);

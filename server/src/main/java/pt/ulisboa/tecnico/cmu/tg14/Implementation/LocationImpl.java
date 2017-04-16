@@ -31,8 +31,13 @@ public class LocationImpl implements LocationDao {
 
     @Override
     public void create(String name, String ssid, String ble, UUID coord) {
+        String crd = null;
+        if(coord != null){
+            crd=coord.toString();
+        }
         String SQL = "insert into Location (name, ssid, ble, coordid ) values (?, ?, ?,?)";
-        jdbcTemplateObject.update( SQL, name, ssid, ble, coord.toString());
+
+        jdbcTemplateObject.update( SQL, name, ssid, ble, crd);
         return;
     }
 
@@ -65,6 +70,13 @@ public class LocationImpl implements LocationDao {
         }
         return null;
     }
+
+    @Override
+    public List<Location> getLocationList() {
+
+        String CoordSQL = "SELECT * FROM Location ;";
+        return jdbcTemplateObject.query(CoordSQL,new LocationMapper());
+   }
 
 
     @Override

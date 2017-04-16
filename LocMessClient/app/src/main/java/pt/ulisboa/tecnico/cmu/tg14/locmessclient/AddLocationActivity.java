@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -31,11 +32,15 @@ import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Receivers.BluetoothReceiver;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Receivers.GPSReceiver;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.BluetoothService;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.GPSService;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServerActions;
 
 public class AddLocationActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener,OnLocationReceivedListener {
 
 
     private static final String TAG = "AddLocationActivity";
+    private static final String GPS="GPS";
+    private static final String WIFI="WIFI";
+    private static final String BLE="BLE";
     private RadioGroup mLocationRadio;
     private Spinner mLocationList;
     private Button mNext;
@@ -112,22 +117,52 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
 
         //TODO Add network communication
 
+
+
+        mLocationList.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String address = parent.getItemAtPosition(position).toString();
+
+                switch (mType){
+                    case BLE:
+                        mLocation.setBle(address);
+                        break;
+                    case WIFI:
+                        mLocation.setSsid(address);
+                        break;
+
+                }
+
+                Log.d(TAG, "onItemSelected: "+address);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
         mNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v){
                 if (!isValidInput()) {
                     return;
                 }
+
                 //TODO add message arguments to activity or save to disk
 
                 mID = mLocationList.getSelectedItem().toString();
 
                 mLocation.setName(mLocationName.getText().toString());
-                //FIXME                 mLocation.setBle();
+
+                ServerActions serverActions = new ServerActions(getApplicationContext());
+                serverActions.createLocation(mLocation);
+
                 finish();
+
             }
         });
-
     }
 
     private void initReceivers() {
@@ -156,23 +191,30 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
                 case 0:
                     // GPS
                     mLocationList.setAdapter(mAdapterGPS);
-                    mType = "GPS";
+
+                    mType = GPS;
+
                     mLocationList.setVisibility(View.INVISIBLE);
                     mLocationRadius.setVisibility(View.VISIBLE);
+
                     break;
                 case 1:
                     // WIFI
                     mLocationList.setAdapter(mAdapterWIFI);
-                    mType = "WIFI";
+
+                    mType = WIFI;
+
                     mLocationList.setVisibility(View.VISIBLE);
                     mLocationRadius.setVisibility(View.INVISIBLE);
+
                     break;
                 case 2:
                     // BTL
                     mLocationList.setAdapter(mAdapterBLE);
-                    mType = "BTL";
+                    mType = BLE;
                     mLocationList.setVisibility(View.VISIBLE);
                     mLocationRadius.setVisibility(View.INVISIBLE);
+
                     break;
             }
         }
@@ -216,11 +258,15 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
     @Override
     public void onGPSReceived(double lat, double lon) {
         Log.d(TAG, "onGPSReceived: gps");
-        mLocation.setLatitude(lat);
-        mLocation.setLongitude(lon);
-        mLocationsGPS.add("Lat: "+lat +" Lon: "+ lon);
-        mAdapterGPS.notifyDataSetChanged();
+        if(mType.equals(GPS)){
+            mLocation.setLatitude(lat);
+            mLocation.setLongitude(lon);
+        }
+        mLocationsGPS.add("Lat: "+lat);
+        mLocationsGPS.add("Lon: "+lon);
+
         //mLocationInfo.setText("Lat: "+lat+"\nLon: "+lon);
+        mAdapterGPS.notifyDataSetChanged();
     }
 
     @Override

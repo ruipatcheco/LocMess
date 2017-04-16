@@ -1,5 +1,9 @@
 package pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects;
 
+import android.util.Log;
+
+import static android.content.ContentValues.TAG;
+
 /**
  * Created by trosado on 15/04/17.
  */
@@ -35,6 +39,7 @@ public class Location {
     }
 
     public void setBle(String ble) {
+        Log.d(TAG, "setBle: was called");
         setDataNull(true);
         this.ble = ble;
     }
