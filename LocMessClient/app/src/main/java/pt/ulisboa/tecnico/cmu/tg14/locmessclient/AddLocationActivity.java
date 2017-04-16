@@ -7,6 +7,7 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.net.wifi.WifiManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -29,8 +30,10 @@ import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnLocationReceivedListener;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Receivers.BluetoothReceiver;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Receivers.GPSReceiver;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Receivers.WifiReceiver;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.BluetoothService;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.GPSService;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.WifiService;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServerActions;
 
 public class AddLocationActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener,OnLocationReceivedListener {
@@ -149,7 +152,7 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
                 mID = mLocationList.getSelectedItem().toString();
 
                 mLocation.setName(mLocationName.getText().toString());
-
+                mLocation.setRadius(Integer.parseInt(mLocationRadius.getText().toString()));
                 ServerActions serverActions = new ServerActions(getApplicationContext());
                 serverActions.createLocation(mLocation);
 
@@ -172,6 +175,10 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
         filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
         registerReceiver(BTReceiver,filter);
 
+        WifiReceiver wifiReceiver = new WifiReceiver(this);
+        IntentFilter wifiIntentFilter = new IntentFilter();
+        wifiIntentFilter.addAction(WifiService.WIFI);
+        registerReceiver(wifiReceiver, wifiIntentFilter);
 
     }
 
@@ -240,6 +247,8 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
 
         }else{
             Log.d("AddLocationActivity","Started Services");
+
+            startService(new Intent(getApplicationContext(),WifiService.class));
             startService(new Intent(getApplicationContext(), BluetoothService.class));
             startService(new Intent(getApplicationContext(),GPSService.class));
         }
@@ -247,6 +256,7 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
 
     private void stopServices(){
         stopService(new Intent(getApplicationContext(),GPSService.class));
+        stopService(new Intent(getApplicationContext(),WifiService.class));
         stopService(new Intent(getApplicationContext(),BluetoothService.class));
     }
 
@@ -279,13 +289,12 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
 
     }
 
-    /*
+/*
     @Override
     public void clearWifiList() {
         mLocationsWIFI.clear();
     }
-    */
-
+*/
     @Override
     public void onBleReceived(String ble) {
         Log.d(TAG, "onBleReceived: ble");
