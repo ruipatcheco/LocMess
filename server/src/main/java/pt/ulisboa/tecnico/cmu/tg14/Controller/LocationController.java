@@ -46,7 +46,7 @@ public class LocationController {
 
     @RequestMapping(value = "/nearByLocations", method = RequestMethod.POST)
     public List<Location> getNearByLocations(@RequestBody LocationQuery queryString){
-
+        s//FIXME Wrap List into a Single JSON Object like a response
         List<Location> locations = new ArrayList<>();
 
         locations.addAll(locationImpl.getLocationByBle(queryString.getBleList()));
