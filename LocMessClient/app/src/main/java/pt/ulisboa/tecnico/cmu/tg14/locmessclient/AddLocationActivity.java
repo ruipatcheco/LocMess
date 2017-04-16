@@ -24,6 +24,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
@@ -51,7 +52,10 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
 
     List<String> mLocationsGPS;
     List<String> mLocationsWIFI;
-    List<String> mLocationsBLE;
+
+    private HashMap<String, String> nameBLEMAP;
+    private List<String> namesBLE;
+
     Activity activity;
     private boolean someOptionChecked; // to check if user selected an item
     private String mType;
@@ -81,13 +85,15 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
         //Set visibility for radius
         mLocationRadius.setVisibility(View.INVISIBLE);
 
+        nameBLEMAP = new HashMap<>();
+        namesBLE = new ArrayList<>();
+
         mLocationsGPS = new ArrayList<>();
         mLocationsWIFI = new ArrayList<>();
-        mLocationsBLE = new ArrayList<>();
 
         mAdapterGPS = new ArrayAdapter<String>(activity, android.R.layout.simple_dropdown_item_1line, mLocationsGPS);
         mAdapterWIFI = new ArrayAdapter<String>(activity, android.R.layout.simple_dropdown_item_1line, mLocationsWIFI);
-        mAdapterBLE = new ArrayAdapter<String>(activity, android.R.layout.simple_dropdown_item_1line, mLocationsBLE);
+        mAdapterBLE = new ArrayAdapter<String>(activity, android.R.layout.simple_dropdown_item_1line, namesBLE);
 
         List<String> options = new ArrayList<>();
         options.add("GPS");
@@ -106,8 +112,8 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
 
 
 
-        mLocationsBLE.add("BLE1");
-        mLocationsBLE.add("BLE2");
+
+        namesBLE.add("BLE2");
         mLocationsGPS.add("GPS3");
         mLocationsWIFI.add("WIFI14");
         mLocationsGPS.add("GPS5");
@@ -123,7 +129,7 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
 
                 switch (mType){
                     case BLE:
-                        mLocation.setBle(address);
+                        mLocation.setBle(nameBLEMAP.get(address));
                         break;
                     case WIFI:
                         mLocation.setSsid(address);
@@ -146,8 +152,6 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
                 if (!isValidInput()) {
                     return;
                 }
-
-                //TODO add message arguments to activity or save to disk
 
                 mID = mLocationList.getSelectedItem().toString();
 
@@ -211,7 +215,6 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
                     break;
                 case 2:
                     // BTL
-                    ArrayAdapter<String> mAdapterBLE = new ArrayAdapter<String>(activity, android.R.layout.simple_dropdown_item_1line, mLocationsBLE);
                     mLocationList.setAdapter(mAdapterBLE);
                     mType = BLE;
                     mLocationList.setVisibility(View.VISIBLE);
@@ -296,10 +299,11 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
     }
 */
     @Override
-    public void onBleReceived(String ble) {
+    public void onBleReceived(String name, String ble) {
         Log.d(TAG, "onBleReceived: ble");
-        if(!mLocationsBLE.contains(ble)){
-            mLocationsBLE.add(ble);
+        if(!nameBLEMAP.containsKey(name)){
+            nameBLEMAP.put(name, ble);
+            namesBLE.add(name);
             mAdapterBLE.notifyDataSetChanged();
         }
 
@@ -308,8 +312,8 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
 
     @Override
     public void clearBluetoothList() {
-
-        mLocationsBLE.clear();
+        nameBLEMAP.clear();
+        namesBLE.clear();
     }
 
 }

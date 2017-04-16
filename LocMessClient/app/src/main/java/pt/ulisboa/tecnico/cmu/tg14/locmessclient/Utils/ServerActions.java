@@ -12,6 +12,8 @@ import com.android.volley.toolbox.Volley;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
 
+import static android.content.ContentValues.TAG;
+
 /**
  * Created by trosado on 31/03/17.
  */
@@ -64,6 +66,8 @@ public class ServerActions {
         //FIXME add stuff the miners names with spaces
         String url = "http://"+addr+":"+port+"/location/create?name="+location.getName()+"&ssid="+location.getSsid()+"&ble="
                 +location.getBle()+"&lat="+location.getLatitude()+"&lon="+location.getLongitude()+radius;
+        Log.d(TAG, "createLocation URL: " +  url);
+
         makeRequest(url);
     }
 
