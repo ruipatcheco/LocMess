@@ -126,7 +126,7 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
 
                 switch (mType){
                     case BLE:
-                        mLocation.setBle(address);
+                        mLocation.setBle(nameBLEMAP.get(address));
                         break;
                     case WIFI:
                         mLocation.setSsid(address);
@@ -149,8 +149,6 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
                 if (!isValidInput()) {
                     return;
                 }
-
-                //TODO add message arguments to activity or save to disk
 
                 mID = mLocationList.getSelectedItem().toString();
 
