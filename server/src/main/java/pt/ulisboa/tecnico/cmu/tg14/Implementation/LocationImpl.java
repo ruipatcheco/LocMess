@@ -53,7 +53,6 @@ public class LocationImpl implements LocationDao {
 
     @Override
     public List<Location> getLocationBySSID(List<String> ssids){
-        System.out.print("<<<<<<<<<<<<<<<<<<<<"+ssids);
         if(ssids != null)
             return ssids.stream().map(this::getLocationBySSID).collect(Collectors.toList());
         else
