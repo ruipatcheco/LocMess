@@ -37,7 +37,8 @@ tools:context="pt.ulisboa.tecnico.cmu.tg14.locmessclient.AddLocationActivity"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginLeft="14dp"
-        android:layout_marginRight="14dp" />
+        android:layout_marginRight="14dp"
+        android:imeOptions="actionDone" />
 
     <Spinner
         android:id="@+id/add_location_spinner"
@@ -82,5 +83,7 @@ tools:context="pt.ulisboa.tecnico.cmu.tg14.locmessclient.AddLocationActivity"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="@+id/add_location_spinner"
         android:layout_marginLeft="12dp"
-        android:layout_marginRight="12dp" />
+        android:layout_marginRight="12dp"
+        android:imeOptions="actionDone" />
+
 </android.support.constraint.ConstraintLayout>

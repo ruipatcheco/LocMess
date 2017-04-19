@@ -13,7 +13,7 @@
 
     <RadioGroup
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="48dp"
         android:id="@+id/message_location_radio"
         tools:layout_constraintTop_creator="1"
         tools:layout_constraintRight_creator="1"

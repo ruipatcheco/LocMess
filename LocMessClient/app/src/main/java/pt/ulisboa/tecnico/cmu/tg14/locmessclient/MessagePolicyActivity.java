@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -66,9 +67,12 @@ public class MessagePolicyActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Log.d("TAG","Click");
 
+                hideKeyboard();
+
                 if (!isValidInput()) {
                     return;
                 }
+
                 String message = mKey.getText().toString() + " -> " + mValue.getText().toString();
 
                 if(mSwitch.isChecked()){
@@ -108,5 +112,14 @@ public class MessagePolicyActivity extends AppCompatActivity {
         mEndTime = i.getExtras().getString("mEndTime");
         mType = i.getExtras().getString("mType");
         mID = i.getExtras().getString("mID");
+    }
+
+    private void hideKeyboard() {
+        try  {
+            InputMethodManager imm = (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+        } catch (Exception e) {
+
+        }
     }
 }

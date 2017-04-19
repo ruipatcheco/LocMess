@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -80,6 +81,8 @@ public class AddMessage extends AppCompatActivity {
         mNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v){
+                hideKeyboard();
+
                 if (!isValidInput()) {
                     return;
                 }
@@ -102,5 +105,14 @@ public class AddMessage extends AppCompatActivity {
             Toast.makeText(activity, "You need to set the Start Time", Toast.LENGTH_LONG).show();
         }
         return mMessageContent.length() > 0 && mStartTime.length() > 0;
+    }
+
+    private void hideKeyboard() {
+        try  {
+            InputMethodManager imm = (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+        } catch (Exception e) {
+
+        }
     }
 }
