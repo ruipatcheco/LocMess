@@ -37,16 +37,16 @@ public class UserController {
         return userImpl.listUser();
     }
 
-    @RequestMapping("/updatePassword")
+   /* @RequestMapping("/updatePassword")
     public void updatePassword(@RequestParam(value="username") String username, @RequestParam(value="password") String password){
         userImpl.update(username,password);
     }
 
-    @RequestMapping("/checkPassword")
-    public boolean checkPassword(@RequestParam(value="username") String username, @RequestParam(value="password") String password){
+*/
+   /* public boolean checkPassword(@RequestParam(value="username") String username, @RequestParam(value="password") String password){
         User u = userImpl.getUser(username);
         return PasswordHasher.isExpectedPassword(password.toCharArray(),u.getPassword());
-    }
+    }*/
 
 
     }

@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.LocationQuery;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServerActions;
 
 
@@ -72,16 +73,20 @@ public class MainActivity extends AppCompatActivity
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
 
-     /*FIXME to remove
+
 
        List<String> ble = new ArrayList<>();
         ble.add("34:4D:F7:D7:DF:E7");
 
-        LocationQuery locationQuery = new LocationQuery(new Float(0),new Float(0),null,ble);
+        List<String> ssid = new ArrayList<>();
+        ssid.add("9c:97:26:10:59:22");
+
+        LocationQuery locationQuery = new LocationQuery(new Float(0),new Float(0),ssid,ble);
         Log.d(TAG, "onCreate: "+locationQuery.toJSON());
         ServerActions serverActions = new ServerActions(getApplicationContext());
-        serverActions.getNearLocations(locationQuery);
-        */
+        List<Location> resultl = serverActions.getNearLocations(locationQuery);
+        for(Location loc : resultl)
+            Log.d(TAG, "onCreate: "+loc.getName());
     }
 
     @Override

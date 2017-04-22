@@ -91,12 +91,12 @@ public class ServerActions {
             * */
 
         JSONArray a = new JSONArray();
-
-        JsonArrayRequest request = new JsonArrayRequest(Request.Method.POST,url, a, new Response.Listener<JSONArray>() {
+        JsonArrayFromJsonObjectRequest request = new JsonArrayFromJsonObjectRequest(Request.Method.POST,url,query.toJSON(),null, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
                 Log.d(TAG, "onResponse: "+response);
             }
+
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
