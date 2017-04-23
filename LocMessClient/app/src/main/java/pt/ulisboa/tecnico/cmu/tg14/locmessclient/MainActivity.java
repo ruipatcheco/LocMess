@@ -1,12 +1,18 @@
 package pt.ulisboa.tecnico.cmu.tg14.locmessclient;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -18,29 +24,45 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.LocationQuery;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnLocationReceivedListener;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Receivers.BluetoothReceiver;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Receivers.GPSReceiver;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Receivers.WifiReceiver;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.BluetoothService;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.GPSService;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.WifiService;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServerActions;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServiceManager;
 
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,ListMessages.OnFragmentInteractionListener,
         MyMessagesFragment.OnFragmentInteractionListener,ListLocations.OnFragmentInteractionListener,
-        ProfileFragment.OnFragmentInteractionListener {
+        ProfileFragment.OnFragmentInteractionListener,OnLocationReceivedListener {
 
     private static final String TAG = "Main Activity" ;
     private ListView mDrawerList;
     private FloatingActionButton mFab;
+
+
+
+    private ServiceManager serviceManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        serviceManager = new ServiceManager(this);
+
+        serviceManager.startServices(); //FIXME
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -74,14 +96,14 @@ public class MainActivity extends AppCompatActivity
         fragmentTransaction.commit();
 
 
-
+/*
        List<String> ble = new ArrayList<>();
         ble.add("34:4D:F7:D7:DF:E7");
-
+*/
         List<String> ssid = new ArrayList<>();
-        ssid.add("9c:97:26:10:59:22");
+        ssid.add("6c:99:89:b1:26:00");
 
-        LocationQuery locationQuery = new LocationQuery(new Float(0),new Float(0),ssid,ble);
+        LocationQuery locationQuery = new LocationQuery(new Float(38.737888),new Float(-9.303022),ssid,null);
         Log.d(TAG, "onCreate: "+locationQuery.toJSON());
         ServerActions serverActions = new ServerActions(getApplicationContext());
         List<Location> resultl = serverActions.getNearLocations(locationQuery);
@@ -169,5 +191,36 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onFragmentInteraction(Uri uri) {
         Log.d("URI",uri.toString());
+    }
+
+
+    @Override
+    public void onGPSReceived(double lat, double lon) {
+
+    }
+
+    @Override
+    public void onWifiReceived(String name, String ssid) {
+
+    }
+
+    @Override
+    public void onBleReceived(String name, String ble) {
+
+    }
+
+    @Override
+    public void clearGPSList() {
+
+    }
+
+    @Override
+    public void clearWifiList() {
+
+    }
+
+    @Override
+    public void clearBluetoothList() {
+
     }
 }

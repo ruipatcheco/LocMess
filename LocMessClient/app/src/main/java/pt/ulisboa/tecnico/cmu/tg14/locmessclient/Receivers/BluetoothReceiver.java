@@ -1,5 +1,6 @@
 package pt.ulisboa.tecnico.cmu.tg14.locmessclient.Receivers;
 
+import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
@@ -18,10 +19,10 @@ import static android.content.ContentValues.TAG;
 
 public class BluetoothReceiver extends BroadcastReceiver {
 
-    OnLocationReceivedListener mActivity;
+    OnLocationReceivedListener mService;
 
-    public BluetoothReceiver(Context context){
-        mActivity = (OnLocationReceivedListener) context;
+    public BluetoothReceiver(Service service){
+        mService = (OnLocationReceivedListener) service;
     }
 
 
@@ -32,9 +33,9 @@ public class BluetoothReceiver extends BroadcastReceiver {
         if(BluetoothDevice.ACTION_FOUND.equals(action)){
             BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
             Log.d(TAG, "onReceive: addr:"+device.getAddress());
-            mActivity.onBleReceived(device.getName() ,device.getAddress());
+            mService.onBleReceived(device.getName() ,device.getAddress());
         }else if(BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)){
-            mActivity.clearBluetoothList();
+            mService.clearBluetoothList();
         }
     }
 }

@@ -49,6 +49,9 @@ public class LocationQuery {
 
     }
 
+
+
+
     public Float getLatitude() {
         return latitude;
     }

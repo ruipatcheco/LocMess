@@ -12,6 +12,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
@@ -47,13 +48,14 @@ public class JsonArrayFromJsonObjectRequest extends Request<JSONArray> implement
             String json = new String(
                     response.data,
                     HttpHeaderParser.parseCharset(response.headers));
-            Log.d(TAG, "parseNetworkResponse: "+json);
             return Response.success(
-                    gson.fromJson(json, JSONArray.class),
+                    new JSONArray(json),
                     HttpHeaderParser.parseCacheHeaders(response));
         } catch (UnsupportedEncodingException e) {
             return Response.error(new ParseError(e));
         } catch (JsonSyntaxException e) {
+            return Response.error(new ParseError(e));
+        } catch (JSONException e) {
             return Response.error(new ParseError(e));
         }
 

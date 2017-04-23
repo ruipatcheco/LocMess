@@ -35,6 +35,7 @@ import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.BluetoothService;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.GPSService;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.WifiService;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServerActions;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServiceManager;
 
 public class AddLocationActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener,OnLocationReceivedListener {
 
@@ -44,15 +45,13 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
     private static final String WIFI="WIFI";
     private static final String BLE="BLE";
 
-    private WifiReceiver mWifiReceiver;
-    private BluetoothReceiver mBTReceiver;
-    private GPSReceiver mGPSReceiver;
 
     private RadioGroup mLocationRadio;
     private Spinner mLocationList;
     private Button mNext;
     private EditText mLocationName;
     private EditText mLocationRadius;
+
 
     List<String> mLocationsGPS;
 
@@ -71,13 +70,16 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
     private ArrayAdapter<String> mAdapterBLE;
     private Location mLocation;
 
+    private ServiceManager serviceManager;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_location);
 
-        startServices();
-        initReceivers();
+        serviceManager = new ServiceManager(this);
+        serviceManager.initReceivers();
 
         someOptionChecked = false;
         activity = this;
@@ -182,25 +184,7 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
         });
     }
 
-    private void initReceivers() {
-        mGPSReceiver = new GPSReceiver(this);
-        IntentFilter gpsIntentFilter = new IntentFilter();
-        gpsIntentFilter.addAction(GPSService.GPS);
-        registerReceiver(mGPSReceiver, gpsIntentFilter);
 
-        mBTReceiver = new BluetoothReceiver(this);
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(BluetoothDevice.ACTION_FOUND);
-        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
-        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
-        registerReceiver(mBTReceiver,filter);
-
-        mWifiReceiver = new WifiReceiver(this);
-        IntentFilter wifiIntentFilter = new IntentFilter();
-        wifiIntentFilter.addAction(WifiService.WIFI);
-        registerReceiver(mWifiReceiver, wifiIntentFilter);
-
-    }
 
     @Override
     public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -258,28 +242,6 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
         return true;
     }
 
-    private void startServices(){
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
-            Toast.makeText(getApplicationContext(),"No Permissions",Toast.LENGTH_LONG).show();
-            int code=0;
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},code);
-
-        }else{
-            Log.d("AddLocationActivity","Started Services");
-
-            startService(new Intent(getApplicationContext(),WifiService.class));
-            startService(new Intent(getApplicationContext(), BluetoothService.class));
-            startService(new Intent(getApplicationContext(),GPSService.class));
-        }
-    }
-
-    private void stopServices(){
-        stopService(new Intent(getApplicationContext(),GPSService.class));
-        stopService(new Intent(getApplicationContext(),WifiService.class));
-        stopService(new Intent(getApplicationContext(),BluetoothService.class));
-    }
 
     @Override
     public void onGPSReceived(double lat, double lon) {
@@ -339,9 +301,6 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(mBTReceiver);
-        unregisterReceiver(mGPSReceiver);
-        unregisterReceiver(mWifiReceiver);
-
+        serviceManager.unRegisterReceivers();
     }
 }

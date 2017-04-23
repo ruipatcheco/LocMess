@@ -11,6 +11,7 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -28,7 +29,7 @@ import static android.content.ContentValues.TAG;
  * Created by trosado on 31/03/17.
  */
 public class ServerActions {
-    private final static  String addr = "192.168.1.112";
+    private final static  String addr = "194.210.223.67";
     private final static String port = "8080";
     private final static String endpoint = "http://"+addr+":"+port;
     private static RequestQueue queue;
@@ -83,17 +84,26 @@ public class ServerActions {
     }
 
     public static List<Location> getNearLocations(LocationQuery query){
-        String url = endpoint+"/location/nearByLocations";
+        String url = endpoint+"/location/nearbyLocations";
 
-        List<Location> locations = new ArrayList<>();
+        final List<Location> locations = new ArrayList<>();
             /*TODO
             * - requestt receiveing a JsonObject and reading a JsonArray (Currently gives exception)
             * */
 
-        JSONArray a = new JSONArray();
         JsonArrayFromJsonObjectRequest request = new JsonArrayFromJsonObjectRequest(Request.Method.POST,url,query.toJSON(),null, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
+                for(int i = 0;i<response.length();i++){
+                    try {
+                        JSONObject obj = response.getJSONObject(i);
+                        Gson gson = new Gson();
+                        Location l = gson.fromJson(obj.toString(),Location.class);
+                        locations.add(l);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
                 Log.d(TAG, "onResponse: "+response);
             }
 

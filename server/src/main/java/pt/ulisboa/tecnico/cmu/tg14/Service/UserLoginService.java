@@ -20,7 +20,7 @@ import java.util.List;
 @Service
 @Transactional
 public class UserLoginService {
-    @Autowired
+   /* @Autowired
     private UserImpl userimpl;
 
     public UserDetails loadUserByUsername(String username) throws UserNotFoundException {
@@ -32,7 +32,7 @@ public class UserLoginService {
         roles.add("USER"); // Hardcoded given there is no more roles
         return new org.springframework.security.core.userdetails.User(user.getUsername(),user.getPassword(),true,true,true,true,getAuthorities(roles));
 
-    }
+    }*/
 
     private static List<GrantedAuthority> getAuthorities (List<String> roles) {
         List<GrantedAuthority> authorities = new ArrayList<>();

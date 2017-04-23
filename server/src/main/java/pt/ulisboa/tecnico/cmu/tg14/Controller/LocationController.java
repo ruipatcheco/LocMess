@@ -4,13 +4,16 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.web.bind.annotation.*;
 import pt.ulisboa.tecnico.cmu.tg14.DTO.LocationQuery;
+import pt.ulisboa.tecnico.cmu.tg14.DTO.LocationResult;
 import pt.ulisboa.tecnico.cmu.tg14.Implementation.CoordinatesImpl;
 import pt.ulisboa.tecnico.cmu.tg14.Implementation.LocationImpl;
+import pt.ulisboa.tecnico.cmu.tg14.Model.Coordinates;
 import pt.ulisboa.tecnico.cmu.tg14.Model.Location;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Created by trosado on 20/03/17.
@@ -24,7 +27,8 @@ public class LocationController {
 
     LocationImpl locationImpl =
             (LocationImpl) context.getBean("locationImpl");
-
+    CoordinatesImpl coordinatesImpl =
+            (CoordinatesImpl) context.getBean("coordinatesImpl");
 
     @RequestMapping("/create")
     public String createLocation(@RequestParam(value="name") String name,@RequestParam(value="ssid",required = false) String ssid,@RequestParam(value="ble",required = false) String ble,@RequestParam(value="lat",required = false) Float lat,@RequestParam(value="lon",required = false) Float lon,@RequestParam(value="radius",required = false) Integer radius){
@@ -44,8 +48,8 @@ public class LocationController {
     }
 
 
-    @RequestMapping(value = "/nearByLocations", method = RequestMethod.POST)
-    public List<Location> getNearByLocations(@RequestBody LocationQuery queryString){
+    @RequestMapping(value = "/nearbyLocations", method = RequestMethod.POST)
+    public List<LocationResult> getNearByLocations(@RequestBody LocationQuery queryString){
         //FIXME Wrap List into a Single JSON Object like a response
         List<Location> locations = new ArrayList<>();
 
@@ -53,17 +57,38 @@ public class LocationController {
         locations.addAll(locationImpl.getLocationBySSID(queryString.getSsidList()));
         Float lat = queryString.getLatitude();
         Float lon = queryString.getLongitude();
-        if(lat != 0 && lon!=0)
-            locations.add(locationImpl.getLocationByCoord(lat,lon));
+        if(lat != 0 && lon!=0){
+            Location loc  = locationImpl.getLocationByCoord(lat,lon);
+            if(loc != null)
+                locations.add(loc);
+        }
 
-        return locations;
+        List<LocationResult> result = locations.stream().map(this::convertToLocResult).collect(Collectors.toList());
+
+
+        return result;
+    }
+
+    private LocationResult convertToLocResult(Location location){
+
+        UUID coordID = location.getCoordinates();
+        Coordinates coord = null;
+        if(coordID != null){
+            coord = coordinatesImpl.getCoordinates(coordID);
+            return new LocationResult(location.getName(),location.getSsid()
+                    ,location.getBle(),coord.getLatitude()
+                    ,coord.getLongitude(),coord.getRadius());
+        }
+        return new LocationResult(location.getName(),location.getSsid()
+                ,location.getBle(),0
+                ,0,0);
     }
 
 
     @RequestMapping("/list") //FIXME to remove
-    public List<Location> getLocationList(){
-
-        return locationImpl.getLocationList();
+    public List<LocationResult> getLocationList(){
+        List<LocationResult> result  = locationImpl.getLocationList().stream().map(this::convertToLocResult).collect(Collectors.toList());
+        return result;
     }
 
 

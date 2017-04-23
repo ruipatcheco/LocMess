@@ -15,6 +15,8 @@ import android.widget.ListView;
 import java.util.ArrayList;
 import java.util.List;
 
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnLocationReceivedListener;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -24,7 +26,7 @@ import java.util.List;
  * Use the {@link ListLocations#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ListLocations extends Fragment {
+public class ListLocations extends Fragment implements OnLocationReceivedListener{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -119,6 +121,36 @@ public class ListLocations extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onGPSReceived(double lat, double lon) {
+
+    }
+
+    @Override
+    public void onWifiReceived(String name, String ssid) {
+
+    }
+
+    @Override
+    public void onBleReceived(String name, String ble) {
+
+    }
+
+    @Override
+    public void clearGPSList() {
+
+    }
+
+    @Override
+    public void clearWifiList() {
+
+    }
+
+    @Override
+    public void clearBluetoothList() {
+
     }
 
     /**
