@@ -7,6 +7,8 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.app.NotificationCompat;
@@ -101,15 +103,16 @@ public class AddProfileKey extends AppCompatActivity {
     }
 
     private void addNotification() {
+        Uri uri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder builder =
                 (NotificationCompat.Builder) new NotificationCompat.Builder(this)
                         .setSmallIcon(R.drawable.ic_add)
                         .setContentTitle("Notifications Example")
                         .setContentText("This is a test notification")
                         .setAutoCancel(true)
-                        .setVibrate(new long[] { 1000, 1000, 1000, 1000, 1000 })
+                        .setVibrate(new long[] { 1000, 1000 })
                         .setLights(Color.BLUE, 3000, 3000)
-                        .setDefaults(Notification.DEFAULT_SOUND);
+                        .setSound(uri);
 
         Intent notificationIntent = new Intent(this, AddMessage.class);
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent,
