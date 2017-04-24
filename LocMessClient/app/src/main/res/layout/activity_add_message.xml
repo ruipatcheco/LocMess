@@ -48,7 +48,6 @@
     <EditText
         android:layout_width="0dp"
         android:layout_height="45dp"
-        android:inputType="textPersonName"
         android:ems="10"
         android:id="@+id/add_message_end_time"
         android:hint="@string/optional_text"
@@ -62,7 +61,8 @@
         app:layout_constraintLeft_toRightOf="@+id/add_message_start_time"
         android:layout_marginLeft="24dp"
         android:layout_marginRight="10dp"
-        android:imeOptions="actionDone" />
+        android:imeOptions="actionDone"
+        android:inputType="none" />
 
     <TextView
         android:layout_width="wrap_content"

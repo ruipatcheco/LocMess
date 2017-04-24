@@ -1,8 +1,15 @@
 package pt.ulisboa.tecnico.cmu.tg14.locmessclient;
 
 import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -30,7 +37,7 @@ public class AddProfileKey extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_profile_key);
-        setTitle(R.string.title_activity_add_message);
+        setTitle(R.string.title_activity_add_key_pair);
         activity = this;
 
         mKey = (EditText) findViewById(R.id.add_profile_key);
@@ -62,6 +69,8 @@ public class AddProfileKey extends AppCompatActivity {
 
                 mKey.setText("");
                 mValue.setText("");
+
+                addNotification();
             }
         });
 
@@ -89,5 +98,26 @@ public class AddProfileKey extends AppCompatActivity {
         } catch (Exception e) {
 
         }
+    }
+
+    private void addNotification() {
+        NotificationCompat.Builder builder =
+                (NotificationCompat.Builder) new NotificationCompat.Builder(this)
+                        .setSmallIcon(R.drawable.ic_add)
+                        .setContentTitle("Notifications Example")
+                        .setContentText("This is a test notification")
+                        .setAutoCancel(true)
+                        .setVibrate(new long[] { 1000, 1000, 1000, 1000, 1000 })
+                        .setLights(Color.BLUE, 3000, 3000)
+                        .setDefaults(Notification.DEFAULT_SOUND);
+
+        Intent notificationIntent = new Intent(this, AddMessage.class);
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        builder.setContentIntent(contentIntent);
+
+        // Add as notification
+        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        manager.notify(0, builder.build());
     }
 }

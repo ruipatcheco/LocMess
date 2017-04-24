@@ -49,6 +49,7 @@
     <string name="fragment_list_messages_title">Messages Near You</string>
     <string name="fragment_profile_title">Your Profile Key Pairs</string>
     <string name="fragment_list_locations_title">Locations Near You</string>
+    <string name="title_activity_add_key_pair">Add Key Pair</string>
 
 
 </resources>
