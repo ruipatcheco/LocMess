@@ -5,7 +5,9 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.os.SystemClock;
 import android.support.design.widget.FloatingActionButton;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +17,13 @@ import android.widget.ListView;
 import java.util.ArrayList;
 import java.util.List;
 
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.LocationQuery;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.ServicesDataHolder;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnLocationReceivedListener;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServerActions;
+
+import static android.content.ContentValues.TAG;
 
 
 /**
@@ -26,7 +34,7 @@ import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnLocationReceivedLis
  * Use the {@link ListLocations#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ListLocations extends Fragment implements OnLocationReceivedListener{
+public class ListLocations extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -36,10 +44,13 @@ public class ListLocations extends Fragment implements OnLocationReceivedListene
     private String mParam1;
     private String mParam2;
 
+    private ServicesDataHolder mDataHolder;
+
     private OnFragmentInteractionListener mListener;
 
     public ListLocations() {
         // Required empty public constructor
+        mDataHolder = ServicesDataHolder.getInstance();
     }
 
     /**
@@ -85,17 +96,24 @@ public class ListLocations extends Fragment implements OnLocationReceivedListene
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_list_locations, container, false);
+        ServerActions serverActions = new ServerActions(getActivity());
+
+        LocationQuery query = new LocationQuery(mDataHolder.getLatitude(),mDataHolder.getLongitude(),mDataHolder.getSsidAddresses(),mDataHolder.getBleAddresses());
+        List<Location> locationList = serverActions.getNearLocations(query);
         List<String> list = new ArrayList<>();
-        list.add("Loc1");
-        list.add("Loc2");
-        list.add("Loc3");
-        list.add("Loc4");
+        for (Location location : locationList) {
+            list.add(location.getName());
+        }
+
 
         ListView listView = (ListView) view.findViewById(R.id.list_locations_list);
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1,list);
 
+        for(String name : list)
+            Log.d(TAG, "onCreateView: content : "+name);
         listView.setAdapter(arrayAdapter);
 
+        arrayAdapter.notifyDataSetChanged();
         return view;
     }
 
@@ -121,36 +139,6 @@ public class ListLocations extends Fragment implements OnLocationReceivedListene
     public void onDetach() {
         super.onDetach();
         mListener = null;
-    }
-
-    @Override
-    public void onGPSReceived(double lat, double lon) {
-
-    }
-
-    @Override
-    public void onWifiReceived(String name, String ssid) {
-
-    }
-
-    @Override
-    public void onBleReceived(String name, String ble) {
-
-    }
-
-    @Override
-    public void clearGPSList() {
-
-    }
-
-    @Override
-    public void clearWifiList() {
-
-    }
-
-    @Override
-    public void clearBluetoothList() {
-
     }
 
     /**

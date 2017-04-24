@@ -10,9 +10,7 @@ import pt.ulisboa.tecnico.cmu.tg14.Implementation.LocationImpl;
 import pt.ulisboa.tecnico.cmu.tg14.Model.Coordinates;
 import pt.ulisboa.tecnico.cmu.tg14.Model.Location;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -52,9 +50,9 @@ public class LocationController {
     public List<LocationResult> getNearByLocations(@RequestBody LocationQuery queryString){
         //FIXME Wrap List into a Single JSON Object like a response
         List<Location> locations = new ArrayList<>();
-
         locations.addAll(locationImpl.getLocationByBle(queryString.getBleList()));
         locations.addAll(locationImpl.getLocationBySSID(queryString.getSsidList()));
+        locations.removeAll(Collections.singleton(null)); // remove null results
         Float lat = queryString.getLatitude();
         Float lon = queryString.getLongitude();
         if(lat != 0 && lon!=0){
