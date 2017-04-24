@@ -49,32 +49,31 @@ public class AddMessage extends AppCompatActivity {
         mEndTime = (EditText) findViewById(R.id.add_message_end_time);
         mNext = (Button) findViewById(R.id.button_next);
 
+        mStartTime.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasChange) {
+                timeListenerAux(mStartTime);
+            }
+        });
+
         mStartTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                timeListenerAux(mStartTime);
+            }
+        });
 
-                DateTimeListener dateTimeListener = new DateTimeListener(getFragmentManager(),mStartTime);
-                Calendar calendar = Calendar.getInstance();
-                DatePickerDialog datePickerDialog = DatePickerDialog.newInstance(dateTimeListener,
-                        calendar.get(Calendar.YEAR),
-                        calendar.get(Calendar.MONTH),
-                        calendar.get(Calendar.DAY_OF_MONTH));
-                datePickerDialog.show(getFragmentManager(),"DateTimePickerDialog");
-
+        mEndTime.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasChange) {
+                timeListenerAux(mEndTime);
             }
         });
 
         mEndTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DateTimeListener dateTimeListener = new DateTimeListener(getFragmentManager(),mEndTime);
-                Calendar calendar = Calendar.getInstance();
-                DatePickerDialog datePickerDialog = DatePickerDialog.newInstance(dateTimeListener,
-                        calendar.get(Calendar.YEAR),
-                        calendar.get(Calendar.MONTH),
-                        calendar.get(Calendar.DAY_OF_MONTH));
-                datePickerDialog.show(getFragmentManager(),"DateTimePickerDialog");
-
+                timeListenerAux(mEndTime);
             }
         });
 
@@ -114,5 +113,15 @@ public class AddMessage extends AppCompatActivity {
         } catch (Exception e) {
 
         }
+    }
+
+    private void timeListenerAux(EditText time) {
+        DateTimeListener dateTimeListener = new DateTimeListener(getFragmentManager(), time);
+        Calendar calendar = Calendar.getInstance();
+        DatePickerDialog datePickerDialog = DatePickerDialog.newInstance(dateTimeListener,
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH));
+        datePickerDialog.show(getFragmentManager(),"DateTimePickerDialog");
     }
 }
