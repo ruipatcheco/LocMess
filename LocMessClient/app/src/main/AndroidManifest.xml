@@ -48,6 +48,7 @@
         <service android:name=".Services.BluetoothService"/>
         <service android:name=".Services.GPSService"/>
         <service android:name=".Services.WifiService"/>
+        <service android:name=".Services.MasterService"/>
     </application>
 
 </manifest>

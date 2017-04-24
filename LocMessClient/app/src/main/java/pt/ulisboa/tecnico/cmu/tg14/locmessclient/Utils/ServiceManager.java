@@ -18,6 +18,7 @@ import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Receivers.GPSReceiver;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Receivers.WifiReceiver;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.BluetoothService;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.GPSService;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.MasterService;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.WifiService;
 
 /**
@@ -29,19 +30,39 @@ public class ServiceManager {
     private BluetoothReceiver mBTReceiver;
     private GPSReceiver mGPSReceiver;
 
-    private Context mActivity;
+    private Activity mActivity;
     private Service mService;
 
-    public ServiceManager(Service service,Activity activity) {
-        this.mService = service;
-        this.mActivity = activity;
+
+    private static ServiceManager ourInstance = null;
+
+    public static ServiceManager getInstance(Activity activity) {
+        if (ourInstance == null){
+            ourInstance = new ServiceManager(activity);
+        }
+
+        return ourInstance;
     }
 
-    public void initReceivers() {
+    public static ServiceManager getInstance(){
+        return ourInstance;
+    }
+
+    private ServiceManager(Activity activity) {
+        this.mActivity = activity;
+        mActivity.startService(new Intent(mActivity,MasterService.class));
+        this.mService = null;
+        startServices();
+
+
+    }
+
+    public void initReceivers(Service receiverService) {
+        this.mService = receiverService;
         mGPSReceiver = new GPSReceiver(mService);
         IntentFilter gpsIntentFilter = new IntentFilter();
         gpsIntentFilter.addAction(GPSService.GPS);
-        mService.registerReceiver(mGPSReceiver, gpsIntentFilter);
+        receiverService.registerReceiver(mGPSReceiver, gpsIntentFilter);
 
         mBTReceiver = new BluetoothReceiver(mService);
         IntentFilter filter = new IntentFilter();
@@ -57,32 +78,32 @@ public class ServiceManager {
 
     }
 
-
-
-    public void startServices(){
+    private void startServices(){
         if (ActivityCompat.checkSelfPermission(mActivity, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(mActivity, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
             Toast.makeText(mActivity,"No Permissions",Toast.LENGTH_LONG).show();
             int code=0;
-            ActivityCompat.requestPermissions((Activity) mActivity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},code);
+            ActivityCompat.requestPermissions( mActivity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},code);
 
         }else{
             Log.d("MainActivity","Started Services");
-            mService.startService(new Intent(mActivity,WifiService.class));
-            mService.startService(new Intent(mActivity, BluetoothService.class));
-            mService.startService(new Intent(mActivity,GPSService.class));
+            mActivity.startService(new Intent(mActivity,WifiService.class));
+            mActivity.startService(new Intent(mActivity, BluetoothService.class));
+            mActivity.startService(new Intent(mActivity,GPSService.class));
         }
     }
 
 
     public void stopServices(){
-        mService.stopService(new Intent(mActivity,GPSService.class));
-        mService.stopService(new Intent(mActivity,WifiService.class));
+        mActivity.stopService(new Intent(mActivity,GPSService.class));
+        mActivity.stopService(new Intent(mActivity,WifiService.class));
         mActivity.stopService(new Intent(mActivity,BluetoothService.class));
     }
 
     public void unRegisterReceivers(){
+        if(mService == null)
+            return;
         mService.unregisterReceiver(mBTReceiver);
         mService.unregisterReceiver(mGPSReceiver);
         mService.unregisterReceiver(mWifiReceiver);

@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
@@ -53,14 +54,14 @@ public class MainActivity extends AppCompatActivity
     private FloatingActionButton mFab;
 
 
-    private MasterService mMasterService;
+    private ServiceManager mServiceManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        startService(new Intent(this,MasterService.class));
+        mServiceManager = ServiceManager.getInstance(this); //This starts all the needed Services
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
