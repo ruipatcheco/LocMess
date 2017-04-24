@@ -37,6 +37,7 @@ import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Receivers.GPSReceiver;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Receivers.WifiReceiver;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.BluetoothService;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.GPSService;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.MasterService;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.WifiService;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServerActions;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServiceManager;
@@ -45,24 +46,21 @@ import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServiceManager;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,ListMessages.OnFragmentInteractionListener,
         MyMessagesFragment.OnFragmentInteractionListener,ListLocations.OnFragmentInteractionListener,
-        ProfileFragment.OnFragmentInteractionListener,OnLocationReceivedListener {
+        ProfileFragment.OnFragmentInteractionListener {
 
     private static final String TAG = "Main Activity" ;
     private ListView mDrawerList;
     private FloatingActionButton mFab;
 
 
-
-    private ServiceManager serviceManager;
+    private MasterService mMasterService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        serviceManager = new ServiceManager(this);
-
-        serviceManager.startServices(); //FIXME
+        startService(new Intent(this,MasterService.class));
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -104,7 +102,6 @@ public class MainActivity extends AppCompatActivity
         ssid.add("6c:99:89:b1:26:00");
 
         LocationQuery locationQuery = new LocationQuery(new Float(38.737888),new Float(-9.303022),ssid,null);
-        Log.d(TAG, "onCreate: "+locationQuery.toJSON());
         ServerActions serverActions = new ServerActions(getApplicationContext());
         List<Location> resultl = serverActions.getNearLocations(locationQuery);
         for(Location loc : resultl)
@@ -193,34 +190,4 @@ public class MainActivity extends AppCompatActivity
         Log.d("URI",uri.toString());
     }
 
-
-    @Override
-    public void onGPSReceived(double lat, double lon) {
-
-    }
-
-    @Override
-    public void onWifiReceived(String name, String ssid) {
-
-    }
-
-    @Override
-    public void onBleReceived(String name, String ble) {
-
-    }
-
-    @Override
-    public void clearGPSList() {
-
-    }
-
-    @Override
-    public void clearWifiList() {
-
-    }
-
-    @Override
-    public void clearBluetoothList() {
-
-    }
 }

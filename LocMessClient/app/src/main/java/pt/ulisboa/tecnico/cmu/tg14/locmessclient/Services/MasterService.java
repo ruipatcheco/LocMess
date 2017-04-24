@@ -5,10 +5,13 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.ServicesDataHolder;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnLocationReceivedListener;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServiceManager;
+
+import static android.content.ContentValues.TAG;
 
 /**
  * Created by trosado on 4/23/17.
@@ -26,7 +29,7 @@ public class MasterService extends Service  implements OnLocationReceivedListene
 
     @Override
     public void onCreate() {
-
+        Log.d(TAG, "onCreate: Started Master Service");
         dataHolder = ServicesDataHolder.getInstance();
         mServiceManager = new ServiceManager(this,(Activity) getApplicationContext()); //FIXME Hackish way
         mServiceManager.startServices();

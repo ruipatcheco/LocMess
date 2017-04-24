@@ -70,16 +70,11 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
     private ArrayAdapter<String> mAdapterBLE;
     private Location mLocation;
 
-    private ServiceManager serviceManager;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_location);
-
-        serviceManager = new ServiceManager(this);
-        serviceManager.initReceivers();
 
         someOptionChecked = false;
         activity = this;
@@ -301,6 +296,5 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        serviceManager.unRegisterReceivers();
     }
 }
