@@ -39,14 +39,14 @@ import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.WifiService;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServerActions;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServiceManager;
 
-public class AddLocationActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener {
+public class AddLocationActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener{
+
 
 
     private static final String TAG = "AddLocationActivity";
     private static final String GPS="GPS";
     private static final String WIFI="WIFI";
     private static final String BLE="BLE";
-    private ServicesDataHolder dataHolder;
 
 
     private RadioGroup mLocationRadio;
@@ -58,6 +58,8 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
 
     private AbstractMap<String, String> nameBLEMAP;
     private List<String> namesBLE;
+
+    private ServicesDataHolder dataHolder;
 
     private AbstractMap<String, String> nameWifiMap;
     private List<String> namesWifi;
@@ -77,6 +79,8 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_location);
 
+        dataHolder = ServicesDataHolder.getInstance();
+
         someOptionChecked = false;
         validLocation = false;
         activity = this;
@@ -92,11 +96,11 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
         //Set visibility for radius
         mLocationRadius.setVisibility(View.INVISIBLE);
 
-        nameBLEMAP = new HashMap<>();
-        namesBLE = new ArrayList<>();
+        nameBLEMAP = dataHolder.getBleContent();
+        namesBLE = new ArrayList<>(nameBLEMAP.keySet());
 
-        nameWifiMap = new HashMap<>();
-        namesWifi = new ArrayList<>();
+        nameWifiMap = dataHolder.getSsidContent();
+        namesWifi = new ArrayList<>(nameWifiMap.keySet());
 
 
         mAdapterWIFI = new ArrayAdapter<String>(activity, android.R.layout.simple_dropdown_item_1line, namesWifi);
@@ -171,8 +175,11 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
 
                 mLocation.setName(mLocationName.getText().toString());
 
-                if(!mLocationRadius.getText().toString().equals(""))
-                    mLocation.setRadius(Integer.parseInt(mLocationRadius.getText().toString()));
+                if(mType.equals(GPS)){
+                    if(!mLocationRadius.getText().toString().equals(""))
+                        mLocation.setRadius(Integer.parseInt(mLocationRadius.getText().toString()));
+                    addGPS();
+                }
 
                 ServerActions serverActions = new ServerActions(getApplicationContext());
                 serverActions.createLocation(mLocation);
@@ -245,7 +252,6 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
         return true;
     }
 
-
     public void addGPS(){
         float lat = dataHolder.getLatitude();
         float lon = dataHolder.getLongitude();
@@ -253,11 +259,10 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
 
         if(! ((Math.abs(lat-0) < delta) && (Math.abs(lon-0) < delta)) ){
             //Checks if lat = 0 and lon = 0
-             validLocation = true;
+            validLocation = true;
+            mLocation.setLatitude(lat);
+            mLocation.setLongitude(lon);
         }
-
-        Log.d("AddLocationActivity","GPS lat: "+lat+" lon: "+lon);
-
     }
 
     public void addWIFI(){
@@ -278,7 +283,6 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
         }
         mAdapterBLE.notifyDataSetChanged();
     }
-
 
     @Override
     protected void onDestroy() {

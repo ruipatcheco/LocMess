@@ -2,6 +2,7 @@ package pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -14,6 +15,7 @@ public class ServicesDataHolder {
     private AbstractMap<String,String> ssidContent;
     private Float longitude;
     private Float latitude;
+    private String username;
 
     private static final ServicesDataHolder ourInstance = new ServicesDataHolder();
 
@@ -22,10 +24,20 @@ public class ServicesDataHolder {
     }
 
     private ServicesDataHolder() {
-        longitude = new Float(0);
+
+        bleContent = new HashMap<>();
+        ssidContent = new HashMap<>();
         latitude = new Float(0);
+        longitude = new Float(0);
     }
 
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
     public AbstractMap<String, String> getBleContent() {
         return bleContent;
