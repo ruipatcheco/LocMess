@@ -35,6 +35,8 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.ServicesDataHolder;
+
 import static android.Manifest.permission.READ_CONTACTS;
 
 /**
@@ -67,12 +69,14 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private Button mLoginButton;
     private Button mRegisterButton;
 
+    private Activity mActivity;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         // Set up the login form.
-        final Activity activity = this;
+        mActivity = this;
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
 
 
@@ -91,7 +95,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         });
 
         mLoginButton = (Button) findViewById(R.id.email_sign_in_button);
-        mLoginButton.setOnClickListener(new View.OnClickListener() {
+        mLoginButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 attemptLogin();
@@ -100,10 +104,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         Log.d("Here","Here");
         mRegisterButton = (Button) findViewById(R.id.login_register_button);
-        mRegisterButton.setOnClickListener(new View.OnClickListener() {
+        mRegisterButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(activity,RegisterActivity.class);
+                Intent intent = new Intent(mActivity,RegisterActivity.class);
                 startActivity(intent);
             }
         });
@@ -314,11 +318,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      */
     public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
-        private final String mEmail;
+        private final String mUsername;
         private final String mPassword;
 
         UserLoginTask(String email, String password) {
-            mEmail = email;
+            mUsername = email;
             mPassword = password;
         }
 
@@ -335,9 +339,14 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
             for (String credential : DUMMY_CREDENTIALS) {
                 String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
+                if (pieces[0].equals(mUsername)) {
                     // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
+                    if(pieces[1].equals(mPassword)){
+                        ServicesDataHolder dataHolder = ServicesDataHolder.getInstance();
+                        dataHolder.setUsername(mUsername);
+                    }
+
+                    return true;
                 }
             }
 
