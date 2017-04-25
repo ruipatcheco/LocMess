@@ -83,7 +83,7 @@ public class LocationController {
     }
 
 
-    @RequestMapping("/list") //FIXME to remove
+    @RequestMapping("/list")
     public List<LocationResult> getLocationList(){
         List<LocationResult> result  = locationImpl.getLocationList().stream().map(this::convertToLocResult).collect(Collectors.toList());
         return result;

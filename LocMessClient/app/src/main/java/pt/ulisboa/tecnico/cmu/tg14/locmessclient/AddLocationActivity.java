@@ -22,11 +22,13 @@ import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.ServicesDataHolder;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnLocationReceivedListener;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Receivers.BluetoothReceiver;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Receivers.GPSReceiver;
@@ -37,7 +39,7 @@ import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.WifiService;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServerActions;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServiceManager;
 
-public class AddLocationActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener,OnLocationReceivedListener {
+public class AddLocationActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener{
 
 
     private static final String TAG = "AddLocationActivity";
@@ -55,10 +57,12 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
 
     List<String> mLocationsGPS;
 
-    private HashMap<String, String> nameBLEMAP;
+    private AbstractMap<String, String> nameBLEMAP;
     private List<String> namesBLE;
 
-    private HashMap<String, String> nameWifiMap;
+    private ServicesDataHolder dataHolder;
+
+    private AbstractMap<String, String> nameWifiMap;
     private List<String> namesWifi;
 
     Activity activity;
@@ -76,6 +80,8 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_location);
 
+        dataHolder = ServicesDataHolder.getInstance();
+
         someOptionChecked = false;
         activity = this;
         mLocation = new Location();
@@ -88,11 +94,11 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
         //Set visibility for radius
         mLocationRadius.setVisibility(View.INVISIBLE);
 
-        nameBLEMAP = new HashMap<>();
-        namesBLE = new ArrayList<>();
+        nameBLEMAP = dataHolder.getBleContent();
+        namesBLE = new ArrayList<>(nameBLEMAP.keySet());
 
-        nameWifiMap = new HashMap<>();
-        namesWifi = new ArrayList<>();
+        nameWifiMap = dataHolder.getSsidContent();
+        namesWifi = new ArrayList<>(nameWifiMap.keySet());
 
         mLocationsGPS = new ArrayList<>();
 
@@ -168,8 +174,13 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
 
                 mLocation.setName(mLocationName.getText().toString());
 
-                if(!mLocationRadius.getText().toString().equals(""))
-                    mLocation.setRadius(Integer.parseInt(mLocationRadius.getText().toString()));
+
+                if(mType.equals(GPS)){
+                    if(!mLocationRadius.getText().toString().equals(""))
+                        mLocation.setRadius(Integer.parseInt(mLocationRadius.getText().toString()));
+                    mLocation.setLatitude(dataHolder.getLatitude());
+                    mLocation.setLongitude(dataHolder.getLongitude());
+                }
                 ServerActions serverActions = new ServerActions(getApplicationContext());
                 serverActions.createLocation(mLocation);
 
@@ -236,7 +247,7 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
 
         return true;
     }
-
+/* FIXME DELETE
 
     @Override
     public void onGPSReceived(double lat, double lon) {
@@ -251,47 +262,7 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
         //mLocationInfo.setText("Lat: "+lat+"\nLon: "+lon);
         mAdapterGPS.notifyDataSetChanged();
     }
-
-    @Override
-    public void clearGPSList() {
-        mLocationsGPS.clear();
-    }
-
-    @Override
-    public void onWifiReceived(String name,String ssid) {
-        if(!nameWifiMap.containsKey(name)){
-            namesWifi.add(name);
-            nameWifiMap.put(name,ssid);
-            mAdapterWIFI.notifyDataSetChanged();
-        }
-        Log.d("AddLocationActivity","Wifi: "+ssid);
-
-    }
-
-
-    @Override
-    public void clearWifiList() {
-        nameWifiMap.clear();
-        namesWifi.clear();
-    }
-
-    @Override
-    public void onBleReceived(String name, String ble) {
-        Log.d(TAG, "onBleReceived: ble");
-        if(!nameBLEMAP.containsKey(name)){
-            nameBLEMAP.put(name, ble);
-            namesBLE.add(name);
-            mAdapterBLE.notifyDataSetChanged();
-        }
-
-        Log.d("AddLocationActivity","Bluetooth: "+ble);
-    }
-
-    @Override
-    public void clearBluetoothList() {
-        nameBLEMAP.clear();
-        namesBLE.clear();
-    }
+    */
 
     @Override
     protected void onDestroy() {
