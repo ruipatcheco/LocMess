@@ -1,5 +1,6 @@
 package pt.ulisboa.tecnico.cmu.tg14.locmessclient;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -79,6 +80,7 @@ public class ListLocations extends Fragment {
 
     private class ListLocationsTask extends AsyncTask<Void, Void, Void> implements OnResponseListener<List<Location>> {
 
+        ProgressDialog progDailog;
         private ArrayAdapter<String> arrayAdapter;
         private List<String> locationListNames;
         private View view;
@@ -88,10 +90,24 @@ public class ListLocations extends Fragment {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+
+            progDailog = new ProgressDialog(getActivity());
+            progDailog.setMessage("Loading...");
+            progDailog.setIndeterminate(false);
+            progDailog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progDailog.setCancelable(true);
+            progDailog.show();
+
             locationListNames = new ArrayList<>();
             ListView listView = (ListView) view.findViewById(R.id.list_locations_list);
             arrayAdapter = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1, locationListNames);
             listView.setAdapter(arrayAdapter);
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            progDailog.dismiss();
         }
 
         @Override
