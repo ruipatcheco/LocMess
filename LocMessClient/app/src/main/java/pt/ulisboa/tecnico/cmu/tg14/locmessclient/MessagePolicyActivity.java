@@ -23,7 +23,6 @@ public class MessagePolicyActivity extends AppCompatActivity {
     private String mMessageContent;
     private String mStartTime;
     private String mEndTime;
-    private String mType;
     private String mID;
     // ======================
 
@@ -110,7 +109,6 @@ public class MessagePolicyActivity extends AppCompatActivity {
         mMessageContent = i.getExtras().getString("mMessageContent");
         mStartTime = i.getExtras().getString("mStartTime");
         mEndTime = i.getExtras().getString("mEndTime");
-        mType = i.getExtras().getString("mType");
         mID = i.getExtras().getString("mID");
     }
 

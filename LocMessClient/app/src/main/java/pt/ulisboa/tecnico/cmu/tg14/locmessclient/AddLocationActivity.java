@@ -42,6 +42,7 @@ import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServiceManager;
 public class AddLocationActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener{
 
 
+
     private static final String TAG = "AddLocationActivity";
     private static final String GPS="GPS";
     private static final String WIFI="WIFI";
@@ -84,6 +85,8 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
 
         someOptionChecked = false;
         activity = this;
+        dataHolder =  ServicesDataHolder.getInstance();
+
         mLocation = new Location();
         mLocationRadio = (RadioGroup) findViewById(R.id.add_location_radio);
         mLocationList = (Spinner) findViewById(R.id.add_location_spinner);
@@ -119,10 +122,13 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
             button.setOnCheckedChangeListener(this);
             mLocationRadio.addView(button);
             i++;
-        }
+        }lat :
 
 
-
+        //UPDATE all lists
+        addBLE();
+        addGPS();
+        addWIFI();
 
         namesBLE.add("BLE2");
         mLocationsGPS.add("GPS3");
@@ -247,22 +253,39 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
 
         return true;
     }
-/* FIXME DELETE
 
-    @Override
-    public void onGPSReceived(double lat, double lon) {
-        Log.d(TAG, "onGPSReceived: gps");
-        if(mType.equals(GPS)){
-            mLocation.setLatitude(lat);
-            mLocation.setLongitude(lon);
-        }
-        mLocationsGPS.add("Lat: "+lat);
-        mLocationsGPS.add("Lon: "+lon);
+    public void addGPS(){
 
         //mLocationInfo.setText("Lat: "+lat+"\nLon: "+lon);
         mAdapterGPS.notifyDataSetChanged();
     }
-    */
+    /*
+        mLocationsGPS.add("Lat: "+dataHolder.getLatitude());
+        mLocationsGPS.add("Lon: "+dataHolder.getLongitude());
+
+        Log.d("AddLocationActivity","GPS lat: "+dataHolder.getLatitude()+" lon: "+dataHolder.getLongitude());
+
+        mAdapterGPS.notifyDataSetChanged();
+    }
+*/
+    public void addWIFI(){
+        nameWifiMap = dataHolder.getSsidContent();
+        for (String name: nameWifiMap.keySet()){
+            namesWifi.add(name);
+            Log.d("AddLocationActivity","Wifi: "+name);
+        }
+        mAdapterWIFI.notifyDataSetChanged();
+
+    }
+
+    public void addBLE(){
+        nameBLEMAP = dataHolder.getBleContent();
+        for (String name: nameBLEMAP.keySet()){
+            namesBLE.add(name);
+            Log.d("AddLocationActivity","BLE: "+name);
+        }
+        mAdapterBLE.notifyDataSetChanged();
+    }
 
     @Override
     protected void onDestroy() {

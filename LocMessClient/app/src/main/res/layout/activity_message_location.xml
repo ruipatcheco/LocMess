@@ -11,18 +11,38 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="pt.ulisboa.tecnico.cmu.tg14.locmessclient.MessageLocationActivity">
 
-    <RadioGroup
-        android:layout_width="0dp"
-        android:layout_height="48dp"
-        android:id="@+id/message_location_radio"
-        tools:layout_constraintTop_creator="1"
-        tools:layout_constraintRight_creator="1"
-        app:layout_constraintRight_toRightOf="parent"
+    <Switch
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/message_location_activity_switch"
+        android:layout_marginTop="24dp"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="24dp"
         tools:layout_constraintLeft_creator="1"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginLeft="80dp"
+        app:layout_constraintVertical_bias="0.58000004" />
+
+    <TextView
+        android:text="@string/message_location_activity_centralized"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/message_location_activity_centralized"
+        app:layout_constraintLeft_toLeftOf="parent"
         android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp" />
+        app:layout_constraintRight_toLeftOf="@+id/message_location_activity_switch"
+        android:layout_marginRight="8dp"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintBaseline_toBaselineOf="@+id/message_location_activity_switch" />
+
+    <TextView
+        android:text="@string/message_location_activity_decentralized"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/message_location_activity_decentralized"
+        app:layout_constraintBaseline_toBaselineOf="@+id/message_location_activity_switch"
+        app:layout_constraintLeft_toRightOf="@+id/message_location_activity_switch"
+        android:layout_marginLeft="8dp" />
 
     <Spinner
         android:layout_width="0dp"
@@ -34,7 +54,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@+id/message_location_radio" />
+        app:layout_constraintTop_toBottomOf="@+id/message_location_activity_switch" />
 
     <Button
         android:text="@string/button_next"
@@ -42,6 +62,5 @@
         android:layout_height="wrap_content"
         android:id="@+id/message_location_next"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        style="@style/Widget.AppCompat.Button.Borderless" />
+        app:layout_constraintRight_toRightOf="parent" />
 </android.support.constraint.ConstraintLayout>

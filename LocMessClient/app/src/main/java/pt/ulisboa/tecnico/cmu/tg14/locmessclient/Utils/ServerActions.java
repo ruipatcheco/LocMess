@@ -113,11 +113,40 @@ public class ServerActions {
 
         queue.add(request);
 
-
         return locations;
     }
 
+    public List<Location> getAllLocations() {
+        String url = endpoint + "/location/list";
 
+        final List<Location> locations = new ArrayList<>();
+        JsonArrayRequest stringRequest = new JsonArrayRequest(url, new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
+                for(int i = 0;i<response.length();i++){
+                    try {
+                        JSONObject obj = response.getJSONObject(i);
+                        Gson gson = new Gson();
+                        Location l = gson.fromJson(obj.toString(),Location.class);
+                        locations.add(l);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+                Log.d(TAG, "onResponse: "+response);
+            }}, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                //mTextView.setText("That didn't work!");
+                System.out.print("error: " + error);
+            }
+        });
+
+        // Add the request to the RequestQueue.
+        queue.add(stringRequest);
+
+        return locations;
+    }
 
     public void makeJSONRequest(String url){
 
