@@ -59,7 +59,7 @@ public class MasterService extends Service  implements OnLocationReceivedListene
     public void onBleReceived(String name, String ble) {
         AbstractMap<String,String> map = dataHolder.getBleContent();
         map.put(name,ble);
-        dataHolder.setSsidContent(map);
+        dataHolder.setBleContent(map);
     }
 
     @Override

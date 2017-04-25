@@ -27,7 +27,7 @@ public class LocationQuery {
     private List<String> bleList;
 
 
-    public LocationQuery() {
+    private LocationQuery() {
         latitude = new Float(0);
         longitude = new Float(0);
 

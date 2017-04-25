@@ -87,10 +87,7 @@ public class ServerActions {
         String url = endpoint+"/location/nearbyLocations";
 
         final List<Location> locations = new ArrayList<>();
-            /*TODO
-            * - requestt receiveing a JsonObject and reading a JsonArray (Currently gives exception)
-            * */
-
+        Log.d(TAG, "request: "+query.toJSON());
         JsonArrayFromJsonObjectRequest request = new JsonArrayFromJsonObjectRequest(Request.Method.POST,url,query.toJSON(),null, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {

@@ -1,5 +1,6 @@
 package pt.ulisboa.tecnico.cmu.tg14.Implementation;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import pt.ulisboa.tecnico.cmu.tg14.Mapper.CoordinatesMapper;
 import pt.ulisboa.tecnico.cmu.tg14.Mapper.LocationMapper;
@@ -40,15 +41,19 @@ public class LocationImpl implements LocationDao {
         }
         String SQL = "insert into Location (name, ssid, ble, coordid ) values (?, ?, ?,?)";
 
-        jdbcTemplateObject.update( SQL, name, ssid, ble, crd);
+        jdbcTemplateObject.update( SQL, name, ssid.toLowerCase(), ble.toLowerCase(), crd);
         return;
     }
 
     @Override
     public Location getLocationBySSID(String ssid) {
         String SQL = "Select * from Location where ssid=?";
-        Location loc = jdbcTemplateObject.queryForObject(SQL,new Object[]{ssid},new LocationMapper());
-        return loc;
+
+        List<Location> locList = jdbcTemplateObject.query(SQL,new Object[]{ssid.toLowerCase()},new LocationMapper());
+        if(locList.isEmpty())
+            return null;
+        else
+            return locList.get(0);
     }
 
     @Override
@@ -63,7 +68,7 @@ public class LocationImpl implements LocationDao {
     @Override
     public Location getLocationByBle(String ble) {
         String SQL = "Select * from Location where ble=?";
-        List<Location> loc = jdbcTemplateObject.query(SQL,new Object[]{ble},new LocationMapper());
+            List<Location> loc = jdbcTemplateObject.query(SQL,new Object[]{ble.toLowerCase()},new LocationMapper());
         if(loc.isEmpty())
             return null;
         else

@@ -1,6 +1,8 @@
 package pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects;
 
 import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by trosado on 4/23/17.
@@ -53,6 +55,15 @@ public class ServicesDataHolder {
 
     public void setLatitude(Float latitude) {
         this.latitude = latitude;
+    }
+
+    public List<String> getBleAddresses(){
+        return new ArrayList(bleContent.values());
+    }
+
+
+    public List<String> getSsidAddresses(){
+        return new ArrayList(ssidContent.values());
     }
 
     public static ServicesDataHolder getOurInstance() {
