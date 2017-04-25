@@ -13,9 +13,19 @@ public class Location {
     String name;
     String ssid;
     String ble;
-    double latitude;
-    double longitude;
+    float latitude;
+    float longitude;
     int radius;
+
+    public Location() {  /* empty */  }
+
+    public Location(String name, String ssid, String ble, float latitude, float longitude) {
+        this.name = name;
+        this.ssid = ssid;
+        this.ble = ble;
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
 
     public String getName() {
         return name;
@@ -44,11 +54,11 @@ public class Location {
         this.ble = ble;
     }
 
-    public double getLatitude() {
+    public float getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(double latitude) {
+    public void setLatitude(float latitude) {
         setDataNull(false);
         this.latitude = latitude;
     }
@@ -57,7 +67,7 @@ public class Location {
         return longitude;
     }
 
-    public void setLongitude(double longitude) {
+    public void setLongitude(float longitude) {
         setDataNull(false);
         this.longitude = longitude;
     }
@@ -75,7 +85,6 @@ public class Location {
         if(gps){
             this.latitude = 0;
             this.longitude = 0;
-            this.radius = 0;
         }else {
             this.ble = null;
             this.ssid = null;
