@@ -17,11 +17,20 @@ import android.widget.Toast;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 
+import net.danlew.android.joda.JodaTimeAndroid;
+
 import java.security.Timestamp;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.DateTimeListener;
 
@@ -86,9 +95,9 @@ public class AddMessage extends AppCompatActivity {
                     return;
                 }
                 Intent i = new Intent(activity,MessageLocationActivity.class);
-                i.putExtra("mMessageContent",mMessageContent.getText());
-                i.putExtra("mStartTime",mStartTime.getText());
-                i.putExtra("mEndTime",mEndTime.getText());
+                i.putExtra("mMessageContent",mMessageContent.getText().toString());
+                i.putExtra("mStartTime",mStartTime.getText().toString());
+                i.putExtra("mEndTime",mEndTime.getText().toString());
 
                 //TODO add message arguments to activity or save to disk
                 startActivity(i);
@@ -103,7 +112,23 @@ public class AddMessage extends AppCompatActivity {
         } else if (mStartTime.length() <= 0) {
             Toast.makeText(activity, "You need to set the Start Time", Toast.LENGTH_LONG).show();
         }
+
+        /*else if (getCalendar(mEndTime.getText().toString()).before(getCalendar(mStartTime.getText().toString()))){
+            //if endtime is before starttime
+            Toast.makeText(activity, "You need to set the End Time after Start Time", Toast.LENGTH_LONG).show();
+        }*/
+
         return mMessageContent.length() > 0 && mStartTime.length() > 0;
+    }
+
+    private Calendar getCalendar(String s){
+        String pattern = "(\\d{4})-(\\d{2}|\\d{1})-(\\d{2}|\\d{1}) (\\d{2}|\\d{1}):(\\d{2}|\\d{1})";
+        Pattern r = Pattern.compile(pattern);
+        Matcher m = r.matcher(s);
+
+        Calendar c = new GregorianCalendar(Integer.parseInt(m.group(1)), Integer.parseInt(m.group(2)), Integer.parseInt(m.group(3)), Integer.parseInt(m.group(4)), Integer.parseInt(m.group(5)));
+
+        return c;
     }
 
     private void hideKeyboard() {

@@ -1,12 +1,19 @@
 package pt.ulisboa.tecnico.cmu.tg14.locmessclient;
 
+import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.preference.PreferenceManager;
+import android.support.annotation.BoolRes;
 import android.support.design.widget.FloatingActionButton;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,8 +21,17 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.LocationQuery;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnResponseListener;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderDbHelper;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServerActions;
+
+import static android.content.ContentValues.TAG;
 
 
 /**
@@ -84,6 +100,30 @@ public class ListMessages extends Fragment {
                 startActivity(intent);
             }});
 
+        fillDatabase(this.getActivity());
+
+    }
+
+    private void fillDatabase(Activity activity) {
+        createDatabase(activity);
+        new FillDatabaseTask(activity).execute();
+
+    }
+
+    private void createDatabase(Context context){
+        FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(context);
+        if (doesDatabaseExist(context, dbHelper.getDatabaseName())){
+            dbHelper.onDrop(dbHelper.getWritableDatabase());
+            return;
+        }
+
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        dbHelper.onCreate(db);
+    }
+
+    private static boolean doesDatabaseExist(Context context, String dbName) {
+        File dbFile = context.getDatabasePath(dbName);
+        return dbFile.exists();
     }
 
     @Override
@@ -150,25 +190,55 @@ public class ListMessages extends Fragment {
     }
 
 
-    private class FillDatabaseTask extends AsyncTask<Void,Void,Void>{
+
+    private class FillDatabaseTask extends AsyncTask<Void, Void, Void>{
+
+        ProgressDialog progDailog;
+        Activity activity;
+
+        public FillDatabaseTask(Activity act) {
+            this.activity = act;
+        }
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
 
+            progDailog = new ProgressDialog(getActivity());
+            progDailog.setMessage("Fetching Locations...");
+            progDailog.setIndeterminate(false);
+            progDailog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progDailog.setCancelable(true);
+            progDailog.show();
 
+
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            progDailog.dismiss();
         }
 
         @Override
         protected Void doInBackground(Void... params) {
 
+            ServerActions serverActions = new ServerActions(getActivity());
+            ArrayList <Location> locations = (ArrayList <Location>) serverActions.getAllLocations();
+
+            for(Location l: locations){
+                Log.d("FillDatabaseTask", "location received from server -> " + l.getName());
+            }
+
+            FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(activity);
+
+            dbHelper.insertAllLocations(locations);
+
 
             return null;
         }
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-        }
+
     }
+
 
 }

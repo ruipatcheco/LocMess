@@ -18,7 +18,7 @@ public final class FeedReaderContract {
         public static final String COMMA_SEP = ",";
 
 
-        public static final String LOCATION_TABLE_NAME = "location";
+        public static final String LOCATION_TABLE_NAME = "LOCMESSLOCATION";
         public static final String LOCATION_COLUMN_NAME = "name";
         public static final String LOCATION_COLUMN_SSID = "ssid";
         public static final String LOCATION_COLUMN_BLE = "ble";

@@ -18,6 +18,8 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderDbHelper;
+
 public class MessageLocationActivity extends AppCompatActivity {
 
     // === PREV ACTIVITY ===
@@ -48,13 +50,8 @@ public class MessageLocationActivity extends AppCompatActivity {
         mLocationList = (Spinner) findViewById(R.id.message_location_spinner);
         mSwitch = (Switch) findViewById(R.id.message_location_activity_switch);
 
-        mAllLocations = new ArrayList<>();
-
-        mAllLocations.add("BLE1");
-        mAllLocations.add("BLE2");
-        mAllLocations.add("GPS3");
-        mAllLocations.add("WIFI14");
-        mAllLocations.add("GPS5");
+        FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(activity);
+        mAllLocations = dbHelper.getAllLocationsNames();
 
         //TODO Add network communication
 
