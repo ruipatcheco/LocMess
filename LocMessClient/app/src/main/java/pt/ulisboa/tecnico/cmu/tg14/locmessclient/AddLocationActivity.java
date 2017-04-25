@@ -143,12 +143,12 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
                 //FIXME set first element of list if nothing is set
                 switch (mType){
                     case BLE:
-                        mLocation.setBle(nameBLEMAP.get(name));
-                        Log.d(TAG, "onItemSelected: BT Namae : "+name);
+                        Log.d(TAG, "onItemSelected: BT Name : "+name);
                         Log.d(TAG, "onItemSelected: BT Selected : "+nameBLEMAP.get(name));
+                        mLocation.setBle(nameBLEMAP.get(name));
                         break;
                     case WIFI:
-                        Log.d(TAG, "onItemSelected: WIFI Namae : "+name);
+                        Log.d(TAG, "onItemSelected: WIFI Name : "+name);
                         Log.d(TAG, "onItemSelected: WIFI Selected : "+nameWifiMap.get(name));
                         mLocation.setSsid(nameWifiMap.get(name));
                         break;
@@ -243,7 +243,7 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
             return false;
         }
 
-        if (!validLocation) {
+        if ( (mType == GPS) && !validLocation) {
             Toast.makeText(activity, "Acquiring a valid GPS signal, try again in 1 minute ", Toast.LENGTH_LONG).show();
             addGPS();
             return false;
@@ -288,4 +288,7 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
     protected void onDestroy() {
         super.onDestroy();
     }
+
+
+
 }
