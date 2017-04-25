@@ -22,6 +22,7 @@ import java.util.List;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.LocationQuery;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnResponseListener;
 
 import static android.content.ContentValues.TAG;
 
@@ -83,7 +84,7 @@ public class ServerActions {
         makeRequest(url);
     }
 
-    public static List<Location> getNearLocations(LocationQuery query){
+    public static List<Location> getNearLocations(LocationQuery query, final OnResponseListener listener){
         String url = endpoint+"/location/nearbyLocations";
 
         final List<Location> locations = new ArrayList<>();
@@ -101,6 +102,10 @@ public class ServerActions {
                         e.printStackTrace();
                     }
                 }
+
+                listener.onHTTPResponse(locations);
+
+
                 Log.d(TAG, "onResponse: "+response);
             }
 
