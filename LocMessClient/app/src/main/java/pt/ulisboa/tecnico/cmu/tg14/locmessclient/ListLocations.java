@@ -1,11 +1,12 @@
 package pt.ulisboa.tecnico.cmu.tg14.locmessclient;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Fragment;
-import android.os.SystemClock;
 import android.support.design.widget.FloatingActionButton;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,13 +15,18 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+
+import org.json.JSONArray;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.LocationQuery;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.ServicesDataHolder;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnLocationReceivedListener;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnResponseListener;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServerActions;
 
 import static android.content.ContentValues.TAG;
@@ -45,7 +51,6 @@ public class ListLocations extends Fragment {
     private String mParam2;
 
     private ServicesDataHolder mDataHolder;
-
     private OnFragmentInteractionListener mListener;
 
     public ListLocations() {
@@ -71,10 +76,72 @@ public class ListLocations extends Fragment {
         return fragment;
     }
 
+
+
+    private class ListLocationsTask extends AsyncTask<Void, Void, Void> implements OnResponseListener<List<Location>> {
+
+        ProgressDialog progDailog;
+        private ArrayAdapter<String> arrayAdapter;
+        private List<String> locationListNames;
+        private View view;
+        public ListLocationsTask(View view) {
+            this.view = view;
+        }
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            progDailog = new ProgressDialog(getActivity());
+            progDailog.setMessage("Loading...");
+            progDailog.setIndeterminate(false);
+            progDailog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progDailog.setCancelable(true);
+            progDailog.show();
+
+            locationListNames = new ArrayList<>();
+            ListView listView = (ListView) view.findViewById(R.id.list_locations_list);
+            arrayAdapter = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1, locationListNames);
+            listView.setAdapter(arrayAdapter);
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            progDailog.dismiss();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            ServerActions serverActions = new ServerActions(getActivity());
+            LocationQuery query = new LocationQuery(mDataHolder.getLatitude(),mDataHolder.getLongitude()
+                                                    ,mDataHolder.getSsidAddresses(),mDataHolder.getBleAddresses());
+            serverActions.getNearLocations(query,this);
+            return null;
+        }
+
+        @Override
+        public void onHTTPResponse(List<Location> response) {
+            for(Location l : response){
+                locationListNames.add(l.getName());
+                Log.d(TAG, "doInBackground: "+l.getName());
+            }
+            arrayAdapter.notifyDataSetChanged();
+        }
+    }
+
+
+
+
+
+
+
+
+
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         getActivity().setTitle(R.string.fragment_list_locations_title);
 
         if (getArguments() != null) {
@@ -96,24 +163,9 @@ public class ListLocations extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_list_locations, container, false);
-        ServerActions serverActions = new ServerActions(getActivity());
 
-        LocationQuery query = new LocationQuery(mDataHolder.getLatitude(),mDataHolder.getLongitude(),mDataHolder.getSsidAddresses(),mDataHolder.getBleAddresses());
-        List<Location> locationList = serverActions.getNearLocations(query);
-        List<String> list = new ArrayList<>();
-        for (Location location : locationList) {
-            list.add(location.getName());
-        }
+        new ListLocationsTask(view).execute();
 
-
-        ListView listView = (ListView) view.findViewById(R.id.list_locations_list);
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1,list);
-
-        for(String name : list)
-            Log.d(TAG, "onCreateView: content : "+name);
-        listView.setAdapter(arrayAdapter);
-
-        arrayAdapter.notifyDataSetChanged();
         return view;
     }
 
@@ -139,6 +191,14 @@ public class ListLocations extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        new ListLocationsTask(getView()).execute();
+
     }
 
     /**

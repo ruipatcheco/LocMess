@@ -94,19 +94,6 @@ public class MainActivity extends AppCompatActivity
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
 
-
-/*
-       List<String> ble = new ArrayList<>();
-        ble.add("34:4D:F7:D7:DF:E7");
-*/
-        List<String> ssid = new ArrayList<>();
-        ssid.add("6c:99:89:b1:26:00");
-
-        LocationQuery locationQuery = new LocationQuery(new Float(38.737888),new Float(-9.303022),ssid,null);
-        ServerActions serverActions = new ServerActions(getApplicationContext());
-        List<Location> resultl = serverActions.getNearLocations(locationQuery);
-        for(Location loc : resultl)
-            Log.d(TAG, "onCreate: "+loc.getName());
     }
 
     @Override
