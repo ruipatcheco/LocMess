@@ -56,8 +56,6 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
     private EditText mLocationRadius;
 
 
-    List<String> mLocationsGPS;
-
     private AbstractMap<String, String> nameBLEMAP;
     private List<String> namesBLE;
 
@@ -66,9 +64,9 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
 
     Activity activity;
     private boolean someOptionChecked; // to check if user selected an item
+    private boolean validLocation;
     private String mType;
     private String mID;
-    private ArrayAdapter<String> mAdapterGPS;
     private ArrayAdapter<String> mAdapterWIFI;
     private ArrayAdapter<String> mAdapterBLE;
     private Location mLocation;
@@ -80,6 +78,7 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
         setContentView(R.layout.activity_add_location);
 
         someOptionChecked = false;
+        validLocation = false;
         activity = this;
         dataHolder =  ServicesDataHolder.getInstance();
 
@@ -99,9 +98,7 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
         nameWifiMap = new HashMap<>();
         namesWifi = new ArrayList<>();
 
-        mLocationsGPS = new ArrayList<>();
 
-        mAdapterGPS = new ArrayAdapter<String>(activity, android.R.layout.simple_dropdown_item_1line, mLocationsGPS);
         mAdapterWIFI = new ArrayAdapter<String>(activity, android.R.layout.simple_dropdown_item_1line, namesWifi);
         mAdapterBLE = new ArrayAdapter<String>(activity, android.R.layout.simple_dropdown_item_1line, namesBLE);
 
@@ -118,18 +115,16 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
             button.setOnCheckedChangeListener(this);
             mLocationRadio.addView(button);
             i++;
-        }lat :
+        }
 
 
-        //UPDATE all lists
+        //UPDATE all lists and values
         addBLE();
         addGPS();
         addWIFI();
 
         namesBLE.add("BLE2");
-        mLocationsGPS.add("GPS3");
         namesWifi.add("WIFI14");
-        mLocationsGPS.add("GPS5");
 
         //Setting default location type to GPS
         mType=GPS;
@@ -172,12 +167,13 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
                     return;
                 }
 
-                mID = mLocationList.getSelectedItem().toString();
+                //mID = mLocationList.getSelectedItem().toString();
 
                 mLocation.setName(mLocationName.getText().toString());
 
                 if(!mLocationRadius.getText().toString().equals(""))
                     mLocation.setRadius(Integer.parseInt(mLocationRadius.getText().toString()));
+
                 ServerActions serverActions = new ServerActions(getApplicationContext());
                 serverActions.createLocation(mLocation);
 
@@ -198,8 +194,6 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
             switch (compoundButton.getId()) {
                 case 0:
                     // GPS
-                    mLocationList.setAdapter(mAdapterGPS);
-
                     mType = GPS;
 
                     mLocationList.setVisibility(View.INVISIBLE);
@@ -242,18 +236,28 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
             return false;
         }
 
+        if (!validLocation) {
+            Toast.makeText(activity, "Acquiring a valid GPS signal, try again in 1 minute ", Toast.LENGTH_LONG).show();
+            addGPS();
+            return false;
+        }
+
         return true;
     }
 
 
     public void addGPS(){
+        float lat = dataHolder.getLatitude();
+        float lon = dataHolder.getLongitude();
+        float delta = new Float(0.01);
 
-        mLocationsGPS.add("Lat: "+dataHolder.getLatitude());
-        mLocationsGPS.add("Lon: "+dataHolder.getLongitude());
+        if(! ((Math.abs(lat-0) < delta) && (Math.abs(lon-0) < delta)) ){
+            //Checks if lat = 0 and lon = 0
+             validLocation = true;
+        }
 
-        Log.d("AddLocationActivity","GPS lat: "+dataHolder.getLatitude()+" lon: "+dataHolder.getLongitude());
+        Log.d("AddLocationActivity","GPS lat: "+lat+" lon: "+lon);
 
-        mAdapterGPS.notifyDataSetChanged();
     }
 
     public void addWIFI(){

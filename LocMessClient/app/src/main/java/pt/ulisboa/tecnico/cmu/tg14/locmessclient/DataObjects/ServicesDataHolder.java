@@ -22,6 +22,8 @@ public class ServicesDataHolder {
     }
 
     private ServicesDataHolder() {
+        longitude = new Float(0);
+        latitude = new Float(0);
     }
 
 
