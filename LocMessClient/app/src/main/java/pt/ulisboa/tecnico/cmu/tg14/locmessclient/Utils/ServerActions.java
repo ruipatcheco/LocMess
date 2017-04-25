@@ -117,8 +117,6 @@ public class ServerActions {
         return locations;
     }
 
-
-
     public void makeJSONRequest(String url){
 
        // JsonObjectRequest request = new JsonObjectRequest(url,new JSONObject())

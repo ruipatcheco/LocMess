@@ -12,12 +12,13 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MessageLocationActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener {
+public class MessageLocationActivity extends AppCompatActivity {
 
     // === PREV ACTIVITY ===
     private String mMessageContent;
@@ -25,16 +26,14 @@ public class MessageLocationActivity extends AppCompatActivity implements Compou
     private String mEndTime;
     // ======================
 
-    private RadioGroup mLocationRadio;
-    private Spinner mLocationList;
     private Button mNext;
-    List<String> locationsGPS;
-    List<String> locationsWIFI;
-    List<String> locationsBLE;
-    Activity activity;
-    private boolean someOptionChecked; // to check if user selected an item
-    private String mType;
+    private Activity activity;
+    private Spinner mLocationList;
+    private Switch mSwitch;
     private String mID;
+
+    private List<String> mAllLocations;
+    private ArrayAdapter<String> mAdapterLocations;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,53 +42,35 @@ public class MessageLocationActivity extends AppCompatActivity implements Compou
 
         getExtrasIntent(getIntent());
 
-        someOptionChecked = false;
         activity = this;
 
-        mLocationRadio = (RadioGroup) findViewById(R.id.message_location_radio);
-        mLocationList = (Spinner) findViewById(R.id.message_location_spinner);
         mNext = (Button) findViewById(R.id.message_location_next);
+        mLocationList = (Spinner) findViewById(R.id.message_location_spinner);
+        mSwitch = (Switch) findViewById(R.id.message_location_activity_switch);
 
-        List<String> options = new ArrayList<>();
-        options.add("GPS");
-        options.add("Wifi");
-        options.add("Bluetooth");
+        mAllLocations = new ArrayList<>();
 
-        int i = 0;
-        for(String option : options){
-            RadioButton button  = new RadioButton(this);
-            button.setText(option);
-            button.setId(i);
-            button.setOnCheckedChangeListener(this);
-            mLocationRadio.addView(button);
-            i++;
-        }
-
-        locationsGPS = new ArrayList<>();
-        locationsWIFI = new ArrayList<>();
-        locationsBLE = new ArrayList<>();
-
-        locationsBLE.add("BLE1");
-        locationsBLE.add("BLE2");
-        locationsGPS.add("GPS3");
-        locationsWIFI.add("WIFI14");
-        locationsGPS.add("GPS5");
+        mAllLocations.add("BLE1");
+        mAllLocations.add("BLE2");
+        mAllLocations.add("GPS3");
+        mAllLocations.add("WIFI14");
+        mAllLocations.add("GPS5");
 
         //TODO Add network communication
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(activity, android.R.layout.simple_dropdown_item_1line, mAllLocations);
+        mLocationList.setAdapter(adapter);
 
         mNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v){
-                if (!isValidInput()) {
-                    return;
-                }
                 Intent i = new Intent(activity, MessagePolicyActivity.class);
                 //TODO add message arguments to activity or save to disk
                 i.putExtra("mMessageContent", mMessageContent);
                 i.putExtra("mStartTime", mStartTime);
                 i.putExtra("mEndTime", mEndTime);
+                i.putExtra("mSwitch", mSwitch.isChecked());
 
-                i.putExtra("mType", mType);
                 mID = mLocationList.getSelectedItem().toString();
                 i.putExtra("mID", mID);
 
@@ -98,42 +79,6 @@ public class MessageLocationActivity extends AppCompatActivity implements Compou
             }
         });
 
-    }
-
-    @Override
-    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-        someOptionChecked = true;
-        if (b) {
-            // if b is true, radio button is selected, if false, radio is not selected
-            // do not delete this if because onCheckedChanged is called twice if we select another option
-            switch (compoundButton.getId()) {
-                case 0:
-                    // GPS
-                    ArrayAdapter<String> adapterGPS = new ArrayAdapter<String>(activity, android.R.layout.simple_dropdown_item_1line, locationsGPS);
-                    mLocationList.setAdapter(adapterGPS);
-                    mType = "GPS";
-                    break;
-                case 1:
-                    // WIFI
-                    ArrayAdapter<String> adapterWIFI = new ArrayAdapter<String>(activity, android.R.layout.simple_dropdown_item_1line, locationsWIFI);
-                    mLocationList.setAdapter(adapterWIFI);
-                    mType = "WIFI";
-                    break;
-                case 2:
-                    // BTL
-                    ArrayAdapter<String> adapterBLE = new ArrayAdapter<String>(activity, android.R.layout.simple_dropdown_item_1line, locationsBLE);
-                    mLocationList.setAdapter(adapterBLE);
-                    mType = "BTL";
-                    break;
-            }
-        }
-    }
-
-    private boolean isValidInput() {
-        if (!someOptionChecked) {
-            Toast.makeText(activity, "Select an option", Toast.LENGTH_LONG).show();
-        }
-        return someOptionChecked;
     }
 
     private void getExtrasIntent(Intent i) {
