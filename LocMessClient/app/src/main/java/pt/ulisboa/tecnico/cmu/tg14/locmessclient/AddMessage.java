@@ -12,12 +12,15 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 
 import net.danlew.android.joda.JodaTimeAndroid;
+
+import org.w3c.dom.Text;
 
 import java.security.Timestamp;
 import java.text.DateFormat;
@@ -38,8 +41,8 @@ public class AddMessage extends AppCompatActivity {
 
     private final String TAG = "AddMessage";
     private EditText mMessageContent;
-    private EditText mStartTime;
-    private EditText mEndTime;
+    private TextView mStartTime;
+    private TextView mEndTime;
     private Calendar mCalendar;
     private Button mNext;
     private Activity activity;
@@ -54,8 +57,8 @@ public class AddMessage extends AppCompatActivity {
         mCalendar = Calendar.getInstance();
 
         mMessageContent = (EditText) findViewById(R.id.add_message_content);
-        mStartTime = (EditText) findViewById(R.id.add_message_start_time);
-        mEndTime = (EditText) findViewById(R.id.add_message_end_time);
+        mStartTime = (TextView) findViewById(R.id.add_message_start_time);
+        mEndTime = (TextView) findViewById(R.id.add_message_end_time);
         mNext = (Button) findViewById(R.id.button_next);
 
         mStartTime.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -107,28 +110,42 @@ public class AddMessage extends AppCompatActivity {
     }
 
     private boolean isValidInput() {
+
         if (mMessageContent.length() <= 0) {
             Toast.makeText(activity, "You need to write a message", Toast.LENGTH_LONG).show();
+            return false;
         } else if (mStartTime.length() <= 0) {
             Toast.makeText(activity, "You need to set the Start Time", Toast.LENGTH_LONG).show();
+            return false;
+        } else if (mStartTime.length() > 0) {
+
+            Log.d(TAG, mStartTime.getText().toString());
+            //Calendar cStart = getCalendar(mStartTime.getText().toString());
+            //Calendar cEnd = getCalendar(mEndTime.getText().toString());
+
+            //if (cEnd.before(cStart)) {
+            //    Toast.makeText(activity, "End time must be after than Start time", Toast.LENGTH_LONG).show();
+            //    return false;
+            //}
         }
-
-        /*else if (getCalendar(mEndTime.getText().toString()).before(getCalendar(mStartTime.getText().toString()))){
-            //if endtime is before starttime
-            Toast.makeText(activity, "You need to set the End Time after Start Time", Toast.LENGTH_LONG).show();
-        }*/
-
-        return mMessageContent.length() > 0 && mStartTime.length() > 0;
+        return true;
     }
 
-    private Calendar getCalendar(String s){
+
+    private Calendar getCalendar(String time) {
         String pattern = "(\\d{4})-(\\d{2}|\\d{1})-(\\d{2}|\\d{1}) (\\d{2}|\\d{1}):(\\d{2}|\\d{1})";
         Pattern r = Pattern.compile(pattern);
-        Matcher m = r.matcher(s);
+        Matcher m = r.matcher(time);
 
-        Calendar c = new GregorianCalendar(Integer.parseInt(m.group(1)), Integer.parseInt(m.group(2)), Integer.parseInt(m.group(3)), Integer.parseInt(m.group(4)), Integer.parseInt(m.group(5)));
+        int year = Integer.parseInt(m.group(1));
+        int month = Integer.parseInt(m.group(2));
+        int date = Integer.parseInt(m.group(3));
+        int hour = Integer.parseInt(m.group(4));
+        int minute = Integer.parseInt(m.group(5));
 
-        return c;
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(year, month, date, hour, minute);
+        return calendar;
     }
 
     private void hideKeyboard() {
@@ -140,7 +157,7 @@ public class AddMessage extends AppCompatActivity {
         }
     }
 
-    private void timeListenerAux(EditText time) {
+    private void timeListenerAux(TextView time) {
         DateTimeListener dateTimeListener = new DateTimeListener(getFragmentManager(), time);
         Calendar calendar = Calendar.getInstance();
         DatePickerDialog datePickerDialog = DatePickerDialog.newInstance(dateTimeListener,
