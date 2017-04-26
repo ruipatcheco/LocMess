@@ -30,7 +30,7 @@ import static android.content.ContentValues.TAG;
  * Created by trosado on 31/03/17.
  */
 public class ServerActions {
-    private final static  String addr = "193.136.167.92";
+    private final static  String addr = "192.168.43.50";
     private final static String port = "8080";
     private final static String endpoint = "http://"+addr+":"+port;
     private static RequestQueue queue;
@@ -121,7 +121,7 @@ public class ServerActions {
         return locations;
     }
 
-    public List<Location> getAllLocations() {
+    public List<Location> getAllLocations(final OnResponseListener listener) {
         String url = endpoint + "/location/list";
 
         final List<Location> locations = new ArrayList<>();
@@ -138,6 +138,9 @@ public class ServerActions {
                         e.printStackTrace();
                     }
                 }
+
+                listener.onHTTPResponse(locations);
+
                 Log.d(TAG, "onResponse: "+response);
             }}, new Response.ErrorListener() {
             @Override

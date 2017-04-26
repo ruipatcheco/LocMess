@@ -1,14 +1,18 @@
 package pt.ulisboa.tecnico.cmu.tg14.locmessclient;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
@@ -18,7 +22,13 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.LocationQuery;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnResponseListener;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderDbHelper;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServerActions;
+
+import static android.content.ContentValues.TAG;
 
 public class MessageLocationActivity extends AppCompatActivity {
 
@@ -46,8 +56,9 @@ public class MessageLocationActivity extends AppCompatActivity {
 
         activity = this;
 
+        new ListLocationsTask(activity).execute();
+
         mNext = (Button) findViewById(R.id.message_location_next);
-        mLocationList = (Spinner) findViewById(R.id.message_location_spinner);
         mSwitch = (Switch) findViewById(R.id.message_location_activity_switch);
 
         FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(activity);
@@ -55,8 +66,8 @@ public class MessageLocationActivity extends AppCompatActivity {
 
         //TODO Add network communication
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(activity, android.R.layout.simple_dropdown_item_1line, mAllLocations);
-        mLocationList.setAdapter(adapter);
+        //ArrayAdapter<String> adapter = new ArrayAdapter<String>(activity, android.R.layout.simple_dropdown_item_1line, mAllLocations);
+        //mLocationList.setAdapter(adapter);
 
         mNext.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -82,6 +93,64 @@ public class MessageLocationActivity extends AppCompatActivity {
         mMessageContent = i.getExtras().getString("mMessageContent");
         mStartTime = i.getExtras().getString("mStartTime");
         mEndTime = i.getExtras().getString("mEndTime");
+    }
+
+
+    private class ListLocationsTask extends AsyncTask<Void, Void, Void> implements OnResponseListener<List<Location>> {
+
+        ProgressDialog progDailog;
+        private ArrayAdapter<String> arrayAdapter;
+        private List<String> locationListNames;
+        private Activity activity;
+        Spinner mLocationList;
+        List<Location> l;
+
+
+        public ListLocationsTask(Activity activity) {
+            this.activity = activity;
+        }
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            progDailog = new ProgressDialog(activity);
+            progDailog.setMessage("Loading...");
+            progDailog.setIndeterminate(false);
+            progDailog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progDailog.setCancelable(true);
+            progDailog.show();
+
+            mLocationList = (Spinner) findViewById(R.id.message_location_spinner);
+
+            locationListNames = new ArrayList<>();
+            arrayAdapter = new ArrayAdapter(activity,android.R.layout.simple_dropdown_item_1line, locationListNames);
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            mLocationList.setAdapter(arrayAdapter);
+
+            progDailog.dismiss();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            ServerActions serverActions = new ServerActions(activity);
+
+            l = serverActions.getAllLocations(this);
+            return null;
+        }
+
+        @Override
+        public void onHTTPResponse(List<Location> response) {
+            for(Location l : response){
+                locationListNames.add(l.getName());
+                Log.d(TAG, "doInBackground: "+l.getName());
+            }
+            arrayAdapter.notifyDataSetChanged();
+        }
     }
 
 }

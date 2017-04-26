@@ -106,7 +106,7 @@ public class ListMessages extends Fragment {
 
     private void fillDatabase(Activity activity) {
         createDatabase(activity);
-        new FillDatabaseTask(activity).execute();
+        //new FillDatabaseTask(activity).execute();
 
     }
 
@@ -190,8 +190,8 @@ public class ListMessages extends Fragment {
     }
 
 
-
-    private class FillDatabaseTask extends AsyncTask<Void, Void, Void>{
+    /*
+    private class FillDatabaseTask extends AsyncTask<Void, Void, Void> implements OnResponseListener<List<Location>>{
 
         ProgressDialog progDailog;
         Activity activity;
@@ -224,7 +224,7 @@ public class ListMessages extends Fragment {
         protected Void doInBackground(Void... params) {
 
             ServerActions serverActions = new ServerActions(getActivity());
-            ArrayList <Location> locations = (ArrayList <Location>) serverActions.getAllLocations();
+            ArrayList <Location> locations = (ArrayList <Location>) serverActions.getAllLocations(this);
 
             for(Location l: locations){
                 Log.d("FillDatabaseTask", "location received from server -> " + l.getName());
@@ -238,7 +238,15 @@ public class ListMessages extends Fragment {
             return null;
         }
 
-    }
+        @Override
+        public void onHTTPResponse(List<Location> response) {
+            for(Location l : response){
+                locationListNames.add(l.getName());
+                Log.d(TAG, "doInBackground: "+l.getName());
+            }
+            arrayAdapter.notifyDataSetChanged();
+        }
+    }*/
 
 
 }
