@@ -44,7 +44,7 @@ public class ProfileImpl implements ProfileDao {
 
     @Override
     public String delete(String username, String key) {
-        String SQL = "delete from Profile where id = ? and key = ?";
+        String SQL = "delete from Profile where username = ? and name = ?";
         jdbcTemplateObject.update(SQL,username,key);
         System.out.println("Deleted key = " + key + " from username = " + username);
         return "OK";

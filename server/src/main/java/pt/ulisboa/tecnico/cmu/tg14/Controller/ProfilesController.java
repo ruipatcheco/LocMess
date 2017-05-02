@@ -2,13 +2,10 @@ package pt.ulisboa.tecnico.cmu.tg14.Controller;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import pt.ulisboa.tecnico.cmu.tg14.DTO.OperationStatus;
 import pt.ulisboa.tecnico.cmu.tg14.Implementation.ProfileImpl;
-import pt.ulisboa.tecnico.cmu.tg14.Implementation.UserImpl;
 import pt.ulisboa.tecnico.cmu.tg14.Model.Profile;
-import pt.ulisboa.tecnico.cmu.tg14.Model.User;
 
 import java.util.List;
 
@@ -26,22 +23,30 @@ public class ProfilesController {
             (ProfileImpl)context.getBean("profileImpl");
 
 
-    @RequestMapping("/create")
-    public String create(@RequestParam(value="username") String username, @RequestParam(value="key") String key,@RequestParam(value="value") String value){
-        profileImpl.create(username, key,value);
-        return "OK";
+    @RequestMapping(value = "/create", method = RequestMethod.PUT)
+    public OperationStatus create(@RequestBody Profile keyValueData){
+
+            //@RequestParam(value="username") String username, @RequestParam(value="key") String key,@RequestParam(value="value") String value){
+        profileImpl.create(keyValueData.getUsername(), keyValueData.getKey(),keyValueData.getValue());
+        OperationStatus status = new OperationStatus();
+        status.setOK();
+        return status;
     }
 
-    @RequestMapping("/delete")
-    public String delete(@RequestParam(value="username") String username, @RequestParam(value="key") String key){
-        profileImpl.delete(username, key);
-        return "OK";
+    @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
+    public OperationStatus delete(@RequestBody Profile keyValueData){
+        profileImpl.delete(keyValueData.getUsername(), keyValueData.getKey());
+        OperationStatus status = new OperationStatus();
+        status.setOK();
+        return status;
     }
 
 
     @RequestMapping("/listAll")
     public List<Profile>  listAll(){
         List<Profile> profileList = profileImpl.listAll();
+        for(Profile p : profileList)
+            p.setUsername(null);
         return profileList;
     }
 

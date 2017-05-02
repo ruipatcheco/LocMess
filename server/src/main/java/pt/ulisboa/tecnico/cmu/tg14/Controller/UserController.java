@@ -2,16 +2,15 @@ package pt.ulisboa.tecnico.cmu.tg14.Controller;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import pt.ulisboa.tecnico.cmu.tg14.DTO.OperationStatus;
 import pt.ulisboa.tecnico.cmu.tg14.Implementation.UserImpl;
 import pt.ulisboa.tecnico.cmu.tg14.Model.User;
 import pt.ulisboa.tecnico.cmu.tg14.PasswordHasher;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Base64;
 import java.util.List;
-
 /**
  * Created by trosado on 20/03/17.
  */
@@ -25,11 +24,16 @@ public class UserController {
     UserImpl userImpl =
             (UserImpl)context.getBean("userImpl");
 
-    @RequestMapping("/create")
-    public String createUser(@RequestParam(value="username") String username, @RequestParam(value="password") String password){
-
-        userImpl.create(username,PasswordHasher.hashToString(password));
-        return "OK";
+    @RequestMapping(value = "/create", method = RequestMethod.PUT)
+    public OperationStatus createUser(@RequestBody User user){
+        OperationStatus status = new OperationStatus();
+        if(userImpl.getUser(user.getUsername()) != null)
+            status.setError();
+        else{
+            userImpl.create(user.getUsername(),PasswordHasher.hashToString(user.getPassword()));
+            status.setOK();
+        }
+        return status;
     }
 
     @RequestMapping("/list")

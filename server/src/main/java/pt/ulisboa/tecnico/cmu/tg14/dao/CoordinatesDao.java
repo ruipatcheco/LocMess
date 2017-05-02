@@ -15,9 +15,9 @@ public interface CoordinatesDao {
      */
     void setDataSource(DataSource ds);
 
-    UUID create(float latitude,float longitude,int radius);
+    UUID create(double latitude,double longitude,int radius);
     Coordinates getCoordinates(UUID id);
-    void updateCoordinates(UUID id,float latitude,float longitude,int radius);
+    void updateCoordinates(UUID id,double latitude,double longitude,int radius);
     void delete(UUID id);
 
 }

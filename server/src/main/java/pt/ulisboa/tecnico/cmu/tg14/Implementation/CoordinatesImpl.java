@@ -23,7 +23,7 @@ public class CoordinatesImpl implements CoordinatesDao {
     }
 
     @Override
-    public UUID create(float latitude, float longitude, int radius) {
+    public UUID create(double latitude, double longitude, int radius) {
         String SQL = "insert into Coordinates (id, lat, lon,radius) values (?, ?,?, ?)";
         UUID id = UUID.randomUUID();
         jdbcTemplateObject.update( SQL,id.toString(), latitude, longitude,radius);
@@ -39,7 +39,7 @@ public class CoordinatesImpl implements CoordinatesDao {
     }
 
     @Override
-    public void updateCoordinates(UUID id, float latitude, float longitude, int radius) {
+    public void updateCoordinates(UUID id, double latitude, double longitude, int radius) {
         String SQL = "update Coordinates set lat = ? and lon = ? and radius = ? where id = ?";
         jdbcTemplateObject.update(SQL, latitude, longitude,radius, id);
         System.out.println("Updated Location with id = " + id);

@@ -1,5 +1,6 @@
 package pt.ulisboa.tecnico.cmu.tg14.Implementation;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import pt.ulisboa.tecnico.cmu.tg14.dao.UserDao;
 import pt.ulisboa.tecnico.cmu.tg14.Model.User;
@@ -27,15 +28,20 @@ public class UserImpl implements UserDao {
     public void create(String username, String password) {
         String SQL = "insert into User (username, password) values (?, ?)";
         jdbcTemplateObject.update( SQL, username, password);
+
         return;
     }
 
     @Override
     public User getUser(String username) {
         String SQL = "select * from User where username=?";
-        User user = jdbcTemplateObject.queryForObject(SQL,
-                new Object[]{username}, new UserMapper());
-        return user;
+        try {
+            User user = jdbcTemplateObject.queryForObject(SQL,
+                    new Object[]{username}, new UserMapper());
+            return user;
+        } catch (EmptyResultDataAccessException e){
+            return null;
+        }
     }
 
     @Override

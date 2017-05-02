@@ -4,7 +4,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.web.bind.annotation.*;
 import pt.ulisboa.tecnico.cmu.tg14.DTO.LocationQuery;
-import pt.ulisboa.tecnico.cmu.tg14.DTO.LocationResult;
+import pt.ulisboa.tecnico.cmu.tg14.DTO.LocationMover;
+import pt.ulisboa.tecnico.cmu.tg14.DTO.OperationStatus;
 import pt.ulisboa.tecnico.cmu.tg14.Implementation.CoordinatesImpl;
 import pt.ulisboa.tecnico.cmu.tg14.Implementation.LocationImpl;
 import pt.ulisboa.tecnico.cmu.tg14.Model.Coordinates;
@@ -28,27 +29,42 @@ public class LocationController {
     CoordinatesImpl coordinatesImpl =
             (CoordinatesImpl) context.getBean("coordinatesImpl");
 
-    @RequestMapping("/create")
-    public String createLocation(@RequestParam(value="name") String name,@RequestParam(value="ssid",required = false) String ssid,@RequestParam(value="ble",required = false) String ble,@RequestParam(value="lat",required = false) Float lat,@RequestParam(value="lon",required = false) Float lon,@RequestParam(value="radius",required = false) Integer radius){
+    @RequestMapping(value = "/create", method = RequestMethod.PUT)
+    @ResponseBody
+    public OperationStatus createLocation(@RequestBody LocationMover locationMover){
+            //@RequestParam(value="name") String name,@RequestParam(value="ssid",required = false) String ssid,@RequestParam(value="ble",required = false) String ble,@RequestParam(value="lat",required = false) Float lat,@RequestParam(value="lon",required = false) Float lon,@RequestParam(value="radius",required = false) Integer radius){
         UUID cid = null;
-        if(lat!=null&&lon!=null&&radius!=null){
+        Double lat = locationMover.getLatitude();
+        Double lon = locationMover.getLongitude();
+        Integer radius = locationMover.getRadius();
+        if(lat!=0&&lon!=0&&radius!=0){
             CoordinatesImpl coord = (CoordinatesImpl) context.getBean("coordinatesImpl");
             cid = coord.create(lat,lon,radius);
         }
-        locationImpl.create(name,ssid,ble,cid);
-
-        return name;
+        locationImpl.create(locationMover.getName(),locationMover.getSsid(),locationMover.getBle(),cid);
+        OperationStatus status = new OperationStatus();
+        status.setOK();
+        return status;
     }
 
+    @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
+    public OperationStatus deleteLocation(@RequestParam String name){
+        //TODO
+
+        locationImpl.delete(name);
+        OperationStatus status = new OperationStatus();
+        status.setOK();
+        return status;
+    }
+/*
     @RequestMapping("/listByCoord")
     public Location getLocation(@RequestParam(value="lat") Float lat,@RequestParam(value="lon") Float lon){
         return locationImpl.getLocationByCoord(lat,lon);
     }
-
+*/
 
     @RequestMapping(value = "/nearbyLocations", method = RequestMethod.POST)
-    public List<LocationResult> getNearByLocations(@RequestBody LocationQuery queryString){
-        //FIXME Wrap List into a Single JSON Object like a response
+    public List<LocationMover> getNearByLocations(@RequestBody LocationQuery queryString){
         List<Location> locations = new ArrayList<>();
         locations.addAll(locationImpl.getLocationByBle(queryString.getBleList()));
         locations.addAll(locationImpl.getLocationBySSID(queryString.getSsidList()));
@@ -61,31 +77,31 @@ public class LocationController {
                 locations.add(loc);
         }
 
-        List<LocationResult> result = locations.stream().map(this::convertToLocResult).collect(Collectors.toList());
+        List<LocationMover> result = locations.stream().map(this::convertToLocResult).collect(Collectors.toList());
 
 
         return result;
     }
 
-    private LocationResult convertToLocResult(Location location){
+    private LocationMover convertToLocResult(Location location){
 
         UUID coordID = location.getCoordinates();
         Coordinates coord = null;
         if(coordID != null){
             coord = coordinatesImpl.getCoordinates(coordID);
-            return new LocationResult(location.getName(),location.getSsid()
+            return new LocationMover(location.getName(),location.getSsid()
                     ,location.getBle(),coord.getLatitude()
                     ,coord.getLongitude(),coord.getRadius());
         }
-        return new LocationResult(location.getName(),location.getSsid()
+        return new LocationMover(location.getName(),location.getSsid()
                 ,location.getBle(),0
                 ,0,0);
     }
 
 
     @RequestMapping("/list")
-    public List<LocationResult> getLocationList(){
-        List<LocationResult> result  = locationImpl.getLocationList().stream().map(this::convertToLocResult).collect(Collectors.toList());
+    public List<LocationMover> getLocationList(){
+        List<LocationMover> result  = locationImpl.getLocationList().stream().map(this::convertToLocResult).collect(Collectors.toList());
         return result;
     }
 

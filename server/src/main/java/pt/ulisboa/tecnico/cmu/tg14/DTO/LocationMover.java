@@ -3,7 +3,7 @@ package pt.ulisboa.tecnico.cmu.tg14.DTO;
 /**
  * Created by trosado on 4/23/17.
  */
-public class LocationResult {
+public class LocationMover {
 
     String name;
     String ssid;
@@ -12,7 +12,16 @@ public class LocationResult {
     double longitude;
     int radius;
 
-    public LocationResult(String name, String ssid, String ble, double latitude, double longitude, int radius) {
+    public LocationMover(){
+        this.name = "";
+        this.ble = "";
+        this.ssid = "";
+        this.latitude = 0;
+        this.longitude = 0;
+        this.radius = 0;
+    }
+
+    public LocationMover(String name, String ssid, String ble, double latitude, double longitude, int radius) {
         this.name = name;
         this.ssid = ssid;
         this.ble = ble;

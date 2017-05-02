@@ -2,10 +2,11 @@ package pt.ulisboa.tecnico.cmu.tg14.Controller;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import pt.ulisboa.tecnico.cmu.tg14.DTO.LocationMover;
+import pt.ulisboa.tecnico.cmu.tg14.DTO.OperationStatus;
 import pt.ulisboa.tecnico.cmu.tg14.Implementation.MessageImpl;
+import pt.ulisboa.tecnico.cmu.tg14.Model.Location;
 import pt.ulisboa.tecnico.cmu.tg14.Model.Message;
 import pt.ulisboa.tecnico.cmu.tg14.Model.User;
 
@@ -26,19 +27,25 @@ public class MessageController {
     MessageImpl messageImpl =
             (MessageImpl)context.getBean("messageImpl");
 
-    @RequestMapping("/create")
-    public String create(@RequestParam(value="startTime") Long startTime,@RequestParam(value="endTime") Long endTime,@RequestParam(value="creationTime") Long creationTime,@RequestParam(value="content") String content,@RequestParam(value="publisher") String publisher,@RequestParam(value="location") String location){
-        Timestamp startTimeStamp = new Timestamp(startTime);
-        Timestamp endTimeStamp = new Timestamp(endTime);
-        Timestamp creationTimeStamp = new Timestamp(creationTime);
-        messageImpl.create(startTimeStamp,endTimeStamp,creationTimeStamp,content,publisher,location);
-        return "OK";
+    @RequestMapping(value = "/create", method = RequestMethod.PUT)
+    public OperationStatus create(@RequestBody Message message){
+            //@RequestParam(value="startTime") Long startTime,@RequestParam(value="endTime") Long endTime,@RequestParam(value="creationTime") Long creationTime,@RequestParam(value="content") String content,@RequestParam(value="publisher") String publisher,@RequestParam(value="location") String location){
+
+        messageImpl.create(message.getStartTime(),message.getEndTime(),
+                message.getCreationTime(),message.getContent(),
+                message.getPublisher(),message.getLocation());
+
+        OperationStatus status = new OperationStatus();
+        status.setOK();
+        return status;
     }
 
-    @RequestMapping("/delete")
-    public String delete(@RequestParam(value = "id") String id){
+    @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
+    public OperationStatus delete(@RequestParam(value = "id") String id){
+        OperationStatus status = new OperationStatus();
         messageImpl.delete(UUID.fromString(id));
-        return "OK";
+        status.setOK();
+        return status;
     }
 
     @RequestMapping("/get")
@@ -47,10 +54,12 @@ public class MessageController {
         return m;
     }
 
-    @RequestMapping("/getMessagesByLocation")
-    public List<Message> getMessagesByLocation(@RequestParam(value = "location") String location){
-        List<Message> messageList = messageImpl.getMessagesByLocation(location);
+    @RequestMapping(value = "/getMessagesByLocation", method = RequestMethod.POST)
+    public List<Message> getMessagesByLocation(@RequestBody LocationMover locationMover){
+        List<Message> messageList = messageImpl.getMessagesByLocation(locationMover.getName());
         return messageList;
     }
+
+
 
     }
