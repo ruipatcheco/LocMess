@@ -20,8 +20,10 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.LocationMover;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.LocationQuery;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnResponseListener;
 
 import static android.content.ContentValues.TAG;
@@ -30,7 +32,7 @@ import static android.content.ContentValues.TAG;
  * Created by trosado on 31/03/17.
  */
 public class ServerActions {
-    private final static  String addr = "192.168.43.50";
+    private final static  String addr = "194.210.234.202";
     private final static String port = "8080";
     private final static String endpoint = "http://"+addr+":"+port;
     private static RequestQueue queue;
@@ -84,41 +86,49 @@ public class ServerActions {
         makeRequest(url);
     }
 
-    public static List<Location> getNearLocations(LocationQuery query, final OnResponseListener listener){
-        String url = endpoint+"/location/nearbyLocations";
+    public static List<Message> getMessagesFromLocation(LocationMover locationMover, final OnResponseListener listener){
+        String url = endpoint+"/message/getMessagesByLocation";
 
-        final List<Location> locations = new ArrayList<>();
-        Log.d(TAG, "request: "+query.toJSON());
-        JsonArrayFromJsonObjectRequest request = new JsonArrayFromJsonObjectRequest(Request.Method.POST,url,query.toJSON(),null, new Response.Listener<JSONArray>() {
-            @Override
-            public void onResponse(JSONArray response) {
-                for(int i = 0;i<response.length();i++){
-                    try {
-                        JSONObject obj = response.getJSONObject(i);
-                        Gson gson = new Gson();
-                        Location l = gson.fromJson(obj.toString(),Location.class);
-                        locations.add(l);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+        final List<Message> messages = new ArrayList<>();
+        Gson gson = new Gson();
+        try {
+            JSONObject jsonObject = new JSONObject(gson.toJson(locationMover));
+
+            JsonArrayFromJsonObjectRequest request = new JsonArrayFromJsonObjectRequest(Request.Method.POST,url,jsonObject,null, new Response.Listener<JSONArray>() {
+                @Override
+                public void onResponse(JSONArray response) {
+                    for(int i = 0;i<response.length();i++){
+                        try {
+                            JSONObject obj = response.getJSONObject(i);
+                            Gson gson = new Gson();
+                            Log.d(TAG, "onResponse: "+obj.toString());
+                            Message msg = gson.fromJson(obj.toString(),Message.class);
+                            messages.add(msg);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     }
+
+                    listener.onHTTPResponse(messages);
+
+
+                    Log.d(TAG, "onResponse: "+response);
                 }
 
-                listener.onHTTPResponse(locations);
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.e(TAG, "onErrorResponse: ",error);
+                }
+            });
 
 
-                Log.d(TAG, "onResponse: "+response);
-            }
 
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e(TAG, "onErrorResponse: ",error);
-            }
-        });
-
-        queue.add(request);
-
-        return locations;
+            queue.add(request);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return messages;
     }
 
     public List<Location> getAllLocations(final OnResponseListener listener) {
@@ -152,6 +162,44 @@ public class ServerActions {
 
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
+
+        return locations;
+    }
+
+
+    public static List<Location> getNearLocations(LocationQuery query, final OnResponseListener listener){
+        String url = endpoint+"/location/nearbyLocations";
+
+        final List<Location> locations = new ArrayList<>();
+        Log.d(TAG, "request: "+query.toJSON());
+        JsonArrayFromJsonObjectRequest request = new JsonArrayFromJsonObjectRequest(Request.Method.POST,url,query.toJSON(),null, new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
+                for(int i = 0;i<response.length();i++){
+                    try {
+                        JSONObject obj = response.getJSONObject(i);
+                        Gson gson = new Gson();
+                        Location l = gson.fromJson(obj.toString(),Location.class);
+                        locations.add(l);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                listener.onHTTPResponse(locations);
+
+
+                Log.d(TAG, "onResponse: "+response);
+            }
+
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e(TAG, "onErrorResponse: ",error);
+            }
+        });
+
+        queue.add(request);
 
         return locations;
     }
