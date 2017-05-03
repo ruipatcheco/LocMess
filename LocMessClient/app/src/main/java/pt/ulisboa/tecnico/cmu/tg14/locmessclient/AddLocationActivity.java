@@ -24,8 +24,11 @@ import android.widget.Toast;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.ServicesDataHolder;
@@ -288,7 +291,5 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
     protected void onDestroy() {
         super.onDestroy();
     }
-
-
 
 }

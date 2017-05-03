@@ -14,8 +14,14 @@ import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
 
 public class MessagePolicyActivity extends AppCompatActivity {
 
@@ -92,6 +98,17 @@ public class MessagePolicyActivity extends AppCompatActivity {
         mFinish.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Message message = new Message();
+                message.setContent(mMessageContent);
+                Calendar c = Calendar.getInstance();
+
+                //FIXME tratar disto
+                message.setCreationTime(0);
+
+                message.setStartTime(Long.valueOf(mStartTime));
+                message.setEndTime(Long.valueOf(mEndTime));
+
+                message.setLocation(mID);
                 finish();
             }
         });
@@ -119,5 +136,22 @@ public class MessagePolicyActivity extends AppCompatActivity {
         } catch (Exception e) {
 
         }
+    }
+
+    private Calendar getCalendar(String time) {
+        String pattern = "(\\d{4})-(\\d{2}|\\d{1})-(\\d{2}|\\d{1}) (\\d{2}|\\d{1}):(\\d{2}|\\d{1})";
+        Pattern r = Pattern.compile(pattern);
+        Matcher m = r.matcher(time);
+
+        int year = Integer.parseInt(m.group(1));
+        int month = Integer.parseInt(m.group(2));
+        int date = Integer.parseInt(m.group(3));
+        int hour = Integer.parseInt(m.group(4));
+        int minute = Integer.parseInt(m.group(5));
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(year, month, date, hour, minute);
+
+        return calendar;
     }
 }

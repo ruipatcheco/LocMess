@@ -47,8 +47,7 @@ public class MessageLocationActivity extends AppCompatActivity {
     private Switch mSwitch;
     private String mID;
 
-    private List<String> mAllLocations;
-    private ArrayAdapter<String> mAdapterLocations;
+    private List<String> locationListNames;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +55,7 @@ public class MessageLocationActivity extends AppCompatActivity {
         setContentView(R.layout.activity_message_location);
 
         getExtrasIntent(getIntent());
+        mLocationList = (Spinner) findViewById(R.id.message_location_spinner);
 
         activity = this;
 
@@ -64,32 +64,30 @@ public class MessageLocationActivity extends AppCompatActivity {
         mNext = (Button) findViewById(R.id.message_location_next);
         mSwitch = (Switch) findViewById(R.id.message_location_activity_switch);
 
-        FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(activity);
-        mAllLocations = dbHelper.getAllLocationsNames();
-
-        //TODO Add network communication
-
-        //ArrayAdapter<String> adapter = new ArrayAdapter<String>(activity, android.R.layout.simple_dropdown_item_1line, mAllLocations);
-        //mLocationList.setAdapter(adapter);
+        //FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(activity);
+        //mAllLocations = dbHelper.getAllLocationsNames();
 
         mNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v){
                 Intent i = new Intent(activity, MessagePolicyActivity.class);
                 //TODO add message arguments to activity or save to disk
-                i.putExtra("mMessageContent", mMessageContent);
-                i.putExtra("mStartTime", mStartTime);
-                i.putExtra("mEndTime", mEndTime);
-                i.putExtra("mSwitch", mSwitch.isChecked());
 
-                mID = mLocationList.getSelectedItem().toString();
-                i.putExtra("mID", mID);
-
+                fixIDNull();
+                putExtras(i);
                 startActivity(i);
                 finish();
             }
         });
 
+    }
+
+    private void fixIDNull() {
+        if (locationListNames.size() < 1) {
+            mID = "";
+        } else {
+            mID = mLocationList.getSelectedItem().toString();
+        }
     }
 
     private void getExtrasIntent(Intent i) {
@@ -98,14 +96,19 @@ public class MessageLocationActivity extends AppCompatActivity {
         mEndTime = i.getExtras().getString("mEndTime");
     }
 
+    private void putExtras(Intent i) {
+        i.putExtra("mMessageContent", mMessageContent);
+        i.putExtra("mStartTime", mStartTime);
+        i.putExtra("mEndTime", mEndTime);
+        i.putExtra("mSwitch", mSwitch.isChecked());
+        i.putExtra("mID", mID);
+    }
 
     private class ListLocationsTask extends AsyncTask<Void, Void, Void> implements OnResponseListener<List<Location>> {
 
         ProgressDialog progDailog;
         private ArrayAdapter<String> arrayAdapter;
-        private List<String> locationListNames;
         private Activity activity;
-        Spinner mLocationList;
         List<Location> l;
 
 
@@ -123,8 +126,6 @@ public class MessageLocationActivity extends AppCompatActivity {
             progDailog.setCancelable(true);
             progDailog.show();
 
-            mLocationList = (Spinner) findViewById(R.id.message_location_spinner);
-
             locationListNames = new ArrayList<>();
             arrayAdapter = new ArrayAdapter(activity,android.R.layout.simple_dropdown_item_1line, locationListNames);
         }
@@ -139,10 +140,9 @@ public class MessageLocationActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... params) {
-
             ServerActions serverActions = new ServerActions(activity);
-
             l = serverActions.getAllLocations(this);
+
             return null;
         }
 

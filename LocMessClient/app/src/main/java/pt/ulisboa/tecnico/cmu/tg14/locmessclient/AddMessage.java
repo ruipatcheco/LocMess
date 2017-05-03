@@ -12,12 +12,15 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 
 import net.danlew.android.joda.JodaTimeAndroid;
+
+import org.w3c.dom.Text;
 
 import java.security.Timestamp;
 import java.text.DateFormat;
@@ -38,9 +41,11 @@ public class AddMessage extends AppCompatActivity {
 
     private final String TAG = "AddMessage";
     private EditText mMessageContent;
-    private EditText mStartTime;
-    private EditText mEndTime;
+    private TextView mStartTime;
+    private TextView mEndTime;
     private Calendar mCalendar;
+    private long start;
+    private long end;
     private Button mNext;
     private Activity activity;
 
@@ -54,8 +59,8 @@ public class AddMessage extends AppCompatActivity {
         mCalendar = Calendar.getInstance();
 
         mMessageContent = (EditText) findViewById(R.id.add_message_content);
-        mStartTime = (EditText) findViewById(R.id.add_message_start_time);
-        mEndTime = (EditText) findViewById(R.id.add_message_end_time);
+        mStartTime = (TextView) findViewById(R.id.add_message_start_time);
+        mEndTime = (TextView) findViewById(R.id.add_message_end_time);
         mNext = (Button) findViewById(R.id.button_next);
 
         mStartTime.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -96,8 +101,8 @@ public class AddMessage extends AppCompatActivity {
                 }
                 Intent i = new Intent(activity,MessageLocationActivity.class);
                 i.putExtra("mMessageContent",mMessageContent.getText().toString());
-                i.putExtra("mStartTime",mStartTime.getText().toString());
-                i.putExtra("mEndTime",mEndTime.getText().toString());
+                i.putExtra("mStartTime",start);
+                i.putExtra("mEndTime",end);
 
                 //TODO add message arguments to activity or save to disk
                 startActivity(i);
@@ -107,28 +112,28 @@ public class AddMessage extends AppCompatActivity {
     }
 
     private boolean isValidInput() {
+
         if (mMessageContent.length() <= 0) {
             Toast.makeText(activity, "You need to write a message", Toast.LENGTH_LONG).show();
-        } else if (mStartTime.length() <= 0) {
-            Toast.makeText(activity, "You need to set the Start Time", Toast.LENGTH_LONG).show();
+            return false;
         }
-
-        /*else if (getCalendar(mEndTime.getText().toString()).before(getCalendar(mStartTime.getText().toString()))){
-            //if endtime is before starttime
-            Toast.makeText(activity, "You need to set the End Time after Start Time", Toast.LENGTH_LONG).show();
-        }*/
-
-        return mMessageContent.length() > 0 && mStartTime.length() > 0;
-    }
-
-    private Calendar getCalendar(String s){
-        String pattern = "(\\d{4})-(\\d{2}|\\d{1})-(\\d{2}|\\d{1}) (\\d{2}|\\d{1}):(\\d{2}|\\d{1})";
-        Pattern r = Pattern.compile(pattern);
-        Matcher m = r.matcher(s);
-
-        Calendar c = new GregorianCalendar(Integer.parseInt(m.group(1)), Integer.parseInt(m.group(2)), Integer.parseInt(m.group(3)), Integer.parseInt(m.group(4)), Integer.parseInt(m.group(5)));
-
-        return c;
+        if (mStartTime.length() <= 0) {
+            Toast.makeText(activity, "You need to set the Start Time", Toast.LENGTH_LONG).show();
+            return false;
+        }
+        if (mEndTime.length() <= 0) {
+            start = convertTime(mStartTime.getText().toString());
+            end = 0;
+            return true;
+        } else {
+            start = convertTime(mStartTime.getText().toString());
+            end = convertTime(mEndTime.getText().toString());
+        }
+        if(checkTime(start, end)) {
+            return true;
+        }
+        Toast.makeText(activity, "You need to set the Start Time before the End Time", Toast.LENGTH_LONG).show();
+        return false;
     }
 
     private void hideKeyboard() {
@@ -140,7 +145,7 @@ public class AddMessage extends AppCompatActivity {
         }
     }
 
-    private void timeListenerAux(EditText time) {
+    private void timeListenerAux(TextView time) {
         DateTimeListener dateTimeListener = new DateTimeListener(getFragmentManager(), time);
         Calendar calendar = Calendar.getInstance();
         DatePickerDialog datePickerDialog = DatePickerDialog.newInstance(dateTimeListener,
@@ -148,5 +153,25 @@ public class AddMessage extends AppCompatActivity {
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH));
         datePickerDialog.show(getFragmentManager(),"DateTimePickerDialog");
+    }
+
+    public boolean checkTime(long startTime, long endTime) {
+        return startTime <= endTime;
+    }
+
+    public long convertTime(String time) {
+        try {
+            SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+            Date date = (Date) formatter.parse(time);
+            return date.getTime();
+        } catch (ParseException p1) {
+            try {
+                SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+                Date date = (Date) formatter.parse(time);
+                return date.getTime();
+            } catch (ParseException p2) {
+                return 0;
+            }
+        }
     }
 }
