@@ -4,36 +4,33 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Fragment;
-import android.preference.PreferenceManager;
-import android.support.annotation.BoolRes;
 import android.support.design.widget.FloatingActionButton;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import java.io.File;
+import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.LocationMover;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.LocationQuery;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.ServicesDataHolder;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnResponseListener;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderDbHelper;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServerActions;
-
-import static android.content.ContentValues.TAG;
 
 
 /**
@@ -46,19 +43,11 @@ import static android.content.ContentValues.TAG;
  */
 public class ListMessages extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private List<Message> mMessageList;
 
     private OnFragmentInteractionListener mListener;
 
-
-    private ListView mMessageList;
+    private ListView mMessageListView;
 
     public ListMessages() {
         // Required empty public constructor
@@ -76,8 +65,6 @@ public class ListMessages extends Fragment {
     public static ListMessages newInstance(String param1, String param2) {
         ListMessages fragment = new ListMessages();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }
@@ -88,10 +75,6 @@ public class ListMessages extends Fragment {
 
         getActivity().setTitle(R.string.fragment_list_messages_title);
 
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
 
 
         FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
@@ -136,8 +119,30 @@ public class ListMessages extends Fragment {
         getActivity().setTitle(R.string.fragment_list_messages_title);
 
         View view = inflater.inflate(R.layout.fragment_list_messages, container, false);
-       new ListMessagesTask(view).execute();
 
+        try {
+            mMessageList = new ListMessagesTask(view).execute().get();
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
+
+        mMessageListView = (ListView)  view.findViewById(R.id.list_messages_list);
+
+        mMessageListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                Intent intent = new Intent(getActivity(),MessageView.class);
+                //assuming the message is in the same list position as the arrayadapter position
+                String content = (String) adapterView.getItemAtPosition(position);
+                Message message = mMessageList.get(position);
+                intent.putExtra("MessageID",message.getId());
+                startActivity(intent);
+            }
+        });
 
         return view;
     }
@@ -182,11 +187,12 @@ public class ListMessages extends Fragment {
     }
 
 
-    private class ListMessagesTask extends AsyncTask<Void, Void, Void> implements OnResponseListener<List<Message>> {
+    private class ListMessagesTask extends AsyncTask<Void, Void, List<Message>> implements OnResponseListener<List<Message>> {
 
         ProgressDialog progDailog;
-        private ArrayAdapter<String> arrayAdapter;
-        private List<String> messageList;
+        private ArrayAdapter<Message> arrayAdapter;
+        private List<Message> messageList;
+        private List<String> messageContentList;
         private View view;
         public ListMessagesTask(View view) {
             this.view = view;
@@ -203,32 +209,37 @@ public class ListMessages extends Fragment {
             progDailog.show();
 
             messageList = new ArrayList<>();
+            messageContentList = new ArrayList<>();
+
             ListView listView = (ListView) view.findViewById(R.id.list_messages_list);
-            arrayAdapter = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1, messageList);
+            arrayAdapter = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1, messageContentList);
             listView.setAdapter(arrayAdapter);
         }
 
         @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
+        public void onPostExecute(List< Message> messages) {
+            super.onPostExecute(messages);
             progDailog.dismiss();
         }
 
         @Override
-        protected Void doInBackground(Void... params) {
+        protected List<Message> doInBackground(Void... params) {
 
             ServerActions serverActions = new ServerActions(getActivity());
             //TODO Change to get locations from local DB
             LocationMover locationMover = new LocationMover("Tagus","","",0,0,0);
-            serverActions.getMessagesFromLocation(locationMover,this);
-            return null;
+            return serverActions.getMessagesFromLocation(locationMover,this);
         }
 
         @Override
         public void onHTTPResponse(List<Message> response) {
             for(Message m : response){
-                messageList.add(m.getContent());
+                messageList.add(m);
+                messageContentList.add(m.getContent());
             }
+            ServicesDataHolder servicesDataHolder = ServicesDataHolder.getInstance();
+            servicesDataHolder.setMessageMapFromList(mMessageList);
+
             arrayAdapter.notifyDataSetChanged();
         }
     }

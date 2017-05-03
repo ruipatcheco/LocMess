@@ -52,6 +52,8 @@
     <string name="title_activity_add_key_pair">Add Key Pair</string>
     <string name="message_location_activity_centralized">Centralized</string>
     <string name="message_location_activity_decentralized">Decentralized</string>
+    <string name="message_view_publisher_title" >Publisher :</string>
+    <string name="message_view_content_title">Content :</string>
 
 
 </resources>

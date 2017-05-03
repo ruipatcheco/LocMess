@@ -4,6 +4,7 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by trosado on 4/23/17.
@@ -16,6 +17,7 @@ public class ServicesDataHolder {
     private Float longitude;
     private Float latitude;
     private String username;
+    private AbstractMap<UUID,Message> messageMap;
 
     private static final ServicesDataHolder ourInstance = new ServicesDataHolder();
 
@@ -29,7 +31,26 @@ public class ServicesDataHolder {
         ssidContent = new HashMap<>();
         latitude = new Float(0);
         longitude = new Float(0);
+        messageMap = new HashMap<>();
     }
+
+
+    public AbstractMap<UUID,Message> getMessageMap() {
+        return messageMap;
+    }
+
+    public void setMessageHashMap(AbstractMap<UUID,Message> messageList) {
+        this.messageMap = messageList;
+    }
+
+    public void setMessageMapFromList(List<Message> messages){
+        messageMap = new HashMap<>();
+        for (Message message: messages) {
+            messageMap.put(message.getId(),message);
+        }
+    }
+
+
 
     public String getUsername() {
         return username;

@@ -23,21 +23,20 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".LoginActivity"
-            android:screenOrientation="portrait"
-            android:label="@string/app_name">
-        </activity>
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"></activity>
         <activity
             android:name=".RegisterActivity"
-            android:screenOrientation="portrait"
-            android:label="@string/title_activity_register">
-        </activity>
+            android:label="@string/title_activity_register"
+            android:screenOrientation="portrait"></activity>
         <activity
             android:name=".MainActivity"
-            android:screenOrientation="portrait"
             android:label="@string/title_activity_main"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -46,22 +45,24 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".MessageLocationActivity"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".MessagePolicyActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustNothing" />
         <activity
             android:name=".AddLocationActivity"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".AddProfileKey"
             android:screenOrientation="portrait" />
 
-        <service android:name=".Services.BluetoothService"/>
-        <service android:name=".Services.GPSService"/>
-        <service android:name=".Services.WifiService"/>
-        <service android:name=".Services.MasterService"/>
+        <service android:name=".Services.BluetoothService" />
+        <service android:name=".Services.GPSService" />
+        <service android:name=".Services.WifiService" />
+        <service android:name=".Services.MasterService" />
+
+        <activity android:name=".MessageView"></activity>
     </application>
 
 </manifest>

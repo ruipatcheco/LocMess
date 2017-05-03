@@ -17,8 +17,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.LocationMover;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.LocationQuery;
