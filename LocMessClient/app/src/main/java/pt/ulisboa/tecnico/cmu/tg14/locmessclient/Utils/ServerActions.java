@@ -121,10 +121,10 @@ public class ServerActions {
         return locations;
     }
 
-    public List<Location> getAllLocations(final OnResponseListener listener) {
+    public ArrayList<Location> getAllLocations(final OnResponseListener listener) {
         String url = endpoint + "/location/list";
 
-        final List<Location> locations = new ArrayList<>();
+        final ArrayList<Location> locations = new ArrayList<>();
         JsonArrayRequest stringRequest = new JsonArrayRequest(url, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {

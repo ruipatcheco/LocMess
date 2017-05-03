@@ -3,9 +3,12 @@ package pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners;
 import android.app.FragmentManager;
 import android.util.Log;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
+
+import org.w3c.dom.Text;
 
 import java.util.Calendar;
 
@@ -16,9 +19,9 @@ import static android.content.ContentValues.TAG;
  */
 
 public class DateTimeListener implements DatePickerDialog.OnDateSetListener,TimePickerDialog.OnTimeSetListener {
-    private EditText mEditText;
+    private TextView mEditText;
     private FragmentManager mfragmentManager;
-    public DateTimeListener(FragmentManager fragmentManager,EditText mEditText) {
+    public DateTimeListener(FragmentManager fragmentManager,TextView mEditText) {
         this.mEditText = mEditText;
         this.mfragmentManager=fragmentManager;
     }

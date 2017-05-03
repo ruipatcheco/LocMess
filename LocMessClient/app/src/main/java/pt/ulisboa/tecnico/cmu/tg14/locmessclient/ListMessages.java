@@ -105,6 +105,7 @@ public class ListMessages extends Fragment {
     }
 
     private void fillDatabase(Activity activity) {
+
         //FIXME -> move to login activity and check server connection to infer boolean value
         createDatabase(activity,true);
         //new FillDatabaseTask(activity).execute();
@@ -155,8 +156,6 @@ public class ListMessages extends Fragment {
 
         listView.setAdapter(arrayAdapter);
 
-
-
         return view;
     }
 
@@ -201,13 +200,45 @@ public class ListMessages extends Fragment {
 
 
     /*
-    private class FillDatabaseTask extends AsyncTask<Void, Void, Void> implements OnResponseListener<List<Location>>{
+    private class FillDatabaseTask extends AsyncTask<Void, Void, Void> {
+
+        Context context;
+        ArrayList<Location> locations;
+
+        public FillDatabaseTask(Context context, ArrayList<Location> locations) {
+            this.context = context;
+            this.locations = locations;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(context);
+            dbHelper.insertAllLocations(locations);
+
+            return null;
+        }
+    }*/
+
+    private class GetLocationsTask extends AsyncTask<Void, Void, Void> implements OnResponseListener<List<Location>>{
 
         ProgressDialog progDailog;
-        Activity activity;
+        Context context;
+        ArrayList<Location> locations;
 
-        public FillDatabaseTask(Activity act) {
-            this.activity = act;
+        public GetLocationsTask(Context context) {
+            this.context = context;
         }
 
         @Override
@@ -221,12 +252,14 @@ public class ListMessages extends Fragment {
             progDailog.setCancelable(true);
             progDailog.show();
 
-
         }
 
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
+
+            //new FillDatabaseTask(context, locations).execute();
+
             progDailog.dismiss();
         }
 
@@ -234,29 +267,17 @@ public class ListMessages extends Fragment {
         protected Void doInBackground(Void... params) {
 
             ServerActions serverActions = new ServerActions(getActivity());
-            ArrayList <Location> locations = (ArrayList <Location>) serverActions.getAllLocations(this);
-
-            for(Location l: locations){
-                Log.d("FillDatabaseTask", "location received from server -> " + l.getName());
-            }
-
-            FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(activity);
-
-            dbHelper.insertAllLocations(locations);
-
+            locations = serverActions.getAllLocations(this);
 
             return null;
         }
 
         @Override
         public void onHTTPResponse(List<Location> response) {
-            for(Location l : response){
-                locationListNames.add(l.getName());
-                Log.d(TAG, "doInBackground: "+l.getName());
-            }
-            arrayAdapter.notifyDataSetChanged();
+            FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(context);
+            dbHelper.insertAllLocations(locations);
         }
-    }*/
+    }
 
 
 }
