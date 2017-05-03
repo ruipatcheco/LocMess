@@ -2,6 +2,8 @@ package pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils;
 
 import android.provider.BaseColumns;
 
+import java.security.Timestamp;
+
 /**
  * Created by brigadinhos on 25/04/2017.
  */
@@ -24,5 +26,17 @@ public final class FeedReaderContract {
         public static final String LOCATION_COLUMN_BLE = "ble";
         public static final String LOCATION_COLUMN_LAT = "lat";
         public static final String LOCATION_COLUMN_LON = "lon";
+
+
+        public static final String MULE_TABLE_NAME = "MULE";
+        public static final String MULE_COLUMN_UUID = "uuid";
+        public static final String MULE_COLUMN_CREATIONTIME = "creationTime";
+        public static final String MULE_COLUMN_STARTTIME = "startTime";
+        public static final String MULE_COLUMN_ENDTIME = "endTime";
+        public static final String MULE_COLUMN_CONTENT = "content";
+        public static final String MULE_COLUMN_PUBLISHER = "publisher";
+        public static final String MULE_COLUMN_LOCATION = "location";
     }
+
+
 }

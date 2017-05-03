@@ -105,20 +105,30 @@ public class ListMessages extends Fragment {
     }
 
     private void fillDatabase(Activity activity) {
-        createDatabase(activity);
+        //FIXME -> move to login activity and check server connection to infer boolean value
+        createDatabase(activity,true);
         //new FillDatabaseTask(activity).execute();
 
     }
 
-    private void createDatabase(Context context){
+    private void createDatabase(Context context, boolean deleteDatabase){
         FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(context);
-        if (doesDatabaseExist(context, dbHelper.getDatabaseName())){
+        if (doesDatabaseExist(context, dbHelper.getDatabaseName()) && deleteDatabase){
             dbHelper.onDrop(dbHelper.getWritableDatabase());
-            return;
+            Log.d("createDatabase","old database detected and deleted");
         }
 
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         dbHelper.onCreate(db);
+        Log.d("createDatabase","database created");
+        dbHelper.insertLocation("Tecnico","testSSID","testBLE", (float) 0.1, (float) 0.2);
+        ArrayList<String> locations = dbHelper.getAllLocationsNames();
+        for(String l:locations){
+            Log.d("createDatabase", "name of location: "+l);
+        }
+        Log.d("createDatabase","location size: "+locations.size());
+
+        return;
     }
 
     private static boolean doesDatabaseExist(Context context, String dbName) {
