@@ -14,6 +14,7 @@ import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -101,12 +102,11 @@ public class MessagePolicyActivity extends AppCompatActivity {
                 message.setContent(mMessageContent);
                 Calendar c = Calendar.getInstance();
 
-                message.setCreationTime(c.getTimeInMillis());
-
                 //FIXME tratar disto
+                message.setCreationTime(0);
 
-                //message.setStartTime(getCalendar(mStartTime));
-                //message.setEndTime(getCalendar(mEndTime));
+                message.setStartTime(Long.valueOf(mStartTime));
+                message.setEndTime(Long.valueOf(mEndTime));
 
                 message.setLocation(mID);
                 finish();

@@ -44,6 +44,8 @@ public class AddMessage extends AppCompatActivity {
     private TextView mStartTime;
     private TextView mEndTime;
     private Calendar mCalendar;
+    private long start;
+    private long end;
     private Button mNext;
     private Activity activity;
 
@@ -99,8 +101,8 @@ public class AddMessage extends AppCompatActivity {
                 }
                 Intent i = new Intent(activity,MessageLocationActivity.class);
                 i.putExtra("mMessageContent",mMessageContent.getText().toString());
-                i.putExtra("mStartTime",mStartTime.getText().toString());
-                i.putExtra("mEndTime",mEndTime.getText().toString());
+                i.putExtra("mStartTime",start);
+                i.putExtra("mEndTime",end);
 
                 //TODO add message arguments to activity or save to disk
                 startActivity(i);
@@ -114,38 +116,24 @@ public class AddMessage extends AppCompatActivity {
         if (mMessageContent.length() <= 0) {
             Toast.makeText(activity, "You need to write a message", Toast.LENGTH_LONG).show();
             return false;
-        } else if (mStartTime.length() <= 0) {
+        }
+        if (mStartTime.length() <= 0) {
             Toast.makeText(activity, "You need to set the Start Time", Toast.LENGTH_LONG).show();
             return false;
-        } else if (mStartTime.length() > 0) {
-
-            Log.d(TAG, mStartTime.getText().toString());
-            //Calendar cStart = getCalendar(mStartTime.getText().toString());
-            //Calendar cEnd = getCalendar(mEndTime.getText().toString());
-
-            //if (cEnd.before(cStart)) {
-            //    Toast.makeText(activity, "End time must be after than Start time", Toast.LENGTH_LONG).show();
-            //    return false;
-            //}
         }
-        return true;
-    }
-
-
-    private Calendar getCalendar(String time) {
-        String pattern = "(\\d{4})-(\\d{2}|\\d{1})-(\\d{2}|\\d{1}) (\\d{2}|\\d{1}):(\\d{2}|\\d{1})";
-        Pattern r = Pattern.compile(pattern);
-        Matcher m = r.matcher(time);
-
-        int year = Integer.parseInt(m.group(1));
-        int month = Integer.parseInt(m.group(2));
-        int date = Integer.parseInt(m.group(3));
-        int hour = Integer.parseInt(m.group(4));
-        int minute = Integer.parseInt(m.group(5));
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(year, month, date, hour, minute);
-        return calendar;
+        if (mEndTime.length() <= 0) {
+            start = convertTime(mStartTime.getText().toString());
+            end = 0;
+            return true;
+        } else {
+            start = convertTime(mStartTime.getText().toString());
+            end = convertTime(mEndTime.getText().toString());
+        }
+        if(checkTime(start, end)) {
+            return true;
+        }
+        Toast.makeText(activity, "You need to set the Start Time before the End Time", Toast.LENGTH_LONG).show();
+        return false;
     }
 
     private void hideKeyboard() {
@@ -167,17 +155,23 @@ public class AddMessage extends AppCompatActivity {
         datePickerDialog.show(getFragmentManager(),"DateTimePickerDialog");
     }
 
-    public boolean checkTime(String startTime, String endTime) {
-        return convertTime(startTime) >= convertTime(endTime);
+    public boolean checkTime(long startTime, long endTime) {
+        return startTime <= endTime;
     }
 
     public long convertTime(String time) {
         try {
             SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm");
-            Date date = (Date)formatter.parse(time);
+            Date date = (Date) formatter.parse(time);
             return date.getTime();
-        } catch (ParseException p) {
-            return 0;
+        } catch (ParseException p1) {
+            try {
+                SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+                Date date = (Date) formatter.parse(time);
+                return date.getTime();
+            } catch (ParseException p2) {
+                return 0;
+            }
         }
     }
 }
