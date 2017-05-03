@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.LocationMover;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.LocationQuery;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
@@ -132,6 +133,7 @@ public class ListMessages extends Fragment {
         Calendar c = Calendar.getInstance();
         dbHelper.insertMessage(c.getTimeInMillis(),c.getTimeInMillis(),c.getTimeInMillis(),"olateste","publisher","tenicno");
         ArrayList<Message> messages = dbHelper.getAllMessages();
+
         for(Message m:messages){
             Log.d("createDatabase", "creationtime: "+m.getCreationTime());
             Log.d("createDatabase", "content: "+m.getContent());
@@ -169,16 +171,8 @@ public class ListMessages extends Fragment {
         getActivity().setTitle(R.string.fragment_list_messages_title);
 
         View view = inflater.inflate(R.layout.fragment_list_messages, container, false);
-        List<String> list = new ArrayList<>();
-        list.add("Mess1");
-        list.add("Mess2");
-        list.add("Mess3");
-        list.add("Mess4");
 
-        ListView listView = (ListView) view.findViewById(R.id.list_messages_list);
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1,list);
-
-        listView.setAdapter(arrayAdapter);
+       new ListMessagesTask(view).execute();
 
         return view;
     }
@@ -223,6 +217,58 @@ public class ListMessages extends Fragment {
     }
 
 
+    private class ListMessagesTask extends AsyncTask<Void, Void, Void> implements OnResponseListener<List<Message>> {
+
+        ProgressDialog progDailog;
+        private ArrayAdapter<String> arrayAdapter;
+        private List<String> messageList;
+        private View view;
+        public ListMessagesTask(View view) {
+            this.view = view;
+        }
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            progDailog = new ProgressDialog(getActivity());
+            progDailog.setMessage("Loading...");
+            progDailog.setIndeterminate(false);
+            progDailog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progDailog.setCancelable(true);
+            progDailog.show();
+
+            messageList = new ArrayList<>();
+            ListView listView = (ListView) view.findViewById(R.id.list_messages_list);
+            arrayAdapter = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1, messageList);
+            listView.setAdapter(arrayAdapter);
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            progDailog.dismiss();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            ServerActions serverActions = new ServerActions(getActivity());
+            //TODO Change to get locations from local DB
+            LocationMover locationMover = new LocationMover("Tagus","","",0,0,0);
+            serverActions.getMessagesFromLocation(locationMover,this);
+            return null;
+        }
+
+        @Override
+        public void onHTTPResponse(List<Message> response) {
+            for(Message m : response){
+                messageList.add(m.getContent());
+            }
+            arrayAdapter.notifyDataSetChanged();
+        }
+    }
+
+
     /*
     private class FillDatabaseTask extends AsyncTask<Void, Void, Void> {
 
@@ -259,7 +305,7 @@ public class ListMessages extends Fragment {
 
         ProgressDialog progDailog;
         Context context;
-        ArrayList<Location> locations;
+        List<Location> locations;
 
         public GetLocationsTask(Context context) {
             this.context = context;

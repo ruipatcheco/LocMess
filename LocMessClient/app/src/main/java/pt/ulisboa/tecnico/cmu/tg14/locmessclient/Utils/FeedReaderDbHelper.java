@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
@@ -235,7 +236,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         db.insert(FeedEntry.LOCATION_TABLE_NAME, null, contentValues);
     }
 
-    public void insertAllLocations(ArrayList<Location> locations){
+    public void insertAllLocations(List<Location> locations){
         for (Location l:locations ) {
             insertLocation(l.getName(), l.getSsid(), l.getBle(),l.getLatitude(), l.getLongitude());
             Log.d("insertAllLocations: ","added to DB location" + l.getName());

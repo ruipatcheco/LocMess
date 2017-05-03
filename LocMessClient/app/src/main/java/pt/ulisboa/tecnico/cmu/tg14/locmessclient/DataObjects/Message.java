@@ -10,6 +10,8 @@ import java.util.UUID;
 
 public class Message {
 
+
+
     private UUID id;
     private long creationTime;
     private long startTime;
@@ -17,6 +19,7 @@ public class Message {
     private String content;
     private String publisher;
     private String location;
+
 
     public Message(){}
 
