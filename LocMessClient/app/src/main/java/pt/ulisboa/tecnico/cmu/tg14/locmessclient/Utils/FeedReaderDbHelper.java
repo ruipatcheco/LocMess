@@ -10,6 +10,7 @@ import android.util.Log;
 import java.util.ArrayList;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderContract.FeedEntry;
 
 /**
@@ -22,7 +23,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
     public static final String DATABASE_NAME = "locmessClient.db";
 
-    private static final String SQL_CREATE_ENTRIES =
+    private static final String SQL_CREATE_LOCATION =
 
             "CREATE TABLE IF NOT EXISTS " + FeedEntry.LOCATION_TABLE_NAME + " ( " +
                     FeedEntry._ID + " INTEGER PRIMARY KEY," +
@@ -33,6 +34,32 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
                     FeedEntry.LOCATION_COLUMN_LON +" "+ FeedEntry.FLOAT_TYPE +
                 " )";
 
+    private static final String SQL_CREATE_MULE =
+
+            "CREATE TABLE IF NOT EXISTS " + FeedEntry.MULE_TABLE_NAME + " ( " +
+                    FeedEntry._ID + " INTEGER PRIMARY KEY," +
+                    FeedEntry.MULE_COLUMN_ID +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
+                    FeedEntry.MULE_COLUMN_CREATIONTIME +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
+                    FeedEntry.MULE_COLUMN_STARTTIME +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
+                    FeedEntry.MULE_COLUMN_ENDTIME +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
+                    FeedEntry.MULE_COLUMN_CONTENT +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
+                    FeedEntry.MULE_COLUMN_PUBLISHER +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
+                    FeedEntry.MULE_COLUMN_LOCATION +" "+ FeedEntry.TEXT_TYPE +
+                    " )";
+
+    private static final String SQL_CREATE_MESSAGE=
+
+            "CREATE TABLE IF NOT EXISTS " + FeedEntry.MESSAGE_TABLE_NAME + " ( " +
+                    FeedEntry._ID + " INTEGER PRIMARY KEY," +
+                    FeedEntry.MESSAGE_COLUMN_ID +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
+                    FeedEntry.MESSAGE_COLUMN_CREATIONTIME +" "+ FeedEntry.LONG_TYPE + FeedEntry.COMMA_SEP +
+                    FeedEntry.MESSAGE_COLUMN_STARTTIME +" "+ FeedEntry.LONG_TYPE + FeedEntry.COMMA_SEP +
+                    FeedEntry.MESSAGE_COLUMN_ENDTIME +" "+ FeedEntry.LONG_TYPE + FeedEntry.COMMA_SEP +
+                    FeedEntry.MESSAGE_COLUMN_CONTENT +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
+                    FeedEntry.MESSAGE_COLUMN_PUBLISHER +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
+                    FeedEntry.MESSAGE_COLUMN_LOCATION +" "+ FeedEntry.TEXT_TYPE +
+                " )";
+
     private static final String SQL_DELETE_ENTRIES =
             "DROP TABLE IF EXISTS " + FeedEntry.LOCATION_TABLE_NAME;
 
@@ -40,7 +67,10 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(SQL_CREATE_ENTRIES);
+
+        db.execSQL(SQL_CREATE_LOCATION);
+        db.execSQL(SQL_CREATE_MESSAGE);
+        db.execSQL(SQL_CREATE_MULE);
     }
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // This database is only a cache for online data, so its upgrade policy is
@@ -56,6 +86,75 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         onUpgrade(db, oldVersion, newVersion);
+    }
+
+
+
+    public void insertMessage (long creationTime, long startTime, long endTime, String content, String publisher, String location) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(FeedEntry.MESSAGE_COLUMN_ID, "");
+
+        contentValues.put(FeedEntry.MESSAGE_COLUMN_CREATIONTIME, creationTime);
+        contentValues.put(FeedEntry.MESSAGE_COLUMN_STARTTIME, startTime);
+        contentValues.put(FeedEntry.MESSAGE_COLUMN_ENDTIME, endTime);
+        contentValues.put(FeedEntry.MESSAGE_COLUMN_CONTENT, content);
+        contentValues.put(FeedEntry.MESSAGE_COLUMN_PUBLISHER, publisher);
+        contentValues.put(FeedEntry.MESSAGE_COLUMN_LOCATION, location);
+
+        db.insert(FeedEntry.MESSAGE_TABLE_NAME, null, contentValues);
+    }
+
+    public ArrayList<Message> getAllMessages() {
+        ArrayList<Message> messages = new ArrayList<Message>();
+
+        //hp = new HashMap();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String[] projection = {
+                FeedEntry._ID,
+                FeedEntry.MESSAGE_COLUMN_CREATIONTIME,
+                FeedEntry.MESSAGE_COLUMN_STARTTIME,
+                FeedEntry.MESSAGE_COLUMN_ENDTIME,
+                FeedEntry.MESSAGE_COLUMN_CONTENT,
+                FeedEntry.MESSAGE_COLUMN_PUBLISHER,
+                FeedEntry.MESSAGE_COLUMN_LOCATION
+        };
+
+        // Filter results WHERE "title" = 'My Title'
+        //String selection = FeedEntry.COLUMN_NAME_TITLE + " = ?";
+        //String[] selectionArgs = { "My Title" };
+
+        // How you want the results sorted in the resulting Cursor
+        //String sortOrder = FeedEntry.MESSAGE_COLUMN_LOCATION + " DESC";
+
+        Cursor cursor = db.query(
+                FeedEntry.MESSAGE_TABLE_NAME,            // The table to query
+                projection,                               // The columns to return
+                null,                                     // The columns for the WHERE clause
+                null,                                     // The values for the WHERE clause
+                null,                                     // don't group the rows
+                null,                                     // don't filter by row groups
+                null                                   // The sort order
+        );
+
+        cursor.moveToFirst();
+
+
+        while(cursor.isAfterLast() == false){
+            Message m = new Message(
+                    null,
+                    cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_CREATIONTIME)),
+                    cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_STARTTIME)),
+                    cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_ENDTIME)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_CONTENT)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_PUBLISHER)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_LOCATION))
+            );
+            messages.add(m);
+            cursor.moveToNext();
+        }
+        return messages;
     }
 
     public void insertLocation (String name, String ssid, String ble, float lat, float lon) {

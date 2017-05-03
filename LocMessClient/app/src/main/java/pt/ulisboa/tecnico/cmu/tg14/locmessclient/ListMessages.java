@@ -23,10 +23,12 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.LocationQuery;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnResponseListener;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderDbHelper;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServerActions;
@@ -122,10 +124,25 @@ public class ListMessages extends Fragment {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         dbHelper.onCreate(db);
         Log.d("createDatabase","database created");
+
         dbHelper.insertLocation("Tecnico","testSSID","testBLE", (float) 0.1, (float) 0.2);
-        ArrayList<String> locations = dbHelper.getAllLocationsNames();
-        for(String l:locations){
-            Log.d("createDatabase", "name of location: "+l);
+
+
+        //TESTING
+        Calendar c = Calendar.getInstance();
+        dbHelper.insertMessage(c.getTimeInMillis(),c.getTimeInMillis(),c.getTimeInMillis(),"olateste","publisher","tenicno");
+        ArrayList<Message> messages = dbHelper.getAllMessages();
+        for(Message m:messages){
+            Log.d("createDatabase", "creationtime: "+m.getCreationTime());
+            Log.d("createDatabase", "content: "+m.getContent());
+        }
+
+
+
+        ArrayList<Location> locations = dbHelper.getAllLocations();
+        for(Location l:locations){
+            Log.d("createDatabase", "name of location: "+l.getName());
+            Log.d("createDatabase", "lat of location: "+l.getLatitude());
         }
         Log.d("createDatabase","location size: "+locations.size());
 
@@ -227,7 +244,7 @@ public class ListMessages extends Fragment {
             FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(context);
             dbHelper.insertAllLocations(locations);
 
-            return null;
+        dbHelper.insertLocation("Tecnico","testSSID","testBLE", (float) 0.1, (float) 0    return null;
         }
     }*/
 

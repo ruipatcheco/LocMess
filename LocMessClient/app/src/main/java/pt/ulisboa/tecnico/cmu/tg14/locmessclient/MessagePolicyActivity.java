@@ -99,9 +99,15 @@ public class MessagePolicyActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Message message = new Message();
                 message.setContent(mMessageContent);
-                message.setCreationTime(Calendar.getInstance());
-                message.setStartTime(getCalendar(mStartTime));
-                message.setEndTime(getCalendar(mEndTime));
+                Calendar c = Calendar.getInstance();
+
+                message.setCreationTime(c.getTimeInMillis());
+
+                //FIXME tratar disto
+
+                //message.setStartTime(getCalendar(mStartTime));
+                //message.setEndTime(getCalendar(mEndTime));
+
                 message.setLocation(mID);
                 finish();
             }

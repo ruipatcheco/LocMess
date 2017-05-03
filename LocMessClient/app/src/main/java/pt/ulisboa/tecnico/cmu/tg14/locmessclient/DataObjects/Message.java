@@ -11,12 +11,24 @@ import java.util.UUID;
 public class Message {
 
     private UUID id;
-    private Calendar creationTime;
-    private Calendar startTime;
-    private Calendar endTime;
+    private long creationTime;
+    private long startTime;
+    private long endTime;
     private String content;
     private String publisher;
     private String location;
+
+    public Message(){}
+
+    public Message(UUID id, long creationTime, long startTime, long endTime, String content, String publisher, String location) {
+        this.id = id;
+        this.creationTime = creationTime;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.content = content;
+        this.publisher = publisher;
+        this.location = location;
+    }
 
     public String getLocation() {
         return location;
@@ -34,27 +46,27 @@ public class Message {
         this.id = id;
     }
 
-    public Calendar getCreationTime() {
+    public long getCreationTime() {
         return creationTime;
     }
 
-    public void setCreationTime(Calendar creationTime) {
+    public void setCreationTime(long creationTime) {
         this.creationTime = creationTime;
     }
 
-    public Calendar getStartTime() {
+    public long getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(Calendar startTime) {
+    public void setStartTime(long startTime) {
         this.startTime = startTime;
     }
 
-    public Calendar getEndTime() {
+    public long getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(Calendar endTime) {
+    public void setEndTime(long endTime) {
         this.endTime = endTime;
     }
 
