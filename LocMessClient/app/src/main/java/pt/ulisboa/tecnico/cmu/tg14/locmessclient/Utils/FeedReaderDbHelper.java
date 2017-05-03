@@ -88,6 +88,73 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         onUpgrade(db, oldVersion, newVersion);
     }
 
+    public void insertMessageMule (long creationTime, long startTime, long endTime, String content, String publisher, String location) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(FeedEntry.MULE_COLUMN_ID, "");
+
+        contentValues.put(FeedEntry.MULE_COLUMN_CREATIONTIME, creationTime);
+        contentValues.put(FeedEntry.MULE_COLUMN_STARTTIME, startTime);
+        contentValues.put(FeedEntry.MULE_COLUMN_ENDTIME, endTime);
+        contentValues.put(FeedEntry.MULE_COLUMN_CONTENT, content);
+        contentValues.put(FeedEntry.MULE_COLUMN_PUBLISHER, publisher);
+        contentValues.put(FeedEntry.MULE_COLUMN_LOCATION, location);
+
+        db.insert(FeedEntry.MULE_TABLE_NAME, null, contentValues);
+    }
+
+    public ArrayList<Message> getAllMuleMessages() {
+        ArrayList<Message> messages = new ArrayList<Message>();
+
+        //hp = new HashMap();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String[] projection = {
+                FeedEntry._ID,
+                FeedEntry.MULE_COLUMN_CREATIONTIME,
+                FeedEntry.MULE_COLUMN_STARTTIME,
+                FeedEntry.MULE_COLUMN_ENDTIME,
+                FeedEntry.MULE_COLUMN_CONTENT,
+                FeedEntry.MULE_COLUMN_PUBLISHER,
+                FeedEntry.MULE_COLUMN_LOCATION
+        };
+
+        // Filter results WHERE "title" = 'My Title'
+        //String selection = FeedEntry.COLUMN_NAME_TITLE + " = ?";
+        //String[] selectionArgs = { "My Title" };
+
+        // How you want the results sorted in the resulting Cursor
+        //String sortOrder = FeedEntry.MESSAGE_COLUMN_LOCATION + " DESC";
+
+        Cursor cursor = db.query(
+                FeedEntry.MULE_TABLE_NAME,            // The table to query
+                projection,                               // The columns to return
+                null,                                     // The columns for the WHERE clause
+                null,                                     // The values for the WHERE clause
+                null,                                     // don't group the rows
+                null,                                     // don't filter by row groups
+                null                                   // The sort order
+        );
+
+        cursor.moveToFirst();
+
+
+        while(cursor.isAfterLast() == false){
+            Message m = new Message(
+                    null,
+                    cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry.MULE_COLUMN_CREATIONTIME)),
+                    cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry.MULE_COLUMN_STARTTIME)),
+                    cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry.MULE_COLUMN_ENDTIME)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MULE_COLUMN_CONTENT)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MULE_COLUMN_PUBLISHER)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MULE_COLUMN_LOCATION))
+            );
+            messages.add(m);
+            cursor.moveToNext();
+        }
+        return messages;
+    }
+
 
 
     public void insertMessage (long creationTime, long startTime, long endTime, String content, String publisher, String location) {

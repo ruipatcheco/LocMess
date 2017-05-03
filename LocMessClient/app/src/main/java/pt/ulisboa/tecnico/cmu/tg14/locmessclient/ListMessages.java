@@ -137,6 +137,13 @@ public class ListMessages extends Fragment {
             Log.d("createDatabase", "content: "+m.getContent());
         }
 
+        dbHelper.insertMessageMule(c.getTimeInMillis(),c.getTimeInMillis(),c.getTimeInMillis(),"olateste","publisher","tenicno");
+        ArrayList<Message> messagesMule = dbHelper.getAllMuleMessages();
+        for(Message m:messagesMule){
+            Log.d("createDatabase", "mulecreationtime: "+m.getCreationTime());
+            Log.d("createDatabase", "mulecontent: "+m.getContent());
+        }
+
 
 
         ArrayList<Location> locations = dbHelper.getAllLocations();

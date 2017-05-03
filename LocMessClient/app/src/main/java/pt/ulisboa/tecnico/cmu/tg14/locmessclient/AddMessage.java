@@ -166,4 +166,18 @@ public class AddMessage extends AppCompatActivity {
                 calendar.get(Calendar.DAY_OF_MONTH));
         datePickerDialog.show(getFragmentManager(),"DateTimePickerDialog");
     }
+
+    public boolean checkTime(String startTime, String endTime) {
+        return convertTime(startTime) >= convertTime(endTime);
+    }
+
+    public long convertTime(String time) {
+        try {
+            SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+            Date date = (Date)formatter.parse(time);
+            return date.getTime();
+        } catch (ParseException p) {
+            return 0;
+        }
+    }
 }
