@@ -19,12 +19,13 @@ public class Location {
 
     public Location() {  /* empty */  }
 
-    public Location(String name, String ssid, String ble, float latitude, float longitude) {
+    public Location(String name, String ssid, String ble, float latitude, float longitude, int radius) {
         this.name = name;
         this.ssid = ssid;
         this.ble = ble;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.radius = radius;
     }
 
     public String getName() {

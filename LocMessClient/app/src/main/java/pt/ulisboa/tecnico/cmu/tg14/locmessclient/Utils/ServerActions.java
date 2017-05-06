@@ -8,7 +8,6 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
@@ -17,13 +16,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.AbstractMap;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.LocationMover;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.LocationQuery;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
@@ -89,13 +84,13 @@ public class ServerActions {
         makeRequest(url);
     }
 
-    public static List<Message> getMessagesFromLocation(LocationMover locationMover, final OnResponseListener listener){
+    public static List<Message> getMessagesFromLocation(Location location, final OnResponseListener listener){
         String url = endpoint+"/message/getMessagesByLocation";
 
         final List<Message> messages = new ArrayList<>();
         Gson gson = new Gson();
         try {
-            JSONObject jsonObject = new JSONObject(gson.toJson(locationMover));
+            JSONObject jsonObject = new JSONObject(gson.toJson(location));
 
             JsonArrayFromJsonObjectRequest request = new JsonArrayFromJsonObjectRequest(Request.Method.POST,url,jsonObject,null, new Response.Listener<JSONArray>() {
                 @Override

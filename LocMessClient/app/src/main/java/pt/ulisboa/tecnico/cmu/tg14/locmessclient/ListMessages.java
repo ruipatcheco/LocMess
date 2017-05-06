@@ -19,15 +19,11 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import java.io.File;
-import java.util.AbstractMap;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Calendar;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.LocationMover;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.ServicesDataHolder;
@@ -265,8 +261,8 @@ public class ListMessages extends Fragment {
 
             ServerActions serverActions = new ServerActions(getActivity());
             //TODO Change to get locations from local DB
-            LocationMover locationMover = new LocationMover("Tagus","","",0,0,0);
-            return serverActions.getMessagesFromLocation(locationMover,this);
+            Location location = new Location("Tagus","","",0,0,0);
+            return serverActions.getMessagesFromLocation(location,this);
         }
 
         @Override
