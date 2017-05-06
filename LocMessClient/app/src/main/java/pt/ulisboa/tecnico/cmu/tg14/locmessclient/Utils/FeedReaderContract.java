@@ -18,7 +18,9 @@ public final class FeedReaderContract {
         public static final String TEXT_TYPE = "text";
         public static final String FLOAT_TYPE = "float";
         public static final String LONG_TYPE = "long";
+        public static final String INT_TYPE = "int";
         public static final String COMMA_SEP = ",";
+
 
 
         public static final String LOCATION_TABLE_NAME = "LOCATION";
@@ -27,6 +29,7 @@ public final class FeedReaderContract {
         public static final String LOCATION_COLUMN_BLE = "ble";
         public static final String LOCATION_COLUMN_LAT = "lat";
         public static final String LOCATION_COLUMN_LON = "lon";
+        public static final String LOCATION_COLUMN_RAD = "radius";
 
 
         public static final String MULE_TABLE_NAME = "MULE";
