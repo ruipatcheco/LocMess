@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Profile;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderDbHelper;
 
 public class AddProfileKey extends AppCompatActivity {
 
@@ -90,15 +91,10 @@ public class AddProfileKey extends AppCompatActivity {
         mFinish.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Profile p;
-
-                for(String k : keyValueMap.keySet()){
-                    p = new Profile(k, keyValueMap.get(k));
-
-                    //FIXME save to database
-
+                if(!keyValueMap.isEmpty()){
+                    FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(activity);
+                    dbHelper.insertAllProfiles(keyValueMap);
                 }
-
                 finish();
             }
         });

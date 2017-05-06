@@ -337,8 +337,6 @@ public class ListMessages extends Fragment {
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
 
-            //new FillDatabaseTask(context, locations).execute();
-
             progDailog.dismiss();
         }
 
