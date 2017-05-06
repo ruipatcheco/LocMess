@@ -18,6 +18,7 @@ public class ServicesDataHolder {
     private Float latitude;
     private String username;
     private AbstractMap<UUID,Message> messageMap;
+    private boolean centralizedMode;
 
     private static final ServicesDataHolder ourInstance = new ServicesDataHolder();
 
@@ -34,6 +35,13 @@ public class ServicesDataHolder {
         messageMap = new HashMap<>();
     }
 
+    public boolean isCentralizedMode() {
+        return centralizedMode;
+    }
+
+    public void setCentralizedMode(boolean centralizedMode) {
+        this.centralizedMode = centralizedMode;
+    }
 
     public AbstractMap<UUID,Message> getMessageMap() {
         return messageMap;

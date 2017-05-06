@@ -4,10 +4,14 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Service;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.util.AbstractMap;
 import java.util.HashMap;
@@ -83,4 +87,5 @@ public class MasterService extends Service  implements OnLocationReceivedListene
         super.onDestroy();
         serviceManager.unRegisterReceivers();
     }
+
 }
