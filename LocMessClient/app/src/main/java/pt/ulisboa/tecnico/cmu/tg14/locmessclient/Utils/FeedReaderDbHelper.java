@@ -595,6 +595,38 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         return profiles;
     }
 
+    public List<Profile> getListProfiles() {
+        ArrayList<Profile> profiles = new ArrayList<Profile>();
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String[] projection = {
+                FeedEntry._ID,
+                FeedEntry.PROFILE_COLUMN_KEY,
+                FeedEntry.PROFILE_COLUMN_VALUE,
+        };
+
+        String sortOrder = FeedEntry.PROFILE_COLUMN_KEY + " ASC";
+
+        Cursor cursor = db.query(
+                FeedEntry.PROFILE_TABLE_NAME,            // The table to query
+                projection,                               // The columns to return
+                null,                                     // The columns for the WHERE clause
+                null,                                     // The values for the WHERE clause
+                null,                                     // don't group the rows
+                null,                                     // don't filter by row groups
+                sortOrder                                   // The sort order
+        );
+
+        cursor.moveToFirst();
+
+        while(cursor.isAfterLast() == false){
+            profiles.add(associateProfile(cursor));
+            cursor.moveToNext();
+        }
+        return profiles;
+    }
+
     public boolean deleteProfile(SQLiteDatabase db, String key) {
         return db.delete(FeedEntry.PROFILE_TABLE_NAME, FeedEntry.PROFILE_COLUMN_KEY + "=" + key, null) > 0;
     }
