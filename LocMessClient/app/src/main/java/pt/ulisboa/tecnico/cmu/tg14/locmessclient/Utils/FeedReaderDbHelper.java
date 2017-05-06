@@ -9,6 +9,7 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
@@ -74,9 +75,12 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
     }
 
     public void onCreate(SQLiteDatabase db) {
-        createLocationTable(db);
-        createMessageTable(db);
-        createMuleTable(db);
+        db.execSQL(SQL_CREATE_LOCATION);
+        db.execSQL(SQL_CREATE_MESSAGE);
+        db.execSQL(SQL_CREATE_MULE);
+        //createLocationTable(db);
+        //createMessageTable(db);
+        //createMuleTable(db);
     }
 
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -134,7 +138,8 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
                 FeedEntry.LOCATION_COLUMN_SSID,
                 FeedEntry.LOCATION_COLUMN_BLE,
                 FeedEntry.LOCATION_COLUMN_LAT,
-                FeedEntry.LOCATION_COLUMN_LON
+                FeedEntry.LOCATION_COLUMN_LON,
+                FeedEntry.LOCATION_COLUMN_RAD
         };
 
         Cursor cursor = db.query(
@@ -166,7 +171,8 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
                 FeedEntry.LOCATION_COLUMN_SSID,
                 FeedEntry.LOCATION_COLUMN_BLE,
                 FeedEntry.LOCATION_COLUMN_LAT,
-                FeedEntry.LOCATION_COLUMN_LON
+                FeedEntry.LOCATION_COLUMN_LON,
+                FeedEntry.LOCATION_COLUMN_RAD
         };
 
         String sortOrder = FeedEntry.LOCATION_COLUMN_NAME + " ASC";
@@ -259,7 +265,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
     public void insertAllMessageMule (List<Message> muleMessages) {
         for (Message message : muleMessages) {
-            insertMessageMule(message.getUUID(), message.getCreationTime(), message.getStartTime(), message.getEndTime(), message.getContent(), message.getPublisher(), message.getLocation());
+            insertMessageMule(message.getUUID().toString(), message.getCreationTime(), message.getStartTime(), message.getEndTime(), message.getContent(), message.getPublisher(), message.getLocation());
         }
     }
 
@@ -302,6 +308,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
         String[] projection = {
                 FeedEntry._ID,
+                FeedEntry.MULE_COLUMN_UUID,
                 FeedEntry.MULE_COLUMN_CREATIONTIME,
                 FeedEntry.MULE_COLUMN_STARTTIME,
                 FeedEntry.MULE_COLUMN_ENDTIME,
@@ -321,6 +328,8 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         );
 
         cursor.moveToFirst();
+
+        Log.d("TAMANHO CRL", String.valueOf(cursor.getCount()));
 
         while(cursor.isAfterLast() == false){
             messages.add(associateMessageMule(cursor));
@@ -349,7 +358,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
     private Message associateMessageMule(Cursor cursor) {
         return new Message(
-                cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MULE_COLUMN_UUID)),
+                UUID.fromString(cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MULE_COLUMN_UUID))),
                 cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry.MULE_COLUMN_CREATIONTIME)),
                 cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry.MULE_COLUMN_STARTTIME)),
                 cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry.MULE_COLUMN_ENDTIME)),
@@ -387,7 +396,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
     public void insertAllMessages(List<Message> messages){
         for (Message message : messages) {
-            insertMessage(message.getUUID(), message.getCreationTime(), message.getStartTime(), message.getEndTime(), message.getContent(), message.getPublisher(), message.getLocation());
+            insertMessage(message.getUUID().toString(), message.getCreationTime(), message.getStartTime(), message.getEndTime(), message.getContent(), message.getPublisher(), message.getLocation());
         }
     }
 
@@ -482,7 +491,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
     private Message associateMessage(Cursor cursor) {
         return new Message(
-                cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_UUID)),
+                UUID.fromString(cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_UUID))),
                 cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_CREATIONTIME)),
                 cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_STARTTIME)),
                 cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_ENDTIME)),

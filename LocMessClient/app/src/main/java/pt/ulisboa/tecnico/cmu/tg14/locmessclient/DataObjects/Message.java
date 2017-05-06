@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public class Message {
 
-    private String uuid;
+    private UUID uuid;
     private long creationTime;
     private long startTime;
     private long endTime;
@@ -18,7 +18,7 @@ public class Message {
 
     public Message(){}
 
-    public Message(String uuid, long creationTime, long startTime, long endTime, String content, String publisher, String location) {
+    public Message(UUID uuid, long creationTime, long startTime, long endTime, String content, String publisher, String location) {
         this.uuid = uuid;
         this.creationTime = creationTime;
         this.startTime = startTime;
@@ -28,11 +28,11 @@ public class Message {
         this.location = location;
     }
 
-    public String getUUID() {
+    public UUID getUUID() {
         return uuid;
     }
 
-    public void setUUID(String uuid) {
+    public void setUUID(UUID uuid) {
         this.uuid = uuid;
     }
 

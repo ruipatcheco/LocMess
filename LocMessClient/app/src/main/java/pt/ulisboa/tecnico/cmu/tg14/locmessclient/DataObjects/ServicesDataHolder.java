@@ -46,7 +46,7 @@ public class ServicesDataHolder {
     public void setMessageMapFromList(List<Message> messages){
         messageMap = new HashMap<>();
         for (Message message: messages) {
-            messageMap.put(UUID.fromString(message.getUUID()),message);
+            messageMap.put(message.getUUID(),message);
         }
     }
 

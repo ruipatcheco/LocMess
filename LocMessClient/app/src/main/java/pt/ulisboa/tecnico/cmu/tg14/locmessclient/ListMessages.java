@@ -22,12 +22,14 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.ServicesDataHolder;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnResponseListener;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderContract;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderDbHelper;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServerActions;
 
@@ -100,7 +102,8 @@ public class ListMessages extends Fragment {
     private void createDatabase(Context context, boolean deleteDatabase){
         FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(context);
         if (doesDatabaseExist(context, dbHelper.getDatabaseName()) && deleteDatabase){
-            dbHelper.onDrop(dbHelper.getWritableDatabase());
+            context.deleteDatabase(FeedReaderDbHelper.DATABASE_NAME);
+            //dbHelper.onDrop(dbHelper.getWritableDatabase());
             Log.d("createDatabase","old database detected and deleted");
         }
 
@@ -113,7 +116,7 @@ public class ListMessages extends Fragment {
 
         //TESTING
         Calendar c = Calendar.getInstance();
-        dbHelper.insertMessage("0", c.getTimeInMillis(),c.getTimeInMillis(),c.getTimeInMillis(),"olateste","publisher","tenicno");
+        dbHelper.insertMessage(UUID.randomUUID().toString(), c.getTimeInMillis(),c.getTimeInMillis(),c.getTimeInMillis(),"olateste","publisher","tenicno");
         ArrayList<Message> messages = dbHelper.getAllMessages();
 
         for(Message m:messages){
@@ -121,7 +124,7 @@ public class ListMessages extends Fragment {
             Log.d("createDatabase", "content: "+m.getContent());
         }
 
-        dbHelper.insertMessageMule("0", c.getTimeInMillis(),c.getTimeInMillis(),c.getTimeInMillis(),"olateste","publisher","tenicno");
+        dbHelper.insertMessageMule(UUID.randomUUID().toString(), c.getTimeInMillis(),c.getTimeInMillis(),c.getTimeInMillis(),"olateste","publisher","tenicno");
         ArrayList<Message> messagesMule = dbHelper.getAllMuleMessages();
         for(Message m:messagesMule){
             Log.d("createDatabase", "mulecreationtime: "+m.getCreationTime());
