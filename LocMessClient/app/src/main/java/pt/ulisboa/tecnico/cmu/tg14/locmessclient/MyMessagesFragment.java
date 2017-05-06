@@ -3,6 +3,7 @@ package pt.ulisboa.tecnico.cmu.tg14.locmessclient;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.design.widget.FloatingActionButton;
@@ -15,6 +16,10 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Profile;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderDbHelper;
 
 
 /**
@@ -36,6 +41,9 @@ public class MyMessagesFragment extends Fragment {
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+    private List<String> list;
+    private  ArrayAdapter<String> arrayAdapter;
+    private View view;
 
     public MyMessagesFragment() {
         // Required empty public constructor
@@ -76,7 +84,13 @@ public class MyMessagesFragment extends Fragment {
                 Intent intent = new Intent(getActivity(),AddMessage.class);
                 startActivity(intent);
             }});
+    }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        new GetMessagesFromDatabaseTask(view);
     }
 
     @Override
@@ -87,15 +101,11 @@ public class MyMessagesFragment extends Fragment {
 
 
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_my_messages, container, false);
-        List<String> list = new ArrayList<>();
-        list.add("MyMess1");
-        list.add("MyMess2");
-        list.add("MyMess3");
-        list.add("MyMess4");
+        view = inflater.inflate(R.layout.fragment_my_messages, container, false);
+        list = new ArrayList<>();
 
         ListView listView = (ListView) view.findViewById(R.id.list_my_messages_list);
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1,list);
+        arrayAdapter = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1,list);
 
         listView.setAdapter(arrayAdapter);
 
@@ -140,4 +150,59 @@ public class MyMessagesFragment extends Fragment {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
+
+    private class GetMessagesFromDatabaseTask extends AsyncTask<Void, Void, Void> {
+
+        View v;
+        List<String> list2update;
+
+        public GetMessagesFromDatabaseTask(View view) {
+            v = view;
+            list2update = new ArrayList<>();
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            ListView listView = (ListView) v.findViewById(R.id.profile_list);
+            arrayAdapter = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1,list);
+            listView.setAdapter(arrayAdapter);
+
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+
+            list.clear();
+
+            for(String s : list2update){
+                list.add(s);
+            }
+            arrayAdapter.notifyDataSetChanged();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(getActivity());
+
+
+            /*
+
+            //FIXME -> implement get messages from certain username
+            List<Message> messagesList = dbHelper.getMessagesFromUser()
+
+
+            for(Message m: messagesList){
+                String s = p.getKey() + " -> " + p.getValue();
+                list2update.add(s);
+                keyHotfix.put(s, p.getKey());
+            }
+            */
+
+            return null;
+        }
+    }
+
 }
