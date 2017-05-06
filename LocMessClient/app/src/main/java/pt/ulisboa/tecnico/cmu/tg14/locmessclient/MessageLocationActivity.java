@@ -82,11 +82,12 @@ public class MessageLocationActivity extends AppCompatActivity {
 
     }
 
+
     private void fixIDNull() {
         if (locationListNames.size() < 1) {
             mID = "";
         } else {
-            mID = mLocationList.getSelectedItem().toString();
+
         }
     }
 
@@ -100,7 +101,7 @@ public class MessageLocationActivity extends AppCompatActivity {
         i.putExtra("mMessageContent", mMessageContent);
         i.putExtra("mStartTime", mStartTime);
         i.putExtra("mEndTime", mEndTime);
-        i.putExtra("mSwitch", mSwitch.isChecked());
+        i.putExtra("mIsDecentralized", mSwitch.isChecked());
         i.putExtra("mID", mID);
     }
 
