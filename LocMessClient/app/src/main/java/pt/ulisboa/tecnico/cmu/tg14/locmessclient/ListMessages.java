@@ -95,6 +95,7 @@ public class ListMessages extends Fragment {
     private void fillDatabase(Activity activity) {
 
         //FIXME -> move to login activity and check server connection to infer boolean value
+
         createDatabase(activity,true);
         //new FillDatabaseTask(activity).execute();
 
@@ -116,7 +117,7 @@ public class ListMessages extends Fragment {
 
         //TESTING
         Calendar c = Calendar.getInstance();
-        dbHelper.insertMessage(c.getTimeInMillis(),c.getTimeInMillis(),c.getTimeInMillis(),"olateste","publisher","tenicno");
+        dbHelper.insertMessage("0", c.getTimeInMillis(),c.getTimeInMillis(),c.getTimeInMillis(),"olateste","publisher","tenicno");
         ArrayList<Message> messages = dbHelper.getAllMessages();
 
         for(Message m:messages){
@@ -124,14 +125,12 @@ public class ListMessages extends Fragment {
             Log.d("createDatabase", "content: "+m.getContent());
         }
 
-        dbHelper.insertMessageMule(c.getTimeInMillis(),c.getTimeInMillis(),c.getTimeInMillis(),"olateste","publisher","tenicno");
+        dbHelper.insertMessageMule("0", c.getTimeInMillis(),c.getTimeInMillis(),c.getTimeInMillis(),"olateste","publisher","tenicno");
         ArrayList<Message> messagesMule = dbHelper.getAllMuleMessages();
         for(Message m:messagesMule){
             Log.d("createDatabase", "mulecreationtime: "+m.getCreationTime());
             Log.d("createDatabase", "mulecontent: "+m.getContent());
         }
-
-
 
         ArrayList<Location> locations = dbHelper.getAllLocations();
         for(Location l:locations){
@@ -177,7 +176,7 @@ public class ListMessages extends Fragment {
                 //assuming the message is in the same list position as the arrayadapter position
                 String content = (String) adapterView.getItemAtPosition(position);
                 Message message = mMessageList.get(position);
-                intent.putExtra("MessageID",message.getId());
+                intent.putExtra("MessageID",message.getUUID());
                 startActivity(intent);
             }
         });

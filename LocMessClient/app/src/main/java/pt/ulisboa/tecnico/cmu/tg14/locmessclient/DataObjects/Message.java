@@ -1,5 +1,7 @@
 package pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects;
 
+import java.util.UUID;
+
 /**
  * Created by brigadinhos on 26/04/2017.
  */
@@ -26,20 +28,20 @@ public class Message {
         this.location = location;
     }
 
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
     public String getUUID() {
         return uuid;
     }
 
     public void setUUID(String uuid) {
         this.uuid = uuid;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 
     public long getCreationTime() {

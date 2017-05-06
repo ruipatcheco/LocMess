@@ -12,6 +12,9 @@ import java.util.List;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.LocationNotFoundException;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.MessageMuleNotFoundException;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.MessageNotFoundException;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderContract.FeedEntry;
 
 /**
@@ -121,6 +124,37 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         }
     }
 
+    public Location getLocation(String name) throws LocationNotFoundException {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String[] projection = {
+                FeedEntry._ID,
+                FeedEntry.LOCATION_COLUMN_NAME,
+                FeedEntry.LOCATION_COLUMN_SSID,
+                FeedEntry.LOCATION_COLUMN_BLE,
+                FeedEntry.LOCATION_COLUMN_LAT,
+                FeedEntry.LOCATION_COLUMN_LON
+        };
+
+        Cursor cursor = db.query(
+                FeedEntry.LOCATION_TABLE_NAME,             // The table to query
+                projection,                               // The columns to return
+                FeedEntry.LOCATION_COLUMN_NAME,            // The columns for the WHERE clause
+                new String[]{FeedEntry.LOCATION_COLUMN_NAME + "=" + name},                                     // The values for the WHERE clause
+                null,                                     // don't group the rows
+                null,                                     // don't filter by row groups
+                null                                   // The sort order
+        );
+
+        if (cursor.getCount() == 0) {
+            throw new LocationNotFoundException();
+        }
+
+        cursor.moveToFirst();
+
+        return associateLocation(cursor);
+    }
+
     public ArrayList<Location> getAllLocations() {
         ArrayList<Location> locations = new ArrayList<Location>();
         SQLiteDatabase db = this.getReadableDatabase();
@@ -149,14 +183,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         cursor.moveToFirst();
 
         while(cursor.isAfterLast() == false){
-            Location location = new Location(
-                    cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.LOCATION_COLUMN_NAME)),
-                    cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.LOCATION_COLUMN_SSID)),
-                    cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.LOCATION_COLUMN_BLE)),
-                    cursor.getFloat(cursor.getColumnIndexOrThrow(FeedEntry.LOCATION_COLUMN_LAT)),
-                    cursor.getFloat(cursor.getColumnIndexOrThrow(FeedEntry.LOCATION_COLUMN_LON))
-            );
-            locations.add(location);
+            locations.add(associateLocation(cursor));
             cursor.moveToNext();
         }
         return locations;
@@ -193,6 +220,16 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         return locations;
     }
 
+    private Location associateLocation(Cursor cursor) {
+        return new Location(
+                cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.LOCATION_COLUMN_NAME)),
+                cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.LOCATION_COLUMN_SSID)),
+                cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.LOCATION_COLUMN_BLE)),
+                cursor.getFloat(cursor.getColumnIndexOrThrow(FeedEntry.LOCATION_COLUMN_LAT)),
+                cursor.getFloat(cursor.getColumnIndexOrThrow(FeedEntry.LOCATION_COLUMN_LON))
+        );
+    }
+
     // MULE
 
     public void createMuleTable(SQLiteDatabase db) {
@@ -203,11 +240,11 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_DELETE_ENTRIES + FeedEntry.MULE_TABLE_NAME);
     }
 
-    public void insertMessageMule (long creationTime, long startTime, long endTime, String content, String publisher, String location) {
+    public void insertMessageMule (String uuid, long creationTime, long startTime, long endTime, String content, String publisher, String location) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(FeedEntry.MULE_COLUMN_ID, "");
-
+        contentValues.put(FeedEntry.MULE_COLUMN_UUID, uuid);
         contentValues.put(FeedEntry.MULE_COLUMN_CREATIONTIME, creationTime);
         contentValues.put(FeedEntry.MULE_COLUMN_STARTTIME, startTime);
         contentValues.put(FeedEntry.MULE_COLUMN_ENDTIME, endTime);
@@ -220,8 +257,41 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
     public void insertAllMessageMule (List<Message> muleMessages) {
         for (Message message : muleMessages) {
-            insertMessageMule(message.getCreationTime(), message.getStartTime(), message.getEndTime(), message.getContent(), message.getPublisher(), message.getLocation());
+            insertMessageMule(message.getUUID(), message.getCreationTime(), message.getStartTime(), message.getEndTime(), message.getContent(), message.getPublisher(), message.getLocation());
         }
+    }
+
+    public Message getMessageMule(String uuid) throws MessageMuleNotFoundException {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String[] projection = {
+                FeedEntry._ID,
+                FeedEntry.MULE_COLUMN_UUID,
+                FeedEntry.MULE_COLUMN_CREATIONTIME,
+                FeedEntry.MULE_COLUMN_STARTTIME,
+                FeedEntry.MULE_COLUMN_ENDTIME,
+                FeedEntry.MULE_COLUMN_CONTENT,
+                FeedEntry.MULE_COLUMN_PUBLISHER,
+                FeedEntry.MULE_COLUMN_LOCATION
+        };
+
+        Cursor cursor = db.query(
+                FeedEntry.MULE_TABLE_NAME,             // The table to query
+                projection,                               // The columns to return
+                FeedEntry.MULE_COLUMN_UUID,            // The columns for the WHERE clause
+                new String[]{FeedEntry.MULE_COLUMN_UUID + "=" + uuid},                                     // The values for the WHERE clause
+                null,                                     // don't group the rows
+                null,                                     // don't filter by row groups
+                null                                   // The sort order
+        );
+
+        if (cursor.getCount() == 0) {
+            throw new MessageMuleNotFoundException();
+        }
+
+        cursor.moveToFirst();
+
+        return associateMessageMule(cursor);
     }
 
     public ArrayList<Message> getAllMuleMessages() {
@@ -251,16 +321,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         cursor.moveToFirst();
 
         while(cursor.isAfterLast() == false){
-            Message m = new Message(
-                    null,
-                    cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry.MULE_COLUMN_CREATIONTIME)),
-                    cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry.MULE_COLUMN_STARTTIME)),
-                    cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry.MULE_COLUMN_ENDTIME)),
-                    cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MULE_COLUMN_CONTENT)),
-                    cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MULE_COLUMN_PUBLISHER)),
-                    cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MULE_COLUMN_LOCATION))
-            );
-            messages.add(m);
+            messages.add(associateMessageMule(cursor));
             cursor.moveToNext();
         }
         return messages;
@@ -284,6 +345,18 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         db.execSQL("delete from "+ FeedEntry.MULE_TABLE_NAME);
     }
 
+    private Message associateMessageMule(Cursor cursor) {
+        return new Message(
+                cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MULE_COLUMN_UUID)),
+                cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry.MULE_COLUMN_CREATIONTIME)),
+                cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry.MULE_COLUMN_STARTTIME)),
+                cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry.MULE_COLUMN_ENDTIME)),
+                cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MULE_COLUMN_CONTENT)),
+                cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MULE_COLUMN_PUBLISHER)),
+                cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MULE_COLUMN_LOCATION))
+        );
+    }
+
     // MESSAGE
 
     public void createMessageTable(SQLiteDatabase db) {
@@ -294,12 +367,12 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_DELETE_ENTRIES + FeedEntry.MESSAGE_TABLE_NAME);
     }
 
-    public void insertMessage (long creationTime, long startTime, long endTime, String content, String publisher, String location) {
+    public void insertMessage (String uuid, long creationTime, long startTime, long endTime, String content, String publisher, String location) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues contentValues = new ContentValues();
         contentValues.put(FeedEntry.MESSAGE_COLUMN_ID, "");
-
+        contentValues.put(FeedEntry.MESSAGE_COLUMN_UUID, uuid);
         contentValues.put(FeedEntry.MESSAGE_COLUMN_CREATIONTIME, creationTime);
         contentValues.put(FeedEntry.MESSAGE_COLUMN_STARTTIME, startTime);
         contentValues.put(FeedEntry.MESSAGE_COLUMN_ENDTIME, endTime);
@@ -312,8 +385,41 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
     public void insertAllMessages(List<Message> messages){
         for (Message message : messages) {
-            insertMessage(message.getCreationTime(), message.getStartTime(), message.getEndTime(), message.getContent(), message.getPublisher(), message.getLocation());
+            insertMessage(message.getUUID(), message.getCreationTime(), message.getStartTime(), message.getEndTime(), message.getContent(), message.getPublisher(), message.getLocation());
         }
+    }
+
+    public Message getMessage(String uuid) throws MessageNotFoundException {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String[] projection = {
+                FeedEntry._ID,
+                FeedEntry.MESSAGE_COLUMN_UUID,
+                FeedEntry.MESSAGE_COLUMN_CREATIONTIME,
+                FeedEntry.MESSAGE_COLUMN_STARTTIME,
+                FeedEntry.MESSAGE_COLUMN_ENDTIME,
+                FeedEntry.MESSAGE_COLUMN_CONTENT,
+                FeedEntry.MESSAGE_COLUMN_PUBLISHER,
+                FeedEntry.MESSAGE_COLUMN_LOCATION
+        };
+
+        Cursor cursor = db.query(
+                FeedEntry.MESSAGE_TABLE_NAME,             // The table to query
+                projection,                               // The columns to return
+                FeedEntry.MESSAGE_COLUMN_UUID,            // The columns for the WHERE clause
+                new String[]{FeedEntry.MESSAGE_COLUMN_UUID + "=" + uuid},                                     // The values for the WHERE clause
+                null,                                     // don't group the rows
+                null,                                     // don't filter by row groups
+                null                                   // The sort order
+        );
+
+        if (cursor.getCount() == 0) {
+            throw new MessageNotFoundException();
+        }
+
+        cursor.moveToFirst();
+
+        return associateMessage(cursor);
     }
 
     public ArrayList<Message> getAllMessages() {
@@ -348,16 +454,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         cursor.moveToFirst();
 
         while(cursor.isAfterLast() == false){
-            Message m = new Message(
-                    cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_UUID)),
-                    cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_CREATIONTIME)),
-                    cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_STARTTIME)),
-                    cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_ENDTIME)),
-                    cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_CONTENT)),
-                    cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_PUBLISHER)),
-                    cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_LOCATION))
-            );
-            messages.add(m);
+            messages.add(associateMessage(cursor));
             cursor.moveToNext();
         }
         return messages;
@@ -379,5 +476,17 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
     public void deleteAllMessages(SQLiteDatabase db) {
         db.execSQL("delete from "+ FeedEntry.MESSAGE_TABLE_NAME);
+    }
+
+    private Message associateMessage(Cursor cursor) {
+        return new Message(
+                cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_UUID)),
+                cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_CREATIONTIME)),
+                cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_STARTTIME)),
+                cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_ENDTIME)),
+                cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_CONTENT)),
+                cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_PUBLISHER)),
+                cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_LOCATION))
+        );
     }
 }
