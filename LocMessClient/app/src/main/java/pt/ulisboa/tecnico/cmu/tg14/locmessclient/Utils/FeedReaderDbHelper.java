@@ -629,6 +629,8 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
     public boolean deleteProfile(SQLiteDatabase db, String key) {
         return db.delete(FeedEntry.PROFILE_TABLE_NAME, FeedEntry.PROFILE_COLUMN_KEY + "=" + key, null) > 0;
+        //FIXME o que ta a acontecer
+        // DELETE FROM PROFILE WHERE key=xd
     }
 
     public boolean deleteProfiles(SQLiteDatabase db, HashMap<String, String> profiles) {

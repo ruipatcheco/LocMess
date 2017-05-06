@@ -137,7 +137,7 @@ public class ProfileFragment extends Fragment {
                             public void onClick(DialogInterface dialog,int id) {
                                 Toast.makeText(getActivity(),"DELETE MODAFOKAAAAA!!",Toast.LENGTH_LONG).show();
 
-                                //new DeleteProfileDatabaseTask(view,key).execute();
+                                new DeleteProfileDatabaseTask(view,key).execute();
 
                                 list.remove(position);
                                 arrayAdapter.notifyDataSetChanged();
@@ -234,10 +234,7 @@ public class ProfileFragment extends Fragment {
         @Override
         protected Void doInBackground(Void... params) {
             FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(getActivity());
-            List<Profile> list = dbHelper.getListProfiles();
-
-            //FIXME remove from server the key
-
+            dbHelper.deleteProfile(dbHelper.getReadableDatabase(),k);
 
             return null;
         }
