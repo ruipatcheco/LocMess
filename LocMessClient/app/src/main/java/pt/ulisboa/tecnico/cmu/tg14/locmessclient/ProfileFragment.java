@@ -188,6 +188,8 @@ public class ProfileFragment extends Fragment {
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
 
+            list.clear();
+
             for(String s : list2update){
                 list.add(s);
             }
