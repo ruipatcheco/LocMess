@@ -84,6 +84,8 @@ public class AddProfileKey extends AppCompatActivity {
                 mKey.setText("");
                 mValue.setText("");
 
+                Log.d("AddProfile :", "map size-> " + keyValueMap.size());
+
                 addNotification();
             }
         });
@@ -94,6 +96,12 @@ public class AddProfileKey extends AppCompatActivity {
                 if(!keyValueMap.isEmpty()){
                     FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(activity);
                     dbHelper.insertAllProfiles(keyValueMap);
+
+
+                    HashMap<String,String> map = dbHelper.getAllProfiles();
+                    for (String k: map.keySet()){
+                        Log.d("AddProfile :", "All keysets key -> " + k + " value -> " +map.get(k));
+                    }
                 }
                 finish();
             }

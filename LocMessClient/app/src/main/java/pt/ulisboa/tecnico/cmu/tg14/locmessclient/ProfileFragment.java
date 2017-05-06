@@ -2,18 +2,29 @@ package pt.ulisboa.tecnico.cmu.tg14.locmessclient;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Profile;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderDbHelper;
 
 
 /**
@@ -34,10 +45,12 @@ public class ProfileFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
+
     private OnFragmentInteractionListener mListener;
 
-
-    private ListView mMessageList;
+    private List<String> list;
+    private HashMap<String,String> keyHotfix;
+    private ArrayAdapter<String> arrayAdapter;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -80,6 +93,15 @@ public class ProfileFragment extends Fragment {
                 startActivity(intent);
             }});
 
+        list = new ArrayList<>();
+        keyHotfix = new HashMap<>();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        new GetProfilesDatabaseTask(this.getView()).execute();
     }
 
     @Override
@@ -88,18 +110,136 @@ public class ProfileFragment extends Fragment {
 
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
-        List<String> list = new ArrayList<>();
-        list.add("Profile1");
-        list.add("Profile2");
 
         ListView listView = (ListView) view.findViewById(R.id.profile_list);
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1,list);
 
-        listView.setAdapter(arrayAdapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, final View view, final int position, long l) {
 
+                String content = (String) adapterView.getItemAtPosition(position);
+                final String key = keyHotfix.get(content);
 
+                Toast.makeText(getActivity(),"key -> " + key, Toast.LENGTH_LONG).show();
+
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                        getActivity());
+
+                String aux = getResources().getString(R.string.prompt_delete_key);
+
+                alertDialogBuilder.setTitle(aux +' ' + key + '?');
+
+                // set dialog message
+                alertDialogBuilder
+                        //.setMessage("Click yes to exit!")
+                        .setCancelable(false)
+                        .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                Toast.makeText(getActivity(),"DELETE MODAFOKAAAAA!!",Toast.LENGTH_LONG).show();
+
+                                //new DeleteProfileDatabaseTask(view,key).execute();
+
+                                list.remove(position);
+                                arrayAdapter.notifyDataSetChanged();
+
+                            }
+                        })
+                        .setNegativeButton("No",new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                // if this button is clicked, just close
+                                // the dialog box and do nothing
+                                dialog.cancel();
+                            }
+                        });
+
+                // create alert dialog
+                AlertDialog alertDialog = alertDialogBuilder.create();
+
+                // show it
+                alertDialog.show();
+
+            }
+        });
 
         return view;
+    }
+
+    private class GetProfilesDatabaseTask extends AsyncTask<Void, Void, Void> {
+
+        View v;
+
+        public GetProfilesDatabaseTask(View view) {
+            v = view;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            ListView listView = (ListView) v.findViewById(R.id.profile_list);
+            arrayAdapter = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1,list);
+            listView.setAdapter(arrayAdapter);
+
+
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+
+            arrayAdapter.notifyDataSetChanged();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(getActivity());
+            List<Profile> profilesList = dbHelper.getListProfiles();
+
+
+            for(Profile p: profilesList){
+                String s = "Key -> " + p.getKey() + " Value -> " + p.getValue();
+                list.add(s);
+                keyHotfix.put(s, p.getKey());
+                Log.d("Profilefragment:",s);
+
+            }
+
+
+            return null;
+        }
+    }
+
+    private class DeleteProfileDatabaseTask extends AsyncTask<Void, Void, Void> {
+
+        View v;
+        String k;
+
+        public DeleteProfileDatabaseTask(View view, String key) {
+            v = view;
+            k = key;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(getActivity());
+            List<Profile> list = dbHelper.getListProfiles();
+
+            //FIXME remove from server the key
+
+
+            return null;
+        }
     }
 
     // TODO: Rename method, update argument and hook method into UI event
