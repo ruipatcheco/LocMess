@@ -35,6 +35,8 @@ import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderContract;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderDbHelper;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServerActions;
 
+import static android.content.ContentValues.TAG;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -173,7 +175,7 @@ public class ListMessages extends Fragment {
         dataHolder = ServicesDataHolder.getInstance();
         try {
             mMessageList = new ListMessagesTask(view).execute().get();
-
+            Log.d(TAG, "onResume: HEY");
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
@@ -252,14 +254,14 @@ public class ListMessages extends Fragment {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-
+/* FIXME maybe there is no need for this
             progDailog = new ProgressDialog(getActivity());
             progDailog.setMessage("Loading...");
             progDailog.setIndeterminate(false);
             progDailog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
             progDailog.setCancelable(true);
             progDailog.show();
-
+*/
             messageList = new ArrayList<>();
             messageContentList = new ArrayList<>();
 
@@ -271,7 +273,7 @@ public class ListMessages extends Fragment {
         @Override
         public void onPostExecute(List< Message> messages) {
             super.onPostExecute(messages);
-            progDailog.dismiss();
+           // progDailog.dismiss();
         }
 
         @Override
