@@ -31,6 +31,7 @@ public final class FeedReaderContract {
 
         public static final String MULE_TABLE_NAME = "MULE";
         public static final String MULE_COLUMN_ID = "id";
+        public static final String MULE_COLUMN_UUID = "uuid";
         public static final String MULE_COLUMN_CREATIONTIME = "creationTime";
         public static final String MULE_COLUMN_STARTTIME = "startTime";
         public static final String MULE_COLUMN_ENDTIME = "endTime";
@@ -41,6 +42,7 @@ public final class FeedReaderContract {
 
         public static final String MESSAGE_TABLE_NAME = "MESSAGE";
         public static final String MESSAGE_COLUMN_ID = "id";
+        public static final String MESSAGE_COLUMN_UUID = "uuid";
         public static final String MESSAGE_COLUMN_CREATIONTIME = "creationTime";
         public static final String MESSAGE_COLUMN_STARTTIME = "startTime";
         public static final String MESSAGE_COLUMN_ENDTIME = "endTime";

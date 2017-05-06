@@ -40,6 +40,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
             "CREATE TABLE IF NOT EXISTS " + FeedEntry.MULE_TABLE_NAME + " ( " +
                     FeedEntry._ID + " INTEGER PRIMARY KEY," +
                     FeedEntry.MULE_COLUMN_ID +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
+                    FeedEntry.MULE_COLUMN_UUID +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
                     FeedEntry.MULE_COLUMN_CREATIONTIME +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
                     FeedEntry.MULE_COLUMN_STARTTIME +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
                     FeedEntry.MULE_COLUMN_ENDTIME +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
@@ -53,6 +54,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
             "CREATE TABLE IF NOT EXISTS " + FeedEntry.MESSAGE_TABLE_NAME + " ( " +
                     FeedEntry._ID + " INTEGER PRIMARY KEY," +
                     FeedEntry.MESSAGE_COLUMN_ID +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
+                    FeedEntry.MESSAGE_COLUMN_UUID +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
                     FeedEntry.MESSAGE_COLUMN_CREATIONTIME +" "+ FeedEntry.LONG_TYPE + FeedEntry.COMMA_SEP +
                     FeedEntry.MESSAGE_COLUMN_STARTTIME +" "+ FeedEntry.LONG_TYPE + FeedEntry.COMMA_SEP +
                     FeedEntry.MESSAGE_COLUMN_ENDTIME +" "+ FeedEntry.LONG_TYPE + FeedEntry.COMMA_SEP +
@@ -70,8 +72,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         createLocationTable(db);
         createMessageTable(db);
-        db.execSQL(SQL_CREATE_MESSAGE);
-        db.execSQL(SQL_CREATE_MULE);
+        createMuleTable(db);
     }
 
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -83,8 +84,8 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
     public void onDrop(SQLiteDatabase db) {
         dropLocation(db);
         dropMessage(db);
+        dropMule(db);
 
-        db.execSQL(SQL_DELETE_ENTRIES);
         onCreate(db);
     }
 
@@ -194,6 +195,14 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
     // MULE
 
+    public void createMuleTable(SQLiteDatabase db) {
+        db.execSQL(SQL_CREATE_MULE);
+    }
+
+    public void dropMule(SQLiteDatabase db) {
+        db.execSQL(SQL_DELETE_ENTRIES + FeedEntry.MULE_TABLE_NAME);
+    }
+
     public void insertMessageMule (long creationTime, long startTime, long endTime, String content, String publisher, String location) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
@@ -207,6 +216,12 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         contentValues.put(FeedEntry.MULE_COLUMN_LOCATION, location);
 
         db.insert(FeedEntry.MULE_TABLE_NAME, null, contentValues);
+    }
+
+    public void insertAllMessageMule (List<Message> muleMessages) {
+        for (Message message : muleMessages) {
+            insertMessageMule(message.getCreationTime(), message.getStartTime(), message.getEndTime(), message.getContent(), message.getPublisher(), message.getLocation());
+        }
     }
 
     public ArrayList<Message> getAllMuleMessages() {
@@ -251,6 +266,20 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         return messages;
     }
 
+    public boolean deleteMessageMule(SQLiteDatabase db, String uuid) {
+        return db.delete(FeedEntry.MULE_TABLE_NAME, FeedEntry.MULE_COLUMN_UUID + "=" + uuid, null) > 0;
+    }
+
+    public boolean deleteListMessageMules(SQLiteDatabase db, List<String> messagesMules) {
+        boolean result = true;
+        for (String messageMule : messagesMules) {
+            if (!deleteMessageMule(db, messageMule)) {
+                result = false;
+            }
+        }
+        return result;
+    }
+
     // MESSAGE
 
     public void createMessageTable(SQLiteDatabase db) {
@@ -290,6 +319,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
         String[] projection = {
                 FeedEntry._ID,
+                FeedEntry.MESSAGE_COLUMN_UUID,
                 FeedEntry.MESSAGE_COLUMN_CREATIONTIME,
                 FeedEntry.MESSAGE_COLUMN_STARTTIME,
                 FeedEntry.MESSAGE_COLUMN_ENDTIME,
@@ -314,7 +344,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
         while(cursor.isAfterLast() == false){
             Message m = new Message(
-                    null,
+                    cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_UUID)),
                     cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_CREATIONTIME)),
                     cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_STARTTIME)),
                     cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_ENDTIME)),

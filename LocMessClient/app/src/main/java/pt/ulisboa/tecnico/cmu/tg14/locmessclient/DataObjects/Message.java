@@ -1,18 +1,12 @@
 package pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects;
 
-import java.sql.Timestamp;
-import java.util.Calendar;
-import java.util.UUID;
-
 /**
  * Created by brigadinhos on 26/04/2017.
  */
 
 public class Message {
 
-
-
-    private UUID id;
+    private String uuid;
     private long creationTime;
     private long startTime;
     private long endTime;
@@ -20,11 +14,10 @@ public class Message {
     private String publisher;
     private String location;
 
-
     public Message(){}
 
-    public Message(UUID id, long creationTime, long startTime, long endTime, String content, String publisher, String location) {
-        this.id = id;
+    public Message(String uuid, long creationTime, long startTime, long endTime, String content, String publisher, String location) {
+        this.uuid = uuid;
         this.creationTime = creationTime;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -41,12 +34,12 @@ public class Message {
         this.location = location;
     }
 
-    public UUID getId() {
-        return id;
+    public String getUUID() {
+        return uuid;
     }
 
-    public void setId(UUID id) {
-        this.id = id;
+    public void setUUID(String uuid) {
+        this.uuid = uuid;
     }
 
     public long getCreationTime() {
