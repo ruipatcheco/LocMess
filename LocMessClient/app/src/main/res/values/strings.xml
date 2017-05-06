@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">LocMess</string>
 
+    <!-- Strings related to addprofile -->
+    <string name="prompt_delete_key">Do you want to delete </string>
+
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
