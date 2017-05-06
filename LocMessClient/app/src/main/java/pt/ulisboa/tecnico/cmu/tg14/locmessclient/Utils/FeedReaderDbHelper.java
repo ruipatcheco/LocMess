@@ -69,6 +69,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
     public void onCreate(SQLiteDatabase db) {
         createLocationTable(db);
+        createMessageTable(db);
         db.execSQL(SQL_CREATE_MESSAGE);
         db.execSQL(SQL_CREATE_MULE);
     }
@@ -81,6 +82,8 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
     public void onDrop(SQLiteDatabase db) {
         dropLocation(db);
+        dropMessage(db);
+
         db.execSQL(SQL_DELETE_ENTRIES);
         onCreate(db);
     }
@@ -112,8 +115,8 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
     }
 
     public void insertAllLocations(List<Location> locations){
-        for (Location l:locations ) {
-            insertLocation(l.getName(), l.getSsid(), l.getBle(),l.getLatitude(), l.getLongitude());
+        for (Location location : locations) {
+            insertLocation(location.getName(), location.getSsid(), location.getBle(),location.getLatitude(), location.getLongitude());
         }
     }
 
@@ -250,6 +253,14 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
     // MESSAGE
 
+    public void createMessageTable(SQLiteDatabase db) {
+        db.execSQL(SQL_CREATE_MESSAGE);
+    }
+
+    public void dropMessage(SQLiteDatabase db) {
+        db.execSQL(SQL_DELETE_ENTRIES + FeedEntry.MESSAGE_TABLE_NAME);
+    }
+
     public void insertMessage (long creationTime, long startTime, long endTime, String content, String publisher, String location) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
@@ -263,6 +274,12 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         contentValues.put(FeedEntry.MESSAGE_COLUMN_LOCATION, location);
 
         db.insert(FeedEntry.MESSAGE_TABLE_NAME, null, contentValues);
+    }
+
+    public void insertAllMessages(List<Message> messages){
+        for (Message message : messages) {
+            insertMessage(message.getCreationTime(), message.getStartTime(), message.getEndTime(), message.getContent(), message.getPublisher(), message.getLocation());
+        }
     }
 
     public ArrayList<Message> getAllMessages() {
@@ -281,11 +298,6 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
                 FeedEntry.MESSAGE_COLUMN_LOCATION
         };
 
-        // Filter results WHERE "title" = 'My Title'
-        //String selection = FeedEntry.COLUMN_NAME_TITLE + " = ?";
-        //String[] selectionArgs = { "My Title" };
-
-        // How you want the results sorted in the resulting Cursor
         //String sortOrder = FeedEntry.MESSAGE_COLUMN_LOCATION + " DESC";
 
         Cursor cursor = db.query(
@@ -299,7 +311,6 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         );
 
         cursor.moveToFirst();
-
 
         while(cursor.isAfterLast() == false){
             Message m = new Message(
@@ -316,5 +327,4 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         }
         return messages;
     }
-
 }
