@@ -1,5 +1,6 @@
 package pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils;
 
+import android.app.DownloadManager;
 import android.content.Context;
 import android.util.Log;
 
@@ -8,9 +9,10 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.LocationQuery;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.OperationStatus;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnResponseListener;
@@ -39,49 +42,73 @@ public class ServerActions {
         queue = Volley.newRequestQueue(context);
     }
 
-    private void makeRequest(String url){
-        // Request a string response from the provided URL.
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        // Display the first 500 characters of the response string.
-                        //mTextView.setText("Response is: "+ response.substring(0,500));
-                        //FIXME
-                        System.out.print("response:"+response);
-                    }
-                }, new Response.ErrorListener() {
+    private void makeSimpleRequest(int method, String url, JSONObject jsonObject, final OnResponseListener listener){
+        JsonObjectRequest request = new JsonObjectRequest(method,url,jsonObject,new Response.Listener<JSONObject>() {
+
+
+            @Override
+            public void onResponse(JSONObject response) {
+                Gson gson = new Gson();
+                Log.d(TAG, "onResponse: " + response.toString());
+                OperationStatus statusResponse = gson.fromJson(response.toString(), OperationStatus.class);
+                listener.onHTTPResponse(statusResponse);
+            }
+        },new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                //mTextView.setText("That didn't work!");
-                System.out.print("error:"+error);
-
+                Log.e(TAG, "onErrorResponse: ",error);
             }
         });
-        // Add the request to the RequestQueue.
-        queue.add(stringRequest);
+
+        queue.add(request);
+    }
+
+    public void createUser(String username,String password,final OnResponseListener listener){
+        String url = endpoint +"/user/create";
+
+        try{
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.accumulate("username",username);
+            jsonObject.accumulate("password",password);
+
+            makeSimpleRequest(Request.Method.PUT,url,jsonObject,listener);
+
+        }catch (JSONException e){
+            e.printStackTrace();
+        }
+
 
     }
 
-    public void createUser(String username,String password){
-        String url = endpoint +"/user/create?username="+username+"&password="+password;
-        makeRequest(url);
+    public void updatePassword(String username,String password,final OnResponseListener listener) throws Exception {
+        String url = endpoint+"/user/updatePassword";
+
+        Log.e(TAG, "updatePassword: Still need update" );
+
+        try{
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.accumulate("username",username);
+            jsonObject.accumulate("password",password);
+
+            makeSimpleRequest(Request.Method.PUT,url,jsonObject,listener);
+
+        }catch (JSONException e){
+            e.printStackTrace();
+        }
     }
 
-    public void updatePassword(String username,String password){
-        String url = endpoint+"/user/updatePassword?username="+username+"&password="+password;
-        makeRequest(url);
-    }
+    public void createLocation(Location location,final OnResponseListener listener){
+        String url = endpoint+"/location/create";
 
-    public void createLocation(Location location){
-        Log.d(TAG, "createLocation: SSID: " + location.getSsid());
-        String radius = location.getRadius()>0 ? "&radius="+location.getRadius() : "";
-        //FIXME add stuff the miners names with spaces
-        String url = endpoint+"/location/create?name="+location.getName()+"&ssid="+location.getSsid()+"&ble="
-                +location.getBle()+"&lat="+location.getLatitude()+"&lon="+location.getLongitude()+radius;
-        Log.d(TAG, "createLocation URL: " +  url);
+        try{
+            Gson gson = new Gson();
+            JSONObject jsonObject = new JSONObject(gson.toJson(location));
 
-        makeRequest(url);
+            makeSimpleRequest(Request.Method.PUT,url,jsonObject,listener);
+
+        }catch (JSONException e){
+            e.printStackTrace();
+        }
     }
 
     public static List<Message> getMessagesFromLocation(Location location, final OnResponseListener listener){
@@ -202,12 +229,18 @@ public class ServerActions {
         return locations;
     }
 
-    public void makeJSONRequest(String url){
 
-       // JsonObjectRequest request = new JsonObjectRequest(url,new JSONObject())
+    public void createMessage(Message message,final OnResponseListener listener) {
+        String url = endpoint+"/message/create";
+        try {
+            Gson  gson = new Gson();
+            JSONObject jsonObject = new JSONObject(gson.toJson(message));
+            Log.d(TAG, "createMessage: "+jsonObject);
+            makeSimpleRequest(Request.Method.PUT,url,jsonObject,listener);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
-
-
 }
 
 

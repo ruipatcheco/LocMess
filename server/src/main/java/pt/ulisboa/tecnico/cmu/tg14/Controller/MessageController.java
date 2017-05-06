@@ -29,11 +29,18 @@ public class MessageController {
 
     @RequestMapping(value = "/create", method = RequestMethod.PUT)
     public OperationStatus create(@RequestBody Message message){
-            //@RequestParam(value="startTime") Long startTime,@RequestParam(value="endTime") Long endTime,@RequestParam(value="creationTime") Long creationTime,@RequestParam(value="content") String content,@RequestParam(value="publisher") String publisher,@RequestParam(value="location") String location){
+        //@RequestParam(value="startTime") Long startTime,@RequestParam(value="endTime") Long endTime,@RequestParam(value="creationTime") Long creationTime,@RequestParam(value="content") String content,@RequestParam(value="publisher") String publisher,@RequestParam(value="location") String location){
 
-        messageImpl.create(message.getStartTime(),message.getEndTime(),
-                message.getCreationTime(),message.getContent(),
-                message.getPublisher(),message.getLocation());
+        Timestamp endTime  = message.getEndTime();
+
+        if(endTime.getTime() <= 0)
+            messageImpl.create(message.getStartTime(),
+                    message.getCreationTime(),message.getContent(),
+                    message.getPublisher(),message.getLocation());
+        else
+            messageImpl.create(message.getStartTime(),endTime,
+                    message.getCreationTime(),message.getContent(),
+                    message.getPublisher(),message.getLocation());
 
         OperationStatus status = new OperationStatus();
         status.setOK();

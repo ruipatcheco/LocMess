@@ -24,6 +24,8 @@
     <string name="title_activity_add_message">Add Message</string>
     <string name="add_message_message_text">Message</string>
 
+    <string name="undo_string">Undo</string>
+
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="add_message_start_time_text">Start Time</string>
@@ -43,6 +45,8 @@
     <string name="add_location_name_text">Your location name</string>
     <string name="add_location_text">Add</string>
     <string name="add_location_radius_text">Choose a radius (in meters)</string>
+    <string name="add_location_created">Location sucessfully created</string>
+    <string name="add_location_error">Error creating location</string>
 
     <!-- Strings related to fragments -->
     <string name="fragment_my_messages_title">Your Messages</string>

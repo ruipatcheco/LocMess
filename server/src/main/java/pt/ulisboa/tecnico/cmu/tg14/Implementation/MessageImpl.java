@@ -50,6 +50,16 @@ public class MessageImpl implements MessageDao {
 
     }
 
+
+    public void create(Timestamp startTime, Timestamp creationTime, String content, String publisher, String location) {
+        String SQL = "insert into Message (id, location, content, creationtime, endtime, publisher) values (?,?,?,?,?,?)";
+        String id = UUID.randomUUID().toString();
+        jdbcTemplateObject.update( SQL,id,location,content,creationTime,startTime,publisher);
+        return;
+
+    }
+
+
     @Override
     public void delete(UUID id) {
         String SQL = "delete from Message where id = ?";

@@ -7,6 +7,7 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -30,9 +31,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.OperationStatus;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.ServicesDataHolder;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnLocationReceivedListener;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnResponseListener;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Receivers.BluetoothReceiver;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Receivers.GPSReceiver;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Receivers.WifiReceiver;
@@ -42,7 +45,7 @@ import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.WifiService;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServerActions;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServiceManager;
 
-public class AddLocationActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener{
+public class AddLocationActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener,OnResponseListener<OperationStatus>{
 
 
 
@@ -185,7 +188,7 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
                 }
 
                 ServerActions serverActions = new ServerActions(getApplicationContext());
-                serverActions.createLocation(mLocation);
+                serverActions.createLocation(mLocation,(OnResponseListener) activity);
 
                 finish();
 
@@ -292,4 +295,9 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
         super.onDestroy();
     }
 
+    @Override
+    public void onHTTPResponse(OperationStatus response) {
+       //TODO
+
+    }
 }

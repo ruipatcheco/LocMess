@@ -10,6 +10,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.OperationStatus;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.ServicesDataHolder;
@@ -49,6 +51,8 @@ public class ListMessages extends Fragment {
     private OnFragmentInteractionListener mListener;
 
     private ListView mMessageListView;
+
+    private ServicesDataHolder dataHolder;
 
     public ListMessages() {
         // Required empty public constructor
@@ -114,7 +118,7 @@ public class ListMessages extends Fragment {
         dbHelper.insertLocation("Tecnico","testSSID","testBLE", (float) 0.1, (float) 0.2);
 
 
-        //TESTING
+        //FIXME TESTING
         Calendar c = Calendar.getInstance();
         dbHelper.insertMessage(UUID.randomUUID().toString(), c.getTimeInMillis(),c.getTimeInMillis(),c.getTimeInMillis(),"olateste","publisher","tenicno");
         ArrayList<Message> messages = dbHelper.getAllMessages();
@@ -155,7 +159,17 @@ public class ListMessages extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_list_messages, container, false);
 
+        return view;
+    }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        getActivity().setTitle(R.string.fragment_list_messages_title);
+
+        View view = this.getView();
+
+        dataHolder = ServicesDataHolder.getInstance();
         try {
             mMessageList = new ListMessagesTask(view).execute().get();
 
@@ -180,8 +194,8 @@ public class ListMessages extends Fragment {
             }
         });
 
+        //TODO add snackbar from activity result (create Location)
 
-        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event

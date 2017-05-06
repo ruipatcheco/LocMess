@@ -3,6 +3,7 @@ package pt.ulisboa.tecnico.cmu.tg14.locmessclient;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -19,7 +20,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -33,6 +33,8 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.OperationStatus;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnResponseListener;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServerActions;
 
 import static android.Manifest.permission.READ_CONTACTS;
@@ -40,7 +42,7 @@ import static android.Manifest.permission.READ_CONTACTS;
 /**
  * A login screen that offers login via email/password.
  */
-public class RegisterActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
+public class RegisterActivity extends AppCompatActivity implements LoaderCallbacks<Cursor>,OnResponseListener<OperationStatus> {
 
     /**
      * Id to identity READ_CONTACTS permission request.
@@ -64,12 +66,14 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
+    private Activity mActivity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
         // Set up the login form.
+        mActivity = this;
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
 
@@ -282,6 +286,14 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
         mEmailView.setAdapter(adapter);
     }
 
+    @Override
+    public void onHTTPResponse(OperationStatus response) {
+      //  Snackbar mySnackbar = Snackbar.make(findViewById(R.id.add_location_button,R.string.add_location_error, Snackbar.LENGTH_SHORT));
+
+        //FIXME mySnackbar.setAction(R.string.undo_string, new RetryListener());
+        //mySnackbar.show();
+    }
+
 
     private interface ProfileQuery {
         String[] PROJECTION = {
@@ -312,7 +324,7 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
         protected Boolean doInBackground(Void... params) {
 
             ServerActions serverActions = new ServerActions(getApplicationContext());
-            serverActions.createUser(mEmail,mPassword);
+            serverActions.createUser(mEmail,mPassword,(OnResponseListener) mActivity);
 
             return true;
         }

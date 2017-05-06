@@ -2,6 +2,7 @@ package pt.ulisboa.tecnico.cmu.tg14.locmessclient;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,9 +22,13 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.OperationStatus;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.ServicesDataHolder;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnResponseListener;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServerActions;
 
-public class MessagePolicyActivity extends AppCompatActivity {
+public class MessagePolicyActivity extends AppCompatActivity implements OnResponseListener<OperationStatus>{
 
     // === PREV ACTIVITY ===
     private String mMessageContent;
@@ -101,14 +106,18 @@ public class MessagePolicyActivity extends AppCompatActivity {
                 Message message = new Message();
                 message.setContent(mMessageContent);
                 Calendar c = Calendar.getInstance();
-
+                String TAG ="";
                 //FIXME tratar disto
-                message.setCreationTime(0);
-
+                message.setCreationTime(Calendar.getInstance().getTime().getTime());
+                Log.d(TAG, "onClick: "+mStartTime);
                 message.setStartTime(Long.valueOf(mStartTime));
                 message.setEndTime(Long.valueOf(mEndTime));
-
+                message.setPublisher("tiago"); //TODO to remove
                 message.setLocation(mID);
+
+                ServerActions actions = new ServerActions(activity);
+                actions.createMessage(message,(OnResponseListener) activity);
+
                 finish();
             }
         });
@@ -153,5 +162,10 @@ public class MessagePolicyActivity extends AppCompatActivity {
         calendar.set(year, month, date, hour, minute);
 
         return calendar;
+    }
+
+    @Override
+    public void onHTTPResponse(OperationStatus response) {
+ //TODO
     }
 }
