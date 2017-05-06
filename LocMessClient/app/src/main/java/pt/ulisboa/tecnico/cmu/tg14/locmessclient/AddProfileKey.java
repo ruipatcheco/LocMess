@@ -22,7 +22,10 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Profile;
 
 public class AddProfileKey extends AppCompatActivity {
 
@@ -32,8 +35,9 @@ public class AddProfileKey extends AppCompatActivity {
     private Button mFinish;
 
     private ListView mProfileList;
-
     private Activity activity;
+
+    private HashMap<String,String> keyValueMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +53,7 @@ public class AddProfileKey extends AppCompatActivity {
         mProfileList = (ListView) findViewById(R.id.add_profile_list);
 
         final List<String> profileList = new ArrayList<>();
+        keyValueMap = new HashMap<>();
 
         final ArrayAdapter<String> adapterLocation = new ArrayAdapter<String>(activity,android.R.layout.simple_dropdown_item_1line, profileList);
 
@@ -65,7 +70,13 @@ public class AddProfileKey extends AppCompatActivity {
                     return;
                 }
 
-                String message = mKey.getText().toString() + " -> " + mValue.getText().toString();
+                String key = mKey.getText().toString();
+                String val = mValue.getText().toString();
+
+
+                keyValueMap.put(key,val);
+
+                String message = key + " -> " + val;
                 profileList.add(message);
                 adapterLocation.notifyDataSetChanged();
 
@@ -79,6 +90,15 @@ public class AddProfileKey extends AppCompatActivity {
         mFinish.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Profile p;
+
+                for(String k : keyValueMap.keySet()){
+                    p = new Profile(k, keyValueMap.get(k));
+
+                    //FIXME save to database
+
+                }
+
                 finish();
             }
         });

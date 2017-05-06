@@ -95,7 +95,7 @@ public class ListMessages extends Fragment {
         //FIXME -> move to login activity and check server connection to infer boolean value
 
         createDatabase(activity,true);
-        //new FillDatabaseTask(activity).execute();
+        new FillDatabaseTask(activity).execute();
 
     }
 
@@ -111,32 +111,6 @@ public class ListMessages extends Fragment {
         dbHelper.onCreate(db);
         Log.d("createDatabase","database created");
 
-        dbHelper.insertLocation("Tecnico","testSSID","testBLE", (float) 0.1, (float) 0.2);
-
-
-        //TESTING
-        Calendar c = Calendar.getInstance();
-        dbHelper.insertMessage(UUID.randomUUID().toString(), c.getTimeInMillis(),c.getTimeInMillis(),c.getTimeInMillis(),"olateste","publisher","tenicno");
-        ArrayList<Message> messages = dbHelper.getAllMessages();
-
-        for(Message m:messages){
-            Log.d("createDatabase", "creationtime: "+m.getCreationTime());
-            Log.d("createDatabase", "content: "+m.getContent());
-        }
-
-        dbHelper.insertMessageMule(UUID.randomUUID().toString(), c.getTimeInMillis(),c.getTimeInMillis(),c.getTimeInMillis(),"olateste","publisher","tenicno");
-        ArrayList<Message> messagesMule = dbHelper.getAllMuleMessages();
-        for(Message m:messagesMule){
-            Log.d("createDatabase", "mulecreationtime: "+m.getCreationTime());
-            Log.d("createDatabase", "mulecontent: "+m.getContent());
-        }
-
-        ArrayList<Location> locations = dbHelper.getAllLocations();
-        for(Location l:locations){
-            Log.d("createDatabase", "name of location: "+l.getName());
-            Log.d("createDatabase", "lat of location: "+l.getLatitude());
-        }
-        Log.d("createDatabase","location size: "+locations.size());
 
         return;
     }
@@ -282,15 +256,13 @@ public class ListMessages extends Fragment {
     }
 
 
-    /*
+
     private class FillDatabaseTask extends AsyncTask<Void, Void, Void> {
 
         Context context;
-        ArrayList<Location> locations;
 
-        public FillDatabaseTask(Context context, ArrayList<Location> locations) {
+        public FillDatabaseTask(Context context) {
             this.context = context;
-            this.locations = locations;
         }
 
         @Override
@@ -308,11 +280,35 @@ public class ListMessages extends Fragment {
         @Override
         protected Void doInBackground(Void... params) {
             FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(context);
-            dbHelper.insertAllLocations(locations);
 
-        dbHelper.insertLocation("Tecnico","testSSID","testBLE", (float) 0.1, (float) 0    return null;
+            //TESTING
+            dbHelper.insertLocation("Tecnico","testSSID","testBLE", (float) 0.1, (float) 0.2);
+            Calendar c = Calendar.getInstance();
+            dbHelper.insertMessage(UUID.randomUUID().toString(), c.getTimeInMillis(),c.getTimeInMillis(),c.getTimeInMillis(),"olateste","publisher","tenicno");
+            ArrayList<Message> messages = dbHelper.getAllMessages();
+
+            for(Message m:messages){
+                Log.d("createDatabase", "creationtime: "+m.getCreationTime());
+                Log.d("createDatabase", "content: "+m.getContent());
+            }
+
+            dbHelper.insertMessageMule(UUID.randomUUID().toString(), c.getTimeInMillis(),c.getTimeInMillis(),c.getTimeInMillis(),"olateste","publisher","tenicno");
+            ArrayList<Message> messagesMule = dbHelper.getAllMuleMessages();
+            for(Message m:messagesMule){
+                Log.d("createDatabase", "mulecreationtime: "+m.getCreationTime());
+                Log.d("createDatabase", "mulecontent: "+m.getContent());
+            }
+
+            ArrayList<Location> locations = dbHelper.getAllLocations();
+            for(Location l:locations){
+                Log.d("createDatabase", "name of location: "+l.getName());
+                Log.d("createDatabase", "lat of location: "+l.getLatitude());
+            }
+            Log.d("createDatabase","location size: "+locations.size());
+
+            return null;
         }
-    }*/
+    }
 
     private class GetLocationsTask extends AsyncTask<Void, Void, Void> implements OnResponseListener<List<Location>>{
 
