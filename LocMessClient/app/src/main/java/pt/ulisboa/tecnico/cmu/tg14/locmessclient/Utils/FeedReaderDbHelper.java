@@ -280,6 +280,10 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         return result;
     }
 
+    public void deleteAllMessageMules(SQLiteDatabase db) {
+        db.execSQL("delete from "+ FeedEntry.MULE_TABLE_NAME);
+    }
+
     // MESSAGE
 
     public void createMessageTable(SQLiteDatabase db) {
@@ -292,6 +296,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
     public void insertMessage (long creationTime, long startTime, long endTime, String content, String publisher, String location) {
         SQLiteDatabase db = this.getWritableDatabase();
+
         ContentValues contentValues = new ContentValues();
         contentValues.put(FeedEntry.MESSAGE_COLUMN_ID, "");
 
@@ -356,5 +361,23 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
             cursor.moveToNext();
         }
         return messages;
+    }
+
+    public boolean deleteMessage(SQLiteDatabase db, String uuid) {
+        return db.delete(FeedEntry.MESSAGE_TABLE_NAME, FeedEntry.MESSAGE_COLUMN_UUID + "=" + uuid, null) > 0;
+    }
+
+    public boolean deleteListMessage(SQLiteDatabase db, List<String> messages) {
+        boolean result = true;
+        for (String message : messages) {
+            if (!deleteMessage(db, message)) {
+                result = false;
+            }
+        }
+        return result;
+    }
+
+    public void deleteAllMessages(SQLiteDatabase db) {
+        db.execSQL("delete from "+ FeedEntry.MESSAGE_TABLE_NAME);
     }
 }
