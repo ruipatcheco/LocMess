@@ -8,14 +8,17 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Profile;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.LocationNotFoundException;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.MessageMuleNotFoundException;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.MessageNotFoundException;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.ProfileNotFoundException;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderContract.FeedEntry;
 
 /**
@@ -44,7 +47,6 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
             "CREATE TABLE IF NOT EXISTS " + FeedEntry.MULE_TABLE_NAME + " ( " +
                     FeedEntry._ID + " INTEGER PRIMARY KEY," +
-                    FeedEntry.MULE_COLUMN_ID +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
                     FeedEntry.MULE_COLUMN_UUID +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
                     FeedEntry.MULE_COLUMN_CREATIONTIME +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
                     FeedEntry.MULE_COLUMN_STARTTIME +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
@@ -54,11 +56,10 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
                     FeedEntry.MULE_COLUMN_LOCATION +" "+ FeedEntry.TEXT_TYPE +
                     " )";
 
-    private static final String SQL_CREATE_MESSAGE=
+    private static final String SQL_CREATE_MESSAGE =
 
             "CREATE TABLE IF NOT EXISTS " + FeedEntry.MESSAGE_TABLE_NAME + " ( " +
                     FeedEntry._ID + " INTEGER PRIMARY KEY," +
-                    FeedEntry.MESSAGE_COLUMN_ID +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
                     FeedEntry.MESSAGE_COLUMN_UUID +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
                     FeedEntry.MESSAGE_COLUMN_CREATIONTIME +" "+ FeedEntry.LONG_TYPE + FeedEntry.COMMA_SEP +
                     FeedEntry.MESSAGE_COLUMN_STARTTIME +" "+ FeedEntry.LONG_TYPE + FeedEntry.COMMA_SEP +
@@ -68,6 +69,14 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
                     FeedEntry.MESSAGE_COLUMN_LOCATION +" "+ FeedEntry.TEXT_TYPE +
                 " )";
 
+    private static final String SQL_CREATE_PROFILE =
+
+            "CREATE TABLE IF NOT EXISTS " + FeedEntry.PROFILE_TABLE_NAME + " ( " +
+                    FeedEntry._ID + " INTEGER PRIMARY KEY," +
+                    FeedEntry.PROFILE_COLUMN_KEY +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
+                    FeedEntry.PROFILE_COLUMN_VALUE +" "+ FeedEntry.TEXT_TYPE +
+                " )";
+
     private static final String SQL_DELETE_ENTRIES = "DROP TABLE IF EXISTS ";
 
     public FeedReaderDbHelper(Context context) {
@@ -75,12 +84,14 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
     }
 
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(SQL_CREATE_LOCATION);
+        /*db.execSQL(SQL_CREATE_LOCATION);
         db.execSQL(SQL_CREATE_MESSAGE);
-        db.execSQL(SQL_CREATE_MULE);
-        //createLocationTable(db);
-        //createMessageTable(db);
-        //createMuleTable(db);
+        db.execSQL(SQL_CREATE_MULE);*/
+
+        createLocationTable(db);
+        createMessageTable(db);
+        createMuleTable(db);
+        createProfileTable(db);
     }
 
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -251,7 +262,6 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
     public void insertMessageMule (String uuid, long creationTime, long startTime, long endTime, String content, String publisher, String location) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put(FeedEntry.MULE_COLUMN_ID, "");
         contentValues.put(FeedEntry.MULE_COLUMN_UUID, uuid);
         contentValues.put(FeedEntry.MULE_COLUMN_CREATIONTIME, creationTime);
         contentValues.put(FeedEntry.MULE_COLUMN_STARTTIME, startTime);
@@ -382,7 +392,6 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues contentValues = new ContentValues();
-        contentValues.put(FeedEntry.MESSAGE_COLUMN_ID, "");
         contentValues.put(FeedEntry.MESSAGE_COLUMN_UUID, uuid);
         contentValues.put(FeedEntry.MESSAGE_COLUMN_CREATIONTIME, creationTime);
         contentValues.put(FeedEntry.MESSAGE_COLUMN_STARTTIME, startTime);
@@ -498,6 +507,116 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
                 cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_CONTENT)),
                 cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_PUBLISHER)),
                 cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_LOCATION))
+        );
+    }
+
+    // PROFILE
+
+    public void createProfileTable(SQLiteDatabase db) {
+        db.execSQL(SQL_CREATE_PROFILE);
+    }
+
+    public void dropProfile(SQLiteDatabase db) {
+        db.execSQL(SQL_DELETE_ENTRIES + FeedEntry.PROFILE_TABLE_NAME);
+    }
+
+    public void insertProfile (String key, String value) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(FeedEntry.PROFILE_COLUMN_KEY, key);
+        contentValues.put(FeedEntry.PROFILE_COLUMN_VALUE, value);
+
+        db.insert(FeedEntry.PROFILE_TABLE_NAME, null, contentValues);
+    }
+
+    public void insertAllProfiles(HashMap<String, String> profiles){
+        for (String key : profiles.keySet()) {
+            insertProfile(key, profiles.get(key));
+        }
+    }
+
+    public String getProfileValue(String key) throws ProfileNotFoundException {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String[] projection = {
+                FeedEntry._ID,
+                FeedEntry.PROFILE_COLUMN_KEY,
+                FeedEntry.PROFILE_COLUMN_VALUE
+        };
+
+        Cursor cursor = db.query(
+                FeedEntry.PROFILE_TABLE_NAME,             // The table to query
+                projection,                               // The columns to return
+                FeedEntry.PROFILE_COLUMN_KEY,            // The columns for the WHERE clause
+                new String[]{FeedEntry.PROFILE_COLUMN_KEY + "=" + key},                                     // The values for the WHERE clause
+                null,                                     // don't group the rows
+                null,                                     // don't filter by row groups
+                null                                   // The sort order
+        );
+
+        if (cursor.getCount() == 0) {
+            throw new ProfileNotFoundException();
+        }
+
+        cursor.moveToFirst();
+
+        return associateProfile(cursor).getValue();
+    }
+
+    public HashMap<String, String> getAllProfiles() {
+        HashMap<String, String> profiles = new HashMap<>();
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String[] projection = {
+                FeedEntry._ID,
+                FeedEntry.PROFILE_COLUMN_KEY,
+                FeedEntry.PROFILE_COLUMN_VALUE,
+        };
+
+        Cursor cursor = db.query(
+                FeedEntry.PROFILE_TABLE_NAME,            // The table to query
+                projection,                               // The columns to return
+                null,                                     // The columns for the WHERE clause
+                null,                                     // The values for the WHERE clause
+                null,                                     // don't group the rows
+                null,                                     // don't filter by row groups
+                null                                   // The sort order
+        );
+
+        cursor.moveToFirst();
+
+        while(cursor.isAfterLast() == false){
+            Profile profile = associateProfile(cursor);
+            profiles.put(profile.getKey(), profile.getValue());
+            cursor.moveToNext();
+        }
+        return profiles;
+    }
+
+    public boolean deleteProfile(SQLiteDatabase db, String key) {
+        return db.delete(FeedEntry.PROFILE_TABLE_NAME, FeedEntry.PROFILE_COLUMN_KEY + "=" + key, null) > 0;
+    }
+
+    public boolean deleteProfiles(SQLiteDatabase db, HashMap<String, String> profiles) {
+        boolean result = true;
+        for (String key : profiles.keySet()) {
+            if (!deleteMessage(db, key)) {
+                result = false;
+            }
+        }
+        return result;
+    }
+
+    public void deleteAllProfiles(SQLiteDatabase db) {
+        db.execSQL("delete from "+ FeedEntry.PROFILE_TABLE_NAME);
+    }
+
+    private Profile associateProfile(Cursor cursor) {
+        return new Profile(
+                cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.PROFILE_COLUMN_KEY)),
+                cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.PROFILE_COLUMN_VALUE))
         );
     }
 }
