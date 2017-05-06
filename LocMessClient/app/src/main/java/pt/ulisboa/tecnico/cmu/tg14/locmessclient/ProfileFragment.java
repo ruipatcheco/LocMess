@@ -167,9 +167,11 @@ public class ProfileFragment extends Fragment {
     private class GetProfilesDatabaseTask extends AsyncTask<Void, Void, Void> {
 
         View v;
+        List<String> list2update;
 
         public GetProfilesDatabaseTask(View view) {
             v = view;
+            list2update = new ArrayList<>();
         }
 
         @Override
@@ -180,13 +182,15 @@ public class ProfileFragment extends Fragment {
             arrayAdapter = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1,list);
             listView.setAdapter(arrayAdapter);
 
-
         }
 
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
 
+            for(String s : list2update){
+                list.add(s);
+            }
             arrayAdapter.notifyDataSetChanged();
         }
 
@@ -197,13 +201,10 @@ public class ProfileFragment extends Fragment {
 
 
             for(Profile p: profilesList){
-                String s = "Key -> " + p.getKey() + " Value -> " + p.getValue();
-                list.add(s);
+                String s = p.getKey() + " -> " + p.getValue();
+                list2update.add(s);
                 keyHotfix.put(s, p.getKey());
-                Log.d("Profilefragment:",s);
-
             }
-
 
             return null;
         }
