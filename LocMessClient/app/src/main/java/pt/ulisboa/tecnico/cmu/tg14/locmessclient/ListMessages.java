@@ -51,13 +51,14 @@ import static android.content.ContentValues.TAG;
  */
 public class ListMessages extends Fragment {
 
-    private List<Message> mMessageList;
-
     private OnFragmentInteractionListener mListener;
 
     private ListView mMessageListView;
+    private List<Message> mMessageList;
+    private ArrayAdapter<Message> arrayAdapter;
 
-    private ServicesDataHolder dataHolder;
+    private List<String> messageContentList;
+
 
     public ListMessages() {
         // Required empty public constructor
@@ -113,15 +114,14 @@ public class ListMessages extends Fragment {
 
         dataHolder.setCentralizedMode(isConnected);
 
-        Toast.makeText(getActivity(), "boolean = " + isConnected, Toast.LENGTH_LONG).show();
+        Toast.makeText(getActivity(), "has internet connection = " + isConnected, Toast.LENGTH_LONG).show();
     }
 
     private void fillDatabase(Activity activity) {
 
-        //FIXME -> move to login activity and check server connection to infer boolean value
+        //FIXME -> move to login activity
 
         createDatabase(activity,true);
-        new FillDatabaseTask(activity).execute();
 
     }
 
@@ -192,18 +192,15 @@ public class ListMessages extends Fragment {
 
         View view = this.getView();
 
-        dataHolder = ServicesDataHolder.getInstance();
-        try {
-            mMessageList = new ListMessagesTask(view).execute().get();
-            Log.d(TAG, "onResume: HEY");
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
-
 
         mMessageListView = (ListView)  view.findViewById(R.id.list_messages_list);
+
+        mMessageList = new ArrayList<>();
+        messageContentList = new ArrayList<>();
+        arrayAdapter = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1, messageContentList);
+
+
+        new getMessagesFromDBTask().execute();
 
         mMessageListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -217,9 +214,51 @@ public class ListMessages extends Fragment {
             }
         });
 
-        //TODO add snackbar from activity result (create Location)
-
     }
+
+    private class getMessagesFromDBTask extends AsyncTask<Void, Void, Void> {
+
+        private List<Message> auxList;
+
+
+
+        public getMessagesFromDBTask() {
+            auxList = new ArrayList<>();
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+
+            mMessageListView.setAdapter(arrayAdapter);
+
+            for(Message m: auxList){
+                mMessageList.add(m);
+                messageContentList.add(m.getContent());
+            }
+            arrayAdapter.notifyDataSetChanged();
+            Log.d("MessageLocationActivity","notify dataset changed");
+
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(getActivity());
+            List<Message> dbMessages = dbHelper.getAllMessages();
+
+            for(Message m: dbMessages){
+                auxList.add(m);
+                Log.d("MessageLocationActivity","added message from db-> " + m.getUUID());
+            }
+            return null;
+        }
+    }
+
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
@@ -260,166 +299,6 @@ public class ListMessages extends Fragment {
         void onFragmentInteraction(Uri uri);
     }
 
-
-    private class ListMessagesTask extends AsyncTask<Void, Void, List<Message>> implements OnResponseListener<List<Message>> {
-
-        ProgressDialog progDailog;
-        private ArrayAdapter<Message> arrayAdapter;
-        private List<Message> messageList;
-        private List<String> messageContentList;
-        private View view;
-        public ListMessagesTask(View view) {
-            this.view = view;
-        }
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-/* FIXME maybe there is no need for this
-            progDailog = new ProgressDialog(getActivity());
-            progDailog.setMessage("Loading...");
-            progDailog.setIndeterminate(false);
-            progDailog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            progDailog.setCancelable(true);
-            progDailog.show();
-*/
-            messageList = new ArrayList<>();
-            messageContentList = new ArrayList<>();
-
-            ListView listView = (ListView) view.findViewById(R.id.list_messages_list);
-            arrayAdapter = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1, messageContentList);
-            listView.setAdapter(arrayAdapter);
-        }
-
-        @Override
-        public void onPostExecute(List< Message> messages) {
-            super.onPostExecute(messages);
-           // progDailog.dismiss();
-        }
-
-        @Override
-        protected List<Message> doInBackground(Void... params) {
-
-
-
-            ServerActions serverActions = new ServerActions(getActivity());
-            //TODO Change to get locations from local DB
-            Location location = new Location("Tagus","","",0,0,0);
-            return serverActions.getMessagesFromLocation(location,this);
-        }
-
-        @Override
-        public void onHTTPResponse(List<Message> response) {
-            for(Message m : response){
-                messageList.add(m);
-                messageContentList.add(m.getContent());
-            }
-            ServicesDataHolder servicesDataHolder = ServicesDataHolder.getInstance();
-            servicesDataHolder.setMessageMapFromList(mMessageList);
-
-            arrayAdapter.notifyDataSetChanged();
-        }
-    }
-
-
-
-    private class FillDatabaseTask extends AsyncTask<Void, Void, Void> {
-
-        Context context;
-
-        public FillDatabaseTask(Context context) {
-            this.context = context;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
-
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(context);
-
-            //TESTING
-            dbHelper.insertLocation("Tecnico","testSSID","testBLE", (float) 0.1, (float) 0.2);
-            Calendar c = Calendar.getInstance();
-            dbHelper.insertMessage(UUID.randomUUID().toString(), c.getTimeInMillis(),c.getTimeInMillis(),c.getTimeInMillis(),"olateste","publisher","tenicno");
-            ArrayList<Message> messages = dbHelper.getAllMessages();
-
-            for(Message m:messages){
-                Log.d("createDatabase", "creationtime: "+m.getCreationTime());
-                Log.d("createDatabase", "content: "+m.getContent());
-            }
-
-            dbHelper.insertMessageMule(UUID.randomUUID().toString(), c.getTimeInMillis(),c.getTimeInMillis(),c.getTimeInMillis(),"olateste","publisher","tenicno");
-            ArrayList<Message> messagesMule = dbHelper.getAllMuleMessages();
-            for(Message m:messagesMule){
-                Log.d("createDatabase", "mulecreationtime: "+m.getCreationTime());
-                Log.d("createDatabase", "mulecontent: "+m.getContent());
-            }
-
-            ArrayList<Location> locations = dbHelper.getAllLocations();
-            for(Location l:locations){
-                Log.d("createDatabase", "name of location: "+l.getName());
-                Log.d("createDatabase", "lat of location: "+l.getLatitude());
-            }
-            Log.d("createDatabase","location size: "+locations.size());
-
-            return null;
-        }
-    }
-
-    private class GetLocationsTask extends AsyncTask<Void, Void, Void> implements OnResponseListener<List<Location>>{
-
-        ProgressDialog progDailog;
-        Context context;
-        List<Location> locations;
-
-        public GetLocationsTask(Context context) {
-            this.context = context;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
-            progDailog = new ProgressDialog(getActivity());
-            progDailog.setMessage("Fetching Locations...");
-            progDailog.setIndeterminate(false);
-            progDailog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            progDailog.setCancelable(true);
-            progDailog.show();
-
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-
-            progDailog.dismiss();
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-
-            ServerActions serverActions = new ServerActions(getActivity());
-            locations = serverActions.getAllLocations(this);
-
-            return null;
-        }
-
-        @Override
-        public void onHTTPResponse(List<Location> response) {
-            FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(context);
-            dbHelper.insertAllLocations(locations);
-        }
-    }
 
 
 }
