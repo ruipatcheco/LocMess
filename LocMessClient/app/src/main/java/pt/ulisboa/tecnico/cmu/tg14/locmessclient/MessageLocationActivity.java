@@ -42,10 +42,10 @@ public class MessageLocationActivity extends AppCompatActivity {
         getExtrasIntent(getIntent());
         mLocationList = (Spinner) findViewById(R.id.message_location_spinner);
 
+        activity = this;
         locationListNames = new ArrayList<>();
         arrayAdapter = new ArrayAdapter(activity,android.R.layout.simple_dropdown_item_1line, locationListNames);
 
-        activity = this;
 
         new ListLocationsTask().execute();
 
