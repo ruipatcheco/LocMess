@@ -339,7 +339,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         );
 
         cursor.moveToFirst();
-        
+
 
         while(cursor.isAfterLast() == false){
             messages.add(associateMessageMule(cursor));

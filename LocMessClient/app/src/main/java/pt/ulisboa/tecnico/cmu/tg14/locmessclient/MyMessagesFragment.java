@@ -19,6 +19,8 @@ import java.util.List;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Profile;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.ServicesDataHolder;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.PublisherNotFoundException;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderDbHelper;
 
 
@@ -188,10 +190,16 @@ public class MyMessagesFragment extends Fragment {
             FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(getActivity());
 
 
-            /*
+            String username = ServicesDataHolder.getInstance().getUsername();
 
-            //FIXME -> implement get messages from certain username
-            List<Message> messagesList = dbHelper.getMessagesFromUser()
+            List<Message> messagesList;
+            
+            /*
+            try {
+                messagesList = dbHelper.getMessageFromUser(username);
+            } catch (PublisherNotFoundException e) {
+                e.printStackTrace();
+            }
 
 
             for(Message m: messagesList){
@@ -200,6 +208,7 @@ public class MyMessagesFragment extends Fragment {
                 keyHotfix.put(s, p.getKey());
             }
             */
+
 
             return null;
         }
