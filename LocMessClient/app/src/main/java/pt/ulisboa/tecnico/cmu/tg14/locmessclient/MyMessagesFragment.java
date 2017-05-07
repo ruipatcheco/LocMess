@@ -44,7 +44,7 @@ public class MyMessagesFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
     private List<String> list;
-    private  ArrayAdapter<String> arrayAdapter;
+    private ArrayAdapter<String> arrayAdapter;
     private View view;
 
     public MyMessagesFragment() {
@@ -155,7 +155,6 @@ public class MyMessagesFragment extends Fragment {
 
     private class GetMessagesFromDatabaseTask extends AsyncTask<Void, Void, Void> {
 
-        View v;
         List<String> list2update;
 
         public GetMessagesFromDatabaseTask(View view) {
@@ -193,21 +192,19 @@ public class MyMessagesFragment extends Fragment {
             String username = ServicesDataHolder.getInstance().getUsername();
 
             List<Message> messagesList;
-            
-            /*
+
+
             try {
-                messagesList = dbHelper.getMessageFromUser(username);
+                messagesList = dbHelper.getMessagesFromUser(username);
             } catch (PublisherNotFoundException e) {
                 e.printStackTrace();
             }
 
 
             for(Message m: messagesList){
-                String s = p.getKey() + " -> " + p.getValue();
-                list2update.add(s);
-                keyHotfix.put(s, p.getKey());
+                list2update.add(m.getContent());
             }
-            */
+
 
 
             return null;
