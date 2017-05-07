@@ -5,6 +5,8 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -18,6 +20,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -92,8 +95,25 @@ public class ListMessages extends Fragment {
                 startActivity(intent);
             }});
 
+        checkInternetConnection();
         fillDatabase(this.getActivity());
 
+    }
+
+    private void checkInternetConnection(){
+        //fixme meter no login
+        ServicesDataHolder dataHolder = ServicesDataHolder.getInstance().getInstance();
+        ConnectivityManager cm =
+                (ConnectivityManager)getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+
+        boolean isConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+
+        dataHolder.setCentralizedMode(isConnected);
+
+        Toast.makeText(getActivity(), "boolean = " + isConnected, Toast.LENGTH_LONG).show();
     }
 
     private void fillDatabase(Activity activity) {
@@ -278,6 +298,8 @@ public class ListMessages extends Fragment {
 
         @Override
         protected List<Message> doInBackground(Void... params) {
+
+
 
             ServerActions serverActions = new ServerActions(getActivity());
             //TODO Change to get locations from local DB

@@ -15,7 +15,6 @@ import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.Toast;
 
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -35,6 +34,7 @@ public class MessagePolicyActivity extends AppCompatActivity implements OnRespon
     private String mStartTime;
     private String mEndTime;
     private String mID;
+    private Boolean mIsDecentralized;
     // ======================
 
     private EditText mKey;
@@ -123,6 +123,7 @@ public class MessagePolicyActivity extends AppCompatActivity implements OnRespon
         });
     }
 
+
     private boolean isValidInput() {
         boolean b = mKey.getText().toString().length() > 0 && mValue.getText().toString().length() > 0;
         if (!b) {
@@ -136,6 +137,7 @@ public class MessagePolicyActivity extends AppCompatActivity implements OnRespon
         mStartTime = i.getExtras().getString("mStartTime");
         mEndTime = i.getExtras().getString("mEndTime");
         mID = i.getExtras().getString("mID");
+        mIsDecentralized = i.getExtras().getBoolean("mIsDecentralized");
     }
 
     private void hideKeyboard() {

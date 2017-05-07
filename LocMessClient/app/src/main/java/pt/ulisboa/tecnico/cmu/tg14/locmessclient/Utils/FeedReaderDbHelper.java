@@ -19,6 +19,7 @@ import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.LocationNotFoundExce
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.MessageMuleNotFoundException;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.MessageNotFoundException;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.ProfileNotFoundException;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.PublisherNotFoundException;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderContract.FeedEntry;
 
 /**
@@ -412,16 +413,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
     public Message getMessage(String uuid) throws MessageNotFoundException {
         SQLiteDatabase db = this.getReadableDatabase();
 
-        String[] projection = {
-                FeedEntry._ID,
-                FeedEntry.MESSAGE_COLUMN_UUID,
-                FeedEntry.MESSAGE_COLUMN_CREATIONTIME,
-                FeedEntry.MESSAGE_COLUMN_STARTTIME,
-                FeedEntry.MESSAGE_COLUMN_ENDTIME,
-                FeedEntry.MESSAGE_COLUMN_CONTENT,
-                FeedEntry.MESSAGE_COLUMN_PUBLISHER,
-                FeedEntry.MESSAGE_COLUMN_LOCATION
-        };
+        String[] projection = makeDefaultMessageProjection();
 
         Cursor cursor = db.query(
                 FeedEntry.MESSAGE_TABLE_NAME,             // The table to query
@@ -442,22 +434,38 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         return associateMessage(cursor);
     }
 
+    public Message getMessageFromUser(String publisher) throws PublisherNotFoundException {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String[] projection = makeDefaultMessageProjection();
+
+        Cursor cursor = db.query(
+                FeedEntry.MESSAGE_TABLE_NAME,             // The table to query
+                projection,                               // The columns to return
+                FeedEntry.MESSAGE_COLUMN_PUBLISHER,            // The columns for the WHERE clause
+                new String[]{FeedEntry.MESSAGE_COLUMN_PUBLISHER + "=" + publisher},                                     // The values for the WHERE clause
+                null,                                     // don't group the rows
+                null,                                     // don't filter by row groups
+                null                                   // The sort order
+        );
+
+        if (cursor.getCount() == 0) {
+            throw new PublisherNotFoundException();
+        }
+
+        cursor.moveToFirst();
+
+        return associateMessage(cursor);
+    }
+
+
     public ArrayList<Message> getAllMessages() {
         ArrayList<Message> messages = new ArrayList<Message>();
 
         //hp = new HashMap();
         SQLiteDatabase db = this.getReadableDatabase();
 
-        String[] projection = {
-                FeedEntry._ID,
-                FeedEntry.MESSAGE_COLUMN_UUID,
-                FeedEntry.MESSAGE_COLUMN_CREATIONTIME,
-                FeedEntry.MESSAGE_COLUMN_STARTTIME,
-                FeedEntry.MESSAGE_COLUMN_ENDTIME,
-                FeedEntry.MESSAGE_COLUMN_CONTENT,
-                FeedEntry.MESSAGE_COLUMN_PUBLISHER,
-                FeedEntry.MESSAGE_COLUMN_LOCATION
-        };
+        String[] projection = makeDefaultMessageProjection();
 
         //String sortOrder = FeedEntry.MESSAGE_COLUMN_LOCATION + " DESC";
 
@@ -508,6 +516,19 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
                 cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_PUBLISHER)),
                 cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_LOCATION))
         );
+    }
+
+    private String[] makeDefaultMessageProjection() {
+        return new String[] {
+                FeedEntry._ID,
+                FeedEntry.MESSAGE_COLUMN_UUID,
+                FeedEntry.MESSAGE_COLUMN_CREATIONTIME,
+                FeedEntry.MESSAGE_COLUMN_STARTTIME,
+                FeedEntry.MESSAGE_COLUMN_ENDTIME,
+                FeedEntry.MESSAGE_COLUMN_CONTENT,
+                FeedEntry.MESSAGE_COLUMN_PUBLISHER,
+                FeedEntry.MESSAGE_COLUMN_LOCATION
+        };
     }
 
     // PROFILE
