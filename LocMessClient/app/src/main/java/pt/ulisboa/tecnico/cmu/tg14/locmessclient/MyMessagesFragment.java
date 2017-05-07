@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.design.widget.FloatingActionButton;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -92,6 +93,8 @@ public class MyMessagesFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
+        Log.d("MyMessages: ", "on resume" );
+
         new GetMessagesFromDatabaseTask(view);
     }
 
@@ -158,7 +161,6 @@ public class MyMessagesFragment extends Fragment {
         List<String> list2update;
 
         public GetMessagesFromDatabaseTask(View view) {
-            v = view;
             list2update = new ArrayList<>();
         }
 
@@ -166,7 +168,7 @@ public class MyMessagesFragment extends Fragment {
         protected void onPreExecute() {
             super.onPreExecute();
 
-            ListView listView = (ListView) v.findViewById(R.id.profile_list);
+            ListView listView = (ListView) view.findViewById(R.id.profile_list);
             arrayAdapter = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1,list);
             listView.setAdapter(arrayAdapter);
 
@@ -195,16 +197,17 @@ public class MyMessagesFragment extends Fragment {
 
 
             try {
+
+                //FIXME remove dis
+                username = "publisher";
                 messagesList = dbHelper.getMessagesFromUser(username);
+                for(Message m: messagesList){
+                    list2update.add(m.getContent());
+                    Log.d("MyMessages: ", "received message ->" + m.getUUID());
+                }
             } catch (PublisherNotFoundException e) {
                 e.printStackTrace();
             }
-
-
-            for(Message m: messagesList){
-                list2update.add(m.getContent());
-            }
-
 
 
             return null;
