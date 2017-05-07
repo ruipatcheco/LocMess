@@ -433,7 +433,9 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         return associateMessage(cursor);
     }
 
-    public Message getMessageFromUser(String publisher) throws PublisherNotFoundException {
+    public List<Message> getMessagesFromUser(String publisher) throws PublisherNotFoundException {
+        ArrayList<Message> messages = new ArrayList<Message>();
+
         SQLiteDatabase db = this.getReadableDatabase();
 
         String[] projection = makeDefaultMessageProjection();
@@ -452,11 +454,12 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
             throw new PublisherNotFoundException();
         }
 
-        cursor.moveToFirst();
-
-        return associateMessage(cursor);
+        while(cursor.isAfterLast() == false){
+            messages.add(associateMessage(cursor));
+            cursor.moveToNext();
+        }
+        return messages;
     }
-
 
     public ArrayList<Message> getAllMessages() {
         ArrayList<Message> messages = new ArrayList<Message>();
