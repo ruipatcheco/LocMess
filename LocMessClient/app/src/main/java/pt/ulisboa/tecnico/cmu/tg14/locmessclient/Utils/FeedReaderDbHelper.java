@@ -339,8 +339,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         );
 
         cursor.moveToFirst();
-
-        Log.d("TAMANHO CRL", String.valueOf(cursor.getCount()));
+        
 
         while(cursor.isAfterLast() == false){
             messages.add(associateMessageMule(cursor));
