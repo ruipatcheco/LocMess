@@ -38,7 +38,6 @@ import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.PublisherNotFoundExc
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnResponseListener;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderContract;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderDbHelper;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServerActions;
 
 import static android.content.ContentValues.TAG;
 
@@ -268,7 +267,7 @@ public class ListMessages extends Fragment {
             super.onPostExecute(aVoid);
 
             mMessageListView.setAdapter(arrayAdapter);
-
+            mMessageList.clear();
             for(Message m: auxList){
                 mMessageList.add(m);
                 messageContentList.add(m.getContent());

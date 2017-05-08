@@ -7,6 +7,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.google.gson.Gson;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +23,8 @@ import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.MessageNotFoundExcep
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.ProfileNotFoundException;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.PublisherNotFoundException;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderContract.FeedEntry;
+
+import static android.content.ContentValues.TAG;
 
 /**
  * Created by brigadinhos on 25/04/2017.
@@ -89,10 +93,10 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_CREATE_MESSAGE);
         db.execSQL(SQL_CREATE_MULE);*/
 
-        createLocationTable();
-        createMessageTable();
-        createMuleTable();
-        createProfileTable();
+        createLocationTable(db);
+        createMessageTable(db);
+        createMuleTable(db);
+        createProfileTable(db);
     }
 
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -120,8 +124,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
     // LOCATION
 
-    public void createLocationTable() {
-        SQLiteDatabase db = this.getWritableDatabase();
+    public void createLocationTable(SQLiteDatabase db) {
 
         db.execSQL(SQL_CREATE_LOCATION);
     }
@@ -261,8 +264,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
     // MULE
 
-    public void createMuleTable() {
-        SQLiteDatabase db = this.getWritableDatabase();
+    public void createMuleTable(SQLiteDatabase db) {
 
         db.execSQL(SQL_CREATE_MULE);
     }
@@ -399,8 +401,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
     // MESSAGE
 
-    public void createMessageTable() {
-        SQLiteDatabase db = this.getWritableDatabase();
+    public void createMessageTable(SQLiteDatabase db) {
 
         db.execSQL(SQL_CREATE_MESSAGE);
     }
@@ -439,6 +440,8 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
     public void insertAllMessages(List<Message> messages){
         for (Message message : messages) {
+            Gson gson = new Gson();
+            Log.d(TAG, "insertAllMessages: "+gson.toJson(message));
             insertMessage(message.getUUID().toString(), message.getCreationTime(), message.getStartTime(), message.getEndTime(), message.getContent(), message.getPublisher(), message.getLocation());
         }
     }
@@ -577,8 +580,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
     // PROFILE
 
-    public void createProfileTable() {
-        SQLiteDatabase db = this.getWritableDatabase();
+    public void createProfileTable(SQLiteDatabase db) {
 
         db.execSQL(SQL_CREATE_PROFILE);
     }

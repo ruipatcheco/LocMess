@@ -61,7 +61,8 @@
         <service android:name=".Services.BluetoothService" />
         <service android:name=".Services.GPSService" />
         <service android:name=".Services.WifiService" />
-        <service android:name=".Services.MasterService" />
+        <service android:name=".Services.MasterService"/>
+        <service android:name=".Services.DBService" />
 
         <activity
             android:name=".MessageView"

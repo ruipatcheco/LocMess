@@ -17,6 +17,7 @@ import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Receivers.BluetoothReceiver;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Receivers.GPSReceiver;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Receivers.WifiReceiver;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.BluetoothService;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.DBService;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.GPSService;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.MasterService;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.WifiService;
@@ -29,7 +30,6 @@ public class ServiceManager {
     private WifiReceiver mWifiReceiver;
     private BluetoothReceiver mBTReceiver;
     private GPSReceiver mGPSReceiver;
-
     private Activity mActivity;
     private Service mService;
 
@@ -91,6 +91,7 @@ public class ServiceManager {
             mActivity.startService(new Intent(mActivity,WifiService.class));
             mActivity.startService(new Intent(mActivity, BluetoothService.class));
             mActivity.startService(new Intent(mActivity,GPSService.class));
+            mActivity.startService(new Intent(mActivity,DBService.class));
         }
     }
 
@@ -99,6 +100,7 @@ public class ServiceManager {
         mActivity.stopService(new Intent(mActivity,GPSService.class));
         mActivity.stopService(new Intent(mActivity,WifiService.class));
         mActivity.stopService(new Intent(mActivity,BluetoothService.class));
+        mActivity.stopService(new Intent(mActivity,DBService.class));
     }
 
     public void unRegisterReceivers(){

@@ -7,15 +7,22 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.widget.ArrayAdapter;
+
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.LocationQuery;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.ServicesDataHolder;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnResponseListener;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderDbHelper;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServerActions;
+
+import static android.content.ContentValues.TAG;
 
 /**
  * Created by tiago on 30/03/2017.
@@ -36,7 +43,7 @@ public class DBService extends Service {
     @Override
     public void onCreate() {
 
-        Log.d("DBUpdater","Bluetooth Started");
+        Log.d("DBUpdater","DB Updater Started");
         serverActions = new ServerActions(this);
 
 
@@ -45,33 +52,43 @@ public class DBService extends Service {
             public void run() {
                 LocationQuery query = new LocationQuery(dataHolder.getLatitude(),dataHolder.getLongitude(),
                         dataHolder.getSsidAddresses(),dataHolder.getBleAddresses());
-                serverActions.getNearLocations(query, new OnResponseListener() {
+                Gson gson = new Gson();
+                Log.d(TAG,"DB service query "+gson.toJson(query));
+                serverActions.getNearLocations(query, new OnResponseListener<List<Location>>() {
                     @Override
-                    public void onHTTPResponse(Object response) {
-                        //TODO add data to db
+                    public void onHTTPResponse(List<Location> response) {
+                        dataHolder.setNearLocations(response);
 
+                        Log.d(TAG, "onHTTPResponse: nearLocations Set");
                     }
                 });
 
-                List<Location>  locations = new ArrayList<>(); //FIXME get locations from db
+                List<Location>  locations = dataHolder.getNearLocations();
+                final FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(getApplicationContext());
+                dbHelper.deleteAllMessages();
                 for(Location location: locations){
-                    serverActions.getMessagesFromLocation(location, new OnResponseListener() {
+                    serverActions.getMessagesFromLocation(location, new OnResponseListener<List<Message>>() {
                         @Override
-                        public void onHTTPResponse(Object response) {
-                            //TODO add data to db
+                        public void onHTTPResponse(List<Message> response) {
+                            ArrayList<Message> messages = dbHelper.getAllMessages();
+                            messages.addAll(response);
+                            dbHelper.insertAllMessages(messages);
+                            Log.d(TAG, "onHTTPResponse: added Messages to DB");
                         }
                     });
-
                 }
 
-                serverActions.getAllLocations(new OnResponseListener() {
+                serverActions.getAllLocations(new OnResponseListener<List<Location>>() {
                     @Override
-                    public void onHTTPResponse(Object response) {
-                        //TODO add data to db
+                    public void onHTTPResponse(List<Location> response) {
+                        FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(getApplicationContext());
+                        dbHelper.insertAllLocations(response);
+
+                        Log.d(TAG, "onHTTPResponse: Got all locations");
                     }
                 });
 
-                handler.postDelayed(runnable, 60000);
+                handler.postDelayed(runnable, 4000);
             }
         };
 
