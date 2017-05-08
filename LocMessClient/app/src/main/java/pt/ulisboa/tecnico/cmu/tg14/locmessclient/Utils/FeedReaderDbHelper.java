@@ -251,6 +251,18 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         return locations;
     }
 
+    public boolean deleteLocation(String locationName) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        String table = FeedEntry.LOCATION_TABLE_NAME;
+        String whereClause = FeedEntry.LOCATION_COLUMN_NAME + " = ?";
+        String[] whereArgs = new String[] { locationName };
+
+        return db.delete(table, whereClause, whereArgs) > 0;
+
+        //db.delete(FeedEntry.PROFILE_TABLE_NAME, FeedEntry.PROFILE_COLUMN_KEY + "=" + key, null) > 0;
+    }
+
     private Location associateLocation(Cursor cursor) {
         return new Location(
                 cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.LOCATION_COLUMN_NAME)),
