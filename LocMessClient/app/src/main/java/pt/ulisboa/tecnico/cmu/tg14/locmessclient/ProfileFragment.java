@@ -116,11 +116,18 @@ public class ProfileFragment extends Fragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, final View view, final int position, long l) {
+                Toast.makeText(view.getContext(), "Long press to delete", Toast.LENGTH_LONG).show();
+            }
+        });
+
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, final View view, final int position, long l) {
 
                 String content = (String) adapterView.getItemAtPosition(position);
                 final String key = keyHotfix.get(content);
 
-                Toast.makeText(getActivity(),"key -> " + key, Toast.LENGTH_LONG).show();
+                //Toast.makeText(getActivity(),"key -> " + key, Toast.LENGTH_LONG).show();
 
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
                         getActivity());
@@ -158,6 +165,7 @@ public class ProfileFragment extends Fragment {
                 // show it
                 alertDialog.show();
 
+                return true;
             }
         });
 
