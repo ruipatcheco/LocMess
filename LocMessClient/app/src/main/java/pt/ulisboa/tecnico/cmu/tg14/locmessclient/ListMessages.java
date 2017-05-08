@@ -240,7 +240,7 @@ public class ListMessages extends Fragment {
                 //assuming the message is in the same list position as the arrayadapter position
                 String content = (String) adapterView.getItemAtPosition(position);
                 Message message = mMessageList.get(position);
-                intent.putExtra("MessageID",message.getUUID());
+                intent.putExtra("MessageID",message.getUUID().toString());
                 startActivity(intent);
             }
         });

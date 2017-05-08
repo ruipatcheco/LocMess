@@ -65,7 +65,9 @@ public class DBService extends Service {
 
                 List<Location>  locations = dataHolder.getNearLocations();
                 final FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(getApplicationContext());
-                dbHelper.deleteAllMessages();
+
+                //dbHelper.deleteAllMessages();
+
                 for(Location location: locations){
                     serverActions.getMessagesFromLocation(location, new OnResponseListener<List<Message>>() {
                         @Override

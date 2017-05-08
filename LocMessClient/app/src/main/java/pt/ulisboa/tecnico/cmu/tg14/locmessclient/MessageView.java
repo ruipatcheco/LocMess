@@ -18,7 +18,7 @@ public class MessageView extends AppCompatActivity {
 
     private TextView mPublisher;
     private TextView mMessageContent;
-    private UUID messageID;
+    private String messageID;
 
 
     @Override
@@ -31,7 +31,7 @@ public class MessageView extends AppCompatActivity {
         mPublisher = (TextView) findViewById(R.id.message_view_publisher_name);
         mMessageContent = (TextView) findViewById(R.id.message_view_message_content);
 
-        messageID = (UUID) receiveIntent.getSerializableExtra("MessageID");
+        messageID = receiveIntent.getExtras().getString("MessageID");
 
         Log.d("MessageView: ", "message id-> " + messageID);
 
