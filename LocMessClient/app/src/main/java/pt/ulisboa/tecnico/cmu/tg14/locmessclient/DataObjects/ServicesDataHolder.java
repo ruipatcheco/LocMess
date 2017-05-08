@@ -19,7 +19,8 @@ public class ServicesDataHolder {
     private Float longitude;
     private Float latitude;
     private String username;
-    private AbstractMap<UUID,Message> messageMap;
+    private AbstractMap<UUID,Message> messageMap; //FIXME may not be needed
+    private List<Location> nearLocations;
     private boolean centralizedMode;
 
     private OperationStatus operationStatus;
@@ -37,6 +38,16 @@ public class ServicesDataHolder {
         latitude = new Float(0);
         longitude = new Float(0);
         messageMap = new HashMap<>();
+        nearLocations = new ArrayList<>();
+
+    }
+
+    public List<Location> getNearLocations() {
+        return nearLocations;
+    }
+
+    public void setNearLocations(List<Location> nearLocations) {
+        this.nearLocations = nearLocations;
     }
 
     public boolean isCentralizedMode() {
