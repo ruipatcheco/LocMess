@@ -146,7 +146,7 @@ public class ListLocations extends Fragment {
         super.onCreate(savedInstanceState);
         getActivity().setTitle(R.string.fragment_list_locations_title);
 
-        this.view = getView();
+        this.view = getActivity().getWindow().getDecorView().findViewById(android.R.id.content);
 
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
@@ -295,6 +295,7 @@ public class ListLocations extends Fragment {
         for (Location location : nearLocations) {
             locationListNames.add(location.getName());
         }
+        
         ListView listView = (ListView) view.findViewById(R.id.list_locations_list);
         arrayAdapter = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1, locationListNames);
         listView.setAdapter(arrayAdapter);
