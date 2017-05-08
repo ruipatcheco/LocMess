@@ -33,6 +33,8 @@ import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.OperationStatus;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.ServicesDataHolder;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.MessageNotFoundException;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.PublisherNotFoundException;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnResponseListener;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderContract;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderDbHelper;
@@ -128,7 +130,7 @@ public class ListMessages extends Fragment {
     private void createDatabase(Context context, boolean deleteDatabase){
         FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(context);
         if (doesDatabaseExist(context, dbHelper.getDatabaseName()) && deleteDatabase){
-            //context.deleteDatabase(FeedReaderDbHelper.DATABASE_NAME);
+            context.deleteDatabase(FeedReaderDbHelper.DATABASE_NAME);
             //dbHelper.onDrop(dbHelper.getWritableDatabase());
             Log.d("createDatabase","old database detected and deleted");
         }
@@ -143,11 +145,40 @@ public class ListMessages extends Fragment {
 
         Calendar c = Calendar.getInstance();
         dbHelper.insertMessage(UUID.randomUUID().toString(), c.getTimeInMillis(),c.getTimeInMillis(),c.getTimeInMillis(),"olateste","publisher","tenicno");
+        dbHelper.insertMessage(UUID.randomUUID().toString(), c.getTimeInMillis(),c.getTimeInMillis(),c.getTimeInMillis(),"o rosado é noob","publisher","tenicno");
         ArrayList<Message> messages = dbHelper.getAllMessages();
 
         for(Message m:messages){
+            Log.d("message", m.getUUID().toString());
             Log.d("createDatabase", "creationtime: "+m.getCreationTime());
             Log.d("createDatabase", "content: "+m.getContent());
+        }
+
+        Log.d("message0", "uuid: " + messages.get(0).getUUID().toString());
+        Log.d("message0", "creationtime: "+messages.get(0).getCreationTime());
+        Log.d("message0", "content: "+messages.get(0).getContent());
+        Log.d("message0", "publisher: "+messages.get(0).getPublisher());
+
+        try {
+            Message m0 = dbHelper.getMessage(messages.get(0).getUUID().toString());
+            Log.d("message0BD", "uuid: " + m0.getUUID().toString());
+            Log.d("message0DB", "creationtime: "+m0.getCreationTime());
+            Log.d("message0DB", "content: "+m0.getContent());
+            Log.d("message0DB", "publisher: "+m0.getPublisher());
+        } catch (MessageNotFoundException e) {
+            Log.d("message0BD", "MESSAGE NOT FOUND");
+            e.printStackTrace();
+        }
+
+        try {
+            for (Message m0 : dbHelper.getMessagesFromUser("publisher")) {
+                Log.d("message0BD", "uuid: " + m0.getUUID().toString());
+                Log.d("message0DB", "creationtime: "+m0.getCreationTime());
+                Log.d("message0DB", "content: "+m0.getContent());
+                Log.d("message0DB", "publisher: "+m0.getPublisher());
+            }
+        } catch (PublisherNotFoundException e) {
+            Log.d("messagePUBLISHER", "publisher not found");
         }
 
         dbHelper.insertMessageMule(UUID.randomUUID().toString(), c.getTimeInMillis(),c.getTimeInMillis(),c.getTimeInMillis(),"olateste","publisher","tenicno");
@@ -163,6 +194,7 @@ public class ListMessages extends Fragment {
             Log.d("createDatabase", "lat of location: "+l.getLatitude());
         }
         Log.d("createDatabase","location size: "+locations.size());
+
 
 
         return;
