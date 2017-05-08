@@ -157,8 +157,8 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         Cursor cursor = db.query(
                 FeedEntry.LOCATION_TABLE_NAME,             // The table to query
                 projection,                               // The columns to return
-                FeedEntry.LOCATION_COLUMN_NAME,            // The columns for the WHERE clause
-                new String[]{FeedEntry.LOCATION_COLUMN_NAME + "=" + name},                                     // The values for the WHERE clause
+                FeedEntry.LOCATION_COLUMN_NAME + " = ?",            // The columns for the WHERE clause
+                new String[]{name},                                     // The values for the WHERE clause
                 null,                                     // don't group the rows
                 null,                                     // don't filter by row groups
                 null                                   // The sort order
@@ -297,8 +297,8 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         Cursor cursor = db.query(
                 FeedEntry.MULE_TABLE_NAME,             // The table to query
                 projection,                               // The columns to return
-                FeedEntry.MULE_COLUMN_UUID,            // The columns for the WHERE clause
-                new String[]{FeedEntry.MULE_COLUMN_UUID + "=" + uuid},                                     // The values for the WHERE clause
+                FeedEntry.MULE_COLUMN_UUID + " = ?",            // The columns for the WHERE clause
+                new String[]{uuid},                                     // The values for the WHERE clause
                 null,                                     // don't group the rows
                 null,                                     // don't filter by row groups
                 null                                   // The sort order
@@ -340,7 +340,6 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
         cursor.moveToFirst();
 
-        Log.d("TAMANHO CRL", String.valueOf(cursor.getCount()));
 
         while(cursor.isAfterLast() == false){
             messages.add(associateMessageMule(cursor));
@@ -418,11 +417,11 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         Cursor cursor = db.query(
                 FeedEntry.MESSAGE_TABLE_NAME,             // The table to query
                 projection,                               // The columns to return
-                FeedEntry.MESSAGE_COLUMN_UUID,            // The columns for the WHERE clause
-                new String[]{FeedEntry.MESSAGE_COLUMN_UUID + "=" + uuid},                                     // The values for the WHERE clause
+                FeedEntry.MESSAGE_COLUMN_UUID + "= ?",    // The columns for the WHERE clause
+                new String[]{uuid},                       // The values for the WHERE clause
                 null,                                     // don't group the rows
                 null,                                     // don't filter by row groups
-                null                                   // The sort order
+                null                                      // The sort order
         );
 
         if (cursor.getCount() == 0) {
@@ -434,19 +433,21 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         return associateMessage(cursor);
     }
 
-    public Message getMessageFromUser(String publisher) throws PublisherNotFoundException {
+    public List<Message> getMessagesFromUser(String publisher) throws PublisherNotFoundException {
+        ArrayList<Message> messages = new ArrayList<Message>();
+
         SQLiteDatabase db = this.getReadableDatabase();
 
         String[] projection = makeDefaultMessageProjection();
 
         Cursor cursor = db.query(
-                FeedEntry.MESSAGE_TABLE_NAME,             // The table to query
-                projection,                               // The columns to return
-                FeedEntry.MESSAGE_COLUMN_PUBLISHER,            // The columns for the WHERE clause
-                new String[]{FeedEntry.MESSAGE_COLUMN_PUBLISHER + "=" + publisher},                                     // The values for the WHERE clause
-                null,                                     // don't group the rows
-                null,                                     // don't filter by row groups
-                null                                   // The sort order
+                FeedEntry.MESSAGE_TABLE_NAME,                        // The table to query
+                projection,                                         // The columns to return
+                FeedEntry.MESSAGE_COLUMN_PUBLISHER + " = ?",       // The columns for the WHERE clause
+                new String[]{publisher},                          // The values for the WHERE clause
+                null,                                            // don't group the rows
+                null,                                           // don't filter by row groups
+                null                                           // The sort order
         );
 
         if (cursor.getCount() == 0) {
@@ -455,9 +456,12 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
         cursor.moveToFirst();
 
-        return associateMessage(cursor);
+        while(cursor.isAfterLast() == false){
+            messages.add(associateMessage(cursor));
+            cursor.moveToNext();
+        }
+        return messages;
     }
-
 
     public ArrayList<Message> getAllMessages() {
         ArrayList<Message> messages = new ArrayList<Message>();
@@ -569,8 +573,8 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         Cursor cursor = db.query(
                 FeedEntry.PROFILE_TABLE_NAME,             // The table to query
                 projection,                               // The columns to return
-                FeedEntry.PROFILE_COLUMN_KEY,            // The columns for the WHERE clause
-                new String[]{FeedEntry.PROFILE_COLUMN_KEY + "=" + key},                                     // The values for the WHERE clause
+                FeedEntry.PROFILE_COLUMN_KEY + " = ?",            // The columns for the WHERE clause
+                new String[]{key},                                     // The values for the WHERE clause
                 null,                                     // don't group the rows
                 null,                                     // don't filter by row groups
                 null                                   // The sort order

@@ -7,18 +7,19 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.design.widget.FloatingActionButton;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Profile;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.ServicesDataHolder;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.PublisherNotFoundException;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderDbHelper;
 
 
@@ -41,9 +42,10 @@ public class MyMessagesFragment extends Fragment {
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
-    private List<String> list;
-    private  ArrayAdapter<String> arrayAdapter;
-    private View view;
+    private List<String> messagesList;
+    private ArrayAdapter<String> arrayAdapter;
+
+    private ListView listView;
 
     public MyMessagesFragment() {
         // Required empty public constructor
@@ -90,7 +92,9 @@ public class MyMessagesFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        new GetMessagesFromDatabaseTask(view);
+        Log.d("MyMessages: ", "on resume" );
+
+        new GetMessagesFromDatabaseTask().execute();
     }
 
     @Override
@@ -101,11 +105,11 @@ public class MyMessagesFragment extends Fragment {
 
 
         // Inflate the layout for this fragment
-        view = inflater.inflate(R.layout.fragment_my_messages, container, false);
-        list = new ArrayList<>();
+        View view = inflater.inflate(R.layout.fragment_my_messages, container, false);
+        messagesList = new ArrayList<>();
 
-        ListView listView = (ListView) view.findViewById(R.id.list_my_messages_list);
-        arrayAdapter = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1,list);
+        listView = (ListView) view.findViewById(R.id.list_my_messages_list);
+        arrayAdapter = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1, messagesList);
 
         listView.setAdapter(arrayAdapter);
 
@@ -153,11 +157,9 @@ public class MyMessagesFragment extends Fragment {
 
     private class GetMessagesFromDatabaseTask extends AsyncTask<Void, Void, Void> {
 
-        View v;
         List<String> list2update;
 
-        public GetMessagesFromDatabaseTask(View view) {
-            v = view;
+        public GetMessagesFromDatabaseTask() {
             list2update = new ArrayList<>();
         }
 
@@ -165,9 +167,9 @@ public class MyMessagesFragment extends Fragment {
         protected void onPreExecute() {
             super.onPreExecute();
 
-            ListView listView = (ListView) v.findViewById(R.id.profile_list);
-            arrayAdapter = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1,list);
+            arrayAdapter = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1, messagesList);
             listView.setAdapter(arrayAdapter);
+            Log.d("MyMessages: ", "onPreExecute");
 
         }
 
@@ -175,31 +177,41 @@ public class MyMessagesFragment extends Fragment {
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
 
-            list.clear();
+            messagesList.clear();
 
             for(String s : list2update){
-                list.add(s);
+                messagesList.add(s);
             }
             arrayAdapter.notifyDataSetChanged();
+            Log.d("MyMessages: ", "onPostExecute");
         }
 
         @Override
         protected Void doInBackground(Void... params) {
             FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(getActivity());
 
+            String username = ServicesDataHolder.getInstance().getUsername();
 
-            /*
-
-            //FIXME -> implement get messages from certain username
-            List<Message> messagesList = dbHelper.getMessagesFromUser()
+            List<Message> messagesDB;
 
 
-            for(Message m: messagesList){
-                String s = p.getKey() + " -> " + p.getValue();
-                list2update.add(s);
-                keyHotfix.put(s, p.getKey());
+            try {
+
+                //FIXME remove dis
+                username = "publisher";
+
+
+                messagesDB = dbHelper.getMessagesFromUser(username);
+                for(Message m: messagesDB){
+                    list2update.add(m.getContent());
+                    Log.d("MyMessages: ", "received message ->" + m.getUUID());
+                }
+
+                Log.d("MyMessages: ", "received messages ->" +list2update.size() );
+            } catch (PublisherNotFoundException e) {
+                e.printStackTrace();
             }
-            */
+
 
             return null;
         }

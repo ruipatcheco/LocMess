@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -42,10 +43,10 @@ public class MessageLocationActivity extends AppCompatActivity {
         getExtrasIntent(getIntent());
         mLocationList = (Spinner) findViewById(R.id.message_location_spinner);
 
+        activity = this;
         locationListNames = new ArrayList<>();
         arrayAdapter = new ArrayAdapter(activity,android.R.layout.simple_dropdown_item_1line, locationListNames);
 
-        activity = this;
 
         new ListLocationsTask().execute();
 
@@ -120,6 +121,7 @@ public class MessageLocationActivity extends AppCompatActivity {
 
             for(String s: dbLocationNames){
                 auxList.add(s);
+                Log.d("MessageLocationActivity","added location from db-> " + s);
             }
             return null;
         }
