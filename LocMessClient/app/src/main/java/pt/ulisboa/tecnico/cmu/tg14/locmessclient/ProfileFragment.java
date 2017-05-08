@@ -236,7 +236,7 @@ public class ProfileFragment extends Fragment {
         @Override
         protected Void doInBackground(Void... params) {
             FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(getActivity());
-            dbHelper.deleteProfile(dbHelper.getReadableDatabase(),k);
+            dbHelper.deleteProfile(k);
 
             return null;
         }

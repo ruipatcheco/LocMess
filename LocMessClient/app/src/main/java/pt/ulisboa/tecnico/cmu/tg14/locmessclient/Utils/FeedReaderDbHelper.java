@@ -89,37 +89,46 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_CREATE_MESSAGE);
         db.execSQL(SQL_CREATE_MULE);*/
 
-        createLocationTable(db);
-        createMessageTable(db);
-        createMuleTable(db);
-        createProfileTable(db);
+        createLocationTable();
+        createMessageTable();
+        createMuleTable();
+        createProfileTable();
     }
 
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // This database is only a cache for online data, so its upgrade policy is
         // to simply to discard the data and start over
-        onDrop(db);
+
+        onDrop();
     }
 
-    public void onDrop(SQLiteDatabase db) {
-        dropLocation(db);
-        dropMessage(db);
-        dropMule(db);
+    public void onDrop() {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        dropLocation();
+        dropMessage();
+        dropMule();
 
         onCreate(db);
     }
 
-    public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+    public void onDowngrade(int oldVersion, int newVersion) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
         onUpgrade(db, oldVersion, newVersion);
     }
 
     // LOCATION
 
-    public void createLocationTable(SQLiteDatabase db) {
+    public void createLocationTable() {
+        SQLiteDatabase db = this.getWritableDatabase();
+
         db.execSQL(SQL_CREATE_LOCATION);
     }
 
-    public void dropLocation(SQLiteDatabase db) {
+    public void dropLocation() {
+        SQLiteDatabase db = this.getWritableDatabase();
+
         db.execSQL(SQL_DELETE_ENTRIES + FeedEntry.LOCATION_TABLE_NAME);
     }
 
@@ -252,11 +261,15 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
     // MULE
 
-    public void createMuleTable(SQLiteDatabase db) {
+    public void createMuleTable() {
+        SQLiteDatabase db = this.getWritableDatabase();
+
         db.execSQL(SQL_CREATE_MULE);
     }
 
-    public void dropMule(SQLiteDatabase db) {
+    public void dropMule() {
+        SQLiteDatabase db = this.getWritableDatabase();
+
         db.execSQL(SQL_DELETE_ENTRIES + FeedEntry.MULE_TABLE_NAME);
     }
 
@@ -348,21 +361,27 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         return messages;
     }
 
-    public boolean deleteMessageMule(SQLiteDatabase db, String uuid) {
+    public boolean deleteMessageMule(String uuid) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
         return db.delete(FeedEntry.MULE_TABLE_NAME, FeedEntry.MULE_COLUMN_UUID + "=" + uuid, null) > 0;
     }
 
-    public boolean deleteListMessageMules(SQLiteDatabase db, List<String> messagesMules) {
+    public boolean deleteListMessageMules(List<String> messagesMules) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
         boolean result = true;
         for (String messageMule : messagesMules) {
-            if (!deleteMessageMule(db, messageMule)) {
+            if (!deleteMessageMule(messageMule)) {
                 result = false;
             }
         }
         return result;
     }
 
-    public void deleteAllMessageMules(SQLiteDatabase db) {
+    public void deleteAllMessageMules() {
+        SQLiteDatabase db = this.getWritableDatabase();
+
         db.execSQL("delete from "+ FeedEntry.MULE_TABLE_NAME);
     }
 
@@ -380,11 +399,15 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
     // MESSAGE
 
-    public void createMessageTable(SQLiteDatabase db) {
+    public void createMessageTable() {
+        SQLiteDatabase db = this.getWritableDatabase();
+
         db.execSQL(SQL_CREATE_MESSAGE);
     }
 
-    public void dropMessage(SQLiteDatabase db) {
+    public void dropMessage() {
+        SQLiteDatabase db = this.getWritableDatabase();
+
         db.execSQL(SQL_DELETE_ENTRIES + FeedEntry.MESSAGE_TABLE_NAME);
     }
 
@@ -503,21 +526,27 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         return messages;
     }
 
-    public boolean deleteMessage(SQLiteDatabase db, String uuid) {
+    public boolean deleteMessage(String uuid) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
         return db.delete(FeedEntry.MESSAGE_TABLE_NAME, FeedEntry.MESSAGE_COLUMN_UUID + "=" + uuid, null) > 0;
     }
 
-    public boolean deleteListMessage(SQLiteDatabase db, List<String> messages) {
+    public boolean deleteListMessage(List<String> messages) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
         boolean result = true;
         for (String message : messages) {
-            if (!deleteMessage(db, message)) {
+            if (!deleteMessage(message)) {
                 result = false;
             }
         }
         return result;
     }
 
-    public void deleteAllMessages(SQLiteDatabase db) {
+    public void deleteAllMessages() {
+        SQLiteDatabase db = this.getWritableDatabase();
+
         db.execSQL("delete from "+ FeedEntry.MESSAGE_TABLE_NAME);
     }
 
@@ -548,11 +577,15 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
     // PROFILE
 
-    public void createProfileTable(SQLiteDatabase db) {
+    public void createProfileTable() {
+        SQLiteDatabase db = this.getWritableDatabase();
+
         db.execSQL(SQL_CREATE_PROFILE);
     }
 
-    public void dropProfile(SQLiteDatabase db) {
+    public void dropProfile() {
+        SQLiteDatabase db = this.getWritableDatabase();
+
         db.execSQL(SQL_DELETE_ENTRIES + FeedEntry.PROFILE_TABLE_NAME);
     }
 
@@ -663,7 +696,9 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         return profiles;
     }
 
-    public boolean deleteProfile(SQLiteDatabase db, String key) {
+    public boolean deleteProfile(String key) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
         String table = FeedEntry.PROFILE_TABLE_NAME;
         String whereClause = FeedEntry.PROFILE_COLUMN_KEY + "=?";
         String[] whereArgs = new String[] { key };
@@ -673,17 +708,21 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         //db.delete(FeedEntry.PROFILE_TABLE_NAME, FeedEntry.PROFILE_COLUMN_KEY + "=" + key, null) > 0;
     }
 
-    public boolean deleteProfiles(SQLiteDatabase db, HashMap<String, String> profiles) {
+    public boolean deleteProfiles(HashMap<String, String> profiles) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
         boolean result = true;
         for (String key : profiles.keySet()) {
-            if (!deleteMessage(db, key)) {
+            if (!deleteMessage(key)) {
                 result = false;
             }
         }
         return result;
     }
 
-    public void deleteAllProfiles(SQLiteDatabase db) {
+    public void deleteAllProfiles() {
+        SQLiteDatabase db = this.getWritableDatabase();
+
         db.execSQL("delete from "+ FeedEntry.PROFILE_TABLE_NAME);
     }
 
