@@ -63,7 +63,9 @@
         <service android:name=".Services.WifiService" />
         <service android:name=".Services.MasterService" />
 
-        <activity android:name=".MessageView"></activity>
+        <activity
+            android:name=".MessageView"
+            android:screenOrientation="portrait"></activity>
 
         <receiver android:name=".Receivers.NetworkStateReceiver">
             <intent-filter>

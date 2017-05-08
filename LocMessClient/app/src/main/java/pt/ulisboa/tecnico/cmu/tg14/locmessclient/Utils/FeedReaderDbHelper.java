@@ -388,6 +388,17 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_DELETE_ENTRIES + FeedEntry.MESSAGE_TABLE_NAME);
     }
 
+    public void insertMessage(Message message) {
+        insertMessage(
+                message.getUUID().toString(),
+                message.getCreationTime(),
+                message.getStartTime(),
+                message.getEndTime(),
+                message.getContent(),
+                message.getPublisher(),
+                message.getLocation());
+    }
+
     public void insertMessage (String uuid, long creationTime, long startTime, long endTime, String content, String publisher, String location) {
         SQLiteDatabase db = this.getWritableDatabase();
 

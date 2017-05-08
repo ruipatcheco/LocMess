@@ -190,7 +190,7 @@ public class MyMessagesFragment extends Fragment {
         protected Void doInBackground(Void... params) {
             FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(getActivity());
 
-            String username = ServicesDataHolder.getInstance().getUsername();
+            String username; //= ServicesDataHolder.getInstance().getUsername();
 
             List<Message> messagesDB;
 
@@ -198,7 +198,7 @@ public class MyMessagesFragment extends Fragment {
             try {
 
                 //FIXME remove dis
-                username = "publisher";
+                username = "tiago";
 
 
                 messagesDB = dbHelper.getMessagesFromUser(username);

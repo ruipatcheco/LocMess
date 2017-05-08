@@ -130,7 +130,7 @@ public class ListMessages extends Fragment {
     private void createDatabase(Context context, boolean deleteDatabase){
         FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(context);
         if (doesDatabaseExist(context, dbHelper.getDatabaseName()) && deleteDatabase){
-            context.deleteDatabase(FeedReaderDbHelper.DATABASE_NAME);
+            //context.deleteDatabase(FeedReaderDbHelper.DATABASE_NAME);
             //dbHelper.onDrop(dbHelper.getWritableDatabase());
             Log.d("createDatabase","old database detected and deleted");
         }

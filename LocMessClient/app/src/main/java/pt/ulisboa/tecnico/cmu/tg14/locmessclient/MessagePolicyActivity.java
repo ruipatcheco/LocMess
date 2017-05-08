@@ -18,6 +18,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -25,6 +26,7 @@ import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.OperationStatus;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.ServicesDataHolder;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnResponseListener;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderDbHelper;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServerActions;
 
 public class MessagePolicyActivity extends AppCompatActivity implements OnResponseListener<OperationStatus>{
@@ -110,6 +112,7 @@ public class MessagePolicyActivity extends AppCompatActivity implements OnRespon
                 //FIXME tratar disto
                 message.setCreationTime(Calendar.getInstance().getTime().getTime());
                 Log.d(TAG, "onClick: "+mStartTime);
+                message.setUUID(UUID.randomUUID());
                 message.setStartTime(Long.valueOf(mStartTime));
                 message.setEndTime(Long.valueOf(mEndTime));
                 message.setPublisher("tiago"); //TODO to remove
@@ -117,6 +120,9 @@ public class MessagePolicyActivity extends AppCompatActivity implements OnRespon
 
                 ServerActions actions = new ServerActions(activity);
                 actions.createMessage(message,(OnResponseListener) activity);
+
+                FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(activity);
+                dbHelper.insertMessage(message);
 
                 finish();
             }
