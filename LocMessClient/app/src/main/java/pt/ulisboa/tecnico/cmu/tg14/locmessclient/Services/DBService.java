@@ -61,6 +61,8 @@ public class DBService extends Service implements OnResponseListener<String> {
 
                 if(dataHolder.isCentralizedMode()){
 
+                    Log.d("DBService", "entered DBService");
+
                     //UPDATE NEAR LOCATIONS
                     updateNearLocations();
 
@@ -72,6 +74,7 @@ public class DBService extends Service implements OnResponseListener<String> {
 
                     //CHECK AND INSERT OFFLINE INSERTED LOCATIONS
                     ArrayList<Location> offlineAddedLocations = checkOfflineAddedLocations();
+                    Log.d("DBService", "offline added locations -> "+offlineAddedLocations.size());
                     if(offlineAddedLocations.size()!=0){
                         //SEND LOCATIONS TO SERVER
                         sendLocationsToServer(offlineAddedLocations);
@@ -80,6 +83,8 @@ public class DBService extends Service implements OnResponseListener<String> {
                     boolean isUpdated = checkDBEqualToServerDB();
 
                     if(!isUpdated){
+                        Log.d("DBService", "Localmessages DB differs from server's, clearing local DB");
+
                         dbHelper.deleteAllLocations();
                         getAndInsertAllLocations();
                     }
@@ -87,7 +92,7 @@ public class DBService extends Service implements OnResponseListener<String> {
                     updateMessages();
                 }
 
-                handler.postDelayed(runnable, 4000);
+                handler.postDelayed(runnable, 20000);
             }
         };
 
@@ -97,6 +102,8 @@ public class DBService extends Service implements OnResponseListener<String> {
 
     private void removeLocationsFromServer(ArrayList<String> offlineDeletedLocationNames) {
         for (String name : offlineDeletedLocationNames){
+            Log.d("DBService", "Removing offline deleted location from server -> "+name);
+
             serverActions.removeLocation(name, new OnResponseListener<OperationStatus>() {
                 @Override
                 public void onHTTPResponse(OperationStatus response) {
@@ -116,10 +123,14 @@ public class DBService extends Service implements OnResponseListener<String> {
             serverActions.getMessagesFromLocation(location, new OnResponseListener<List<Message>>() {
                 @Override
                 public void onHTTPResponse(List<Message> response) {
-                    ArrayList<Message> messages = dbHelper.getAllMessages();
-                    messages.addAll(response);
-                    dbHelper.insertAllMessages(messages);
-                    Log.d(TAG, "onHTTPResponse: added Messages to DB");
+
+                    dbHelper.deleteAllMessages();
+                    dbHelper.insertAllMessages(response);
+
+                    for(Message m : response){
+                        Log.d("DBService", "added nearby ");
+                    }
+
                 }
             });
         }
@@ -130,20 +141,21 @@ public class DBService extends Service implements OnResponseListener<String> {
         serverActions.getAllLocations(new OnResponseListener<List<Location>>() {
             @Override
             public void onHTTPResponse(List<Location> response) {
+                for(Location l : response){
+                    Log.d("DBService", "Re-Filling DB with location -> "+l.getName());
+                }
                 dbHelper.insertAllLocations(response);
             }
         });
     }
 
     private boolean checkDBEqualToServerDB() {
-        String localHash;
+        String localHash = null;
 
         serverActions.getListLocationHash(this);
 
         try {
             localHash = dbHelper.getLocationsNameHash();
-
-            return (latestServerHash.equals(localHash) && (latestServerHash!= null) );
 
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
@@ -151,11 +163,23 @@ public class DBService extends Service implements OnResponseListener<String> {
             e.printStackTrace();
         }
 
+        Log.d("DBService", "CheckDBEquals local -> " + localHash + " server -> "+latestServerHash);
+
+
+        if(latestServerHash == null || localHash == null){
+            return true;
+        }
+
+        return (latestServerHash.equals(localHash) && (latestServerHash!= null) );
+
     }
 
     private void sendLocationsToServer(ArrayList<Location> offlineLocations) {
 
         for(Location l: offlineLocations){
+
+            Log.d("DBService", "Sending offline added locations to server ->"+l.getName());
+
             try {
                 dbHelper.setCentralized(l.getName());
             } catch (LocationNotFoundException e) {
@@ -186,7 +210,11 @@ public class DBService extends Service implements OnResponseListener<String> {
             public void onHTTPResponse(List<Location> response) {
                 dataHolder.setNearLocations(response);
 
-                Log.d(TAG, "onHTTPResponse: nearLocations Set");
+                for(Location l : response){
+
+                    Log.d("DBService", "updated near location with name ->"+l.getName());
+                }
+
             }
         });
     }

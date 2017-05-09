@@ -169,7 +169,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         contentValues.put(FeedEntry.LOCATION_COLUMN_BLE, ble);
         contentValues.put(FeedEntry.LOCATION_COLUMN_LAT, lat);
         contentValues.put(FeedEntry.LOCATION_COLUMN_LON, lon);
-        contentValues.put(FeedEntry.LOCATION_COLUMN_LON, centralized);
+        contentValues.put(FeedEntry.LOCATION_COLUMN_CENTRALIZED, centralized);
         db.insert(FeedEntry.LOCATION_TABLE_NAME, null, contentValues);
         Log.d("insertAllLocations: ","added to DB location " + name + ssid + ble + lat + lon);
     }

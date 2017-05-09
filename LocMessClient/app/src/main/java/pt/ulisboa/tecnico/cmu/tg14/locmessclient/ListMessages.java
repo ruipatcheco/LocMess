@@ -141,9 +141,9 @@ public class ListMessages extends Fragment {
         dbHelper.onCreate(db);
         Log.d("createDatabase","database created");
 
-
+/*
         //FIXME TESTING
-        dbHelper.insertLocation("Tecnico","testSSID","testBLE", (float) 0.1, (float) 0.2);
+        dbHelper.insertLocation("Tecnico","testSSID","testBLE", (float) 0.1, (float) 0.2, "true");
 
         Calendar c = Calendar.getInstance();
         dbHelper.insertMessage(UUID.randomUUID().toString(), c.getTimeInMillis(),c.getTimeInMillis(),c.getTimeInMillis(),"olateste","publisher","tenicno");
@@ -197,7 +197,7 @@ public class ListMessages extends Fragment {
         }
         Log.d("createDatabase","location size: "+locations.size());
 
-
+*/
 
         return;
     }

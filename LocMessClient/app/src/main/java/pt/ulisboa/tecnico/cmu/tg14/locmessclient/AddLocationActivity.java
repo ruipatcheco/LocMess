@@ -42,6 +42,7 @@ import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Receivers.WifiReceiver;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.BluetoothService;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.GPSService;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.WifiService;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderDbHelper;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServerActions;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServiceManager;
 
@@ -187,8 +188,8 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
                     addGPS();
                 }
 
-                ServerActions serverActions = new ServerActions(getApplicationContext());
-                serverActions.createLocation(mLocation,(OnResponseListener) activity);
+                FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(getApplicationContext());
+                dbHelper.insertLocation(mLocation.getName(),mLocation.getSsid(),mLocation.getBle(),mLocation.getLatitude(),mLocation.getLongitude(),"false");
 
                 finish();
 
