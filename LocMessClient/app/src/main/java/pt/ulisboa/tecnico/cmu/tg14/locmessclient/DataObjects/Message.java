@@ -1,5 +1,6 @@
 package pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -15,6 +16,9 @@ public class Message {
     private String content;
     private String publisher;
     private String location;
+    List<Profile> whiteList;
+    List<Profile> blackList;
+
 
     public Message(){}
 

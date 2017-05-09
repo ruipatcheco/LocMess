@@ -21,6 +21,9 @@ public final class FeedReaderContract {
         public static final String INT_TYPE = "int";
         public static final String COMMA_SEP = ",";
 
+        public static final String CENTRALIZED = "true";
+        public static final String DECENTRALIZED = "false";
+
 
         public static final String LOCATION_TABLE_NAME = "LOCATION";
         public static final String LOCATION_COLUMN_NAME = "name";
@@ -29,6 +32,7 @@ public final class FeedReaderContract {
         public static final String LOCATION_COLUMN_LAT = "lat";
         public static final String LOCATION_COLUMN_LON = "lon";
         public static final String LOCATION_COLUMN_RAD = "radius";
+        public static final String LOCATION_COLUMN_CENTRALIZED = "centralized";
 
 
         public static final String MULE_TABLE_NAME = "MULE";
@@ -54,6 +58,12 @@ public final class FeedReaderContract {
         public static final String PROFILE_TABLE_NAME = "PROFILE";
         public static final String PROFILE_COLUMN_KEY = "key";
         public static final String PROFILE_COLUMN_VALUE = "value";
+
+        public static final String MULE_PROFILE_TABLE_NAME = "MULEPROFILE";
+        public static final String MULE_PROFILE_COLUMN_UUID = "uuid";
+        public static final String MULE_PROFILE_COLUMN_KEY = "key";
+        public static final String MULE_PROFILE_COLUMN_VALUE = "value";
+        public static final String MULE_PROFILE_COLUMN_ISWHITE = "isWhite";
     }
 
 
