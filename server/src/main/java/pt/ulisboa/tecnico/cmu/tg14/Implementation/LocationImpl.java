@@ -101,7 +101,7 @@ public class LocationImpl implements LocationDao {
     @Override
     public List<Location> getLocationList() {
 
-        String CoordSQL = "SELECT * FROM Location ;";
+        String CoordSQL = "SELECT * FROM Location ORDER BY name;";
         return jdbcTemplateObject.query(CoordSQL,new LocationMapper());
    }
 
