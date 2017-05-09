@@ -265,11 +265,16 @@ public class ListLocations extends Fragment {
             @Override
             public void run() {
                 // This code will always run on the UI thread, therefore is safe to modify UI elements.
+
+                Log.d("ListLocations:", "inside run thread");
+
                 nearLocations = mDataHolder.getNearLocations();
-                locationListNames = new ArrayList<>();
+                locationListNames.clear();
                 for (Location location : nearLocations) {
+                    Log.d("ListLocations:", "thread added location to UI ->" + location.getName());
                     locationListNames.add(location.getName());
                 }
+
                 ListView listView = (ListView) view.findViewById(R.id.list_locations_list);
                 listView.setAdapter(arrayAdapter);
                 arrayAdapter.notifyDataSetChanged();
