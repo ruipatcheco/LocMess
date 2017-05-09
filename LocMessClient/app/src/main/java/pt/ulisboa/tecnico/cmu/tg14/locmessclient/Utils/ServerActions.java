@@ -10,8 +10,11 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import org.json.JSONArray;
@@ -21,6 +24,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.HashResult;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.LocationQuery;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.OperationStatus;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
@@ -33,7 +37,7 @@ import static android.content.ContentValues.TAG;
  * Created by trosado on 31/03/17.
  */
 public class ServerActions {
-    private final static  String addr = "194.210.234.249";
+    private final static  String addr = "194.210.221.91";
     private final static String port = "8080";
     private final static String endpoint = "http://"+addr+":"+port;
     private static RequestQueue queue;
@@ -189,6 +193,30 @@ public class ServerActions {
         queue.add(stringRequest);
 
         return locations;
+    }
+
+    public void getListLocationHash(final OnResponseListener<HashResult> listener){
+        String url = endpoint + "/location/list/hash";
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET,url,null,new Response.Listener<JSONObject>() {
+
+
+            @Override
+            public void onResponse(JSONObject response) {
+                Gson gson = new Gson();
+                Log.d(TAG, "onResponse: " + response.toString());
+                HashResult hashResult= gson.fromJson(response.toString(), HashResult.class);
+                listener.onHTTPResponse(hashResult);
+            }
+        },new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e(TAG, "onErrorResponse: ",error);
+            }
+        });
+
+
+        queue.add(request);
+
     }
 
 

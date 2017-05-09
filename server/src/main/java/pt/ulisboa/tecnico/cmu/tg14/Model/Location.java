@@ -42,4 +42,9 @@ public class Location {
     public void setCoordinates(UUID coordinates) {
         this.coordinates = coordinates;
     }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
 }

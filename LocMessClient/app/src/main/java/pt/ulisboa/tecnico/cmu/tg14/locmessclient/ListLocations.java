@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.app.Fragment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,6 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.HashResult;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.LocationQuery;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
@@ -168,6 +170,7 @@ public class ListLocations extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_list_locations, container, false);
+
 
         //new ListLocationsTask(view).execute();
 

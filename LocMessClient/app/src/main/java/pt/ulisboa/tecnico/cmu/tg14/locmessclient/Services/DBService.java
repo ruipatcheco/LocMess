@@ -5,13 +5,17 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.util.Base64;
 import android.util.Log;
 
 import com.google.gson.Gson;
 
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.HashResult;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.LocationQuery;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.OperationStatus;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
@@ -27,13 +31,15 @@ import static android.content.ContentValues.TAG;
  * Created by tiago on 30/03/2017.
  */
 
-public class DBService extends Service {
+public class DBService extends Service implements OnResponseListener<String> {
 
     private ServerActions  serverActions;
     private Handler handler = null;
     private static Runnable runnable = null;
     private ServicesDataHolder dataHolder = ServicesDataHolder.getInstance();
     private FeedReaderDbHelper dbHelper;
+    private String latestServerHash;
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -129,12 +135,21 @@ public class DBService extends Service {
     }
 
     private boolean checkDBEqualToServerDB() {
-        Byte[] serverHash, localHash;
-        localHash = dbHelper.getLocationsNameHash();
+        String localHash;
 
-        serverActions.getLocationsNameHash();
+        serverActions.getLocationsNameHash(this);
 
-        return (serverHash.equals(localHash) && serverHash != null);
+        try {
+            localHash = dbHelper.getLocationsNameHash();
+
+            return (latestServerHash.equals(localHash) && (latestServerHash!= null) );
+
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     private void sendLocationsToServer(ArrayList<Location> offlineLocations) {
@@ -169,5 +184,10 @@ public class DBService extends Service {
                 Log.d(TAG, "onHTTPResponse: nearLocations Set");
             }
         });
+    }
+
+    @Override
+    public void onHTTPResponse(String response) {
+        latestServerHash = response;
     }
 }

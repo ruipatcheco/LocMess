@@ -5,11 +5,18 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Base64;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 
 import com.google.gson.Gson;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +28,7 @@ import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Profile;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.LocationNotFoundException;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.MessageMuleNotFoundException;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.MessageNotFoundException;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.MultipleRowsAfectedException;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.ProfileNotFoundException;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.PublisherNotFoundException;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderContract.FeedEntry;
@@ -46,7 +54,8 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
                     FeedEntry.LOCATION_COLUMN_BLE +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
                     FeedEntry.LOCATION_COLUMN_LAT +" "+ FeedEntry.FLOAT_TYPE + FeedEntry.COMMA_SEP +
                     FeedEntry.LOCATION_COLUMN_LON +" "+ FeedEntry.FLOAT_TYPE + FeedEntry.COMMA_SEP +
-                    FeedEntry.LOCATION_COLUMN_RAD +" "+ FeedEntry.INT_TYPE +
+                    FeedEntry.LOCATION_COLUMN_RAD +" "+ FeedEntry.INT_TYPE + FeedEntry.COMMA_SEP +
+                    FeedEntry.LOCATION_COLUMN_CENTRALIZED +" "+ FeedEntry.TEXT_TYPE +
                     " )";
 
     private static final String SQL_CREATE_MULE =
@@ -147,7 +156,12 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_DELETE_ENTRIES + FeedEntry.LOCATION_TABLE_NAME);
     }
 
-    public void insertLocation (String name, String ssid, String ble, float lat, float lon) {
+    public void deleteAllLocations() {
+        dropLocation();
+        createLocationTable(this.getReadableDatabase());
+    }
+
+    public void insertLocation (String name, String ssid, String ble, float lat, float lon, String centralized) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(FeedEntry.LOCATION_COLUMN_NAME, name);
@@ -155,13 +169,14 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         contentValues.put(FeedEntry.LOCATION_COLUMN_BLE, ble);
         contentValues.put(FeedEntry.LOCATION_COLUMN_LAT, lat);
         contentValues.put(FeedEntry.LOCATION_COLUMN_LON, lon);
+        contentValues.put(FeedEntry.LOCATION_COLUMN_LON, centralized);
         db.insert(FeedEntry.LOCATION_TABLE_NAME, null, contentValues);
         Log.d("insertAllLocations: ","added to DB location " + name + ssid + ble + lat + lon);
     }
 
     public void insertAllLocations(List<Location> locations){
         for (Location location : locations) {
-            insertLocation(location.getName(), location.getSsid(), location.getBle(),location.getLatitude(), location.getLongitude());
+            insertLocation(location.getName(), location.getSsid(), location.getBle(),location.getLatitude(), location.getLongitude(), FeedEntry.CENTRALIZED);
         }
     }
 
@@ -232,6 +247,41 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         return locations;
     }
 
+    public ArrayList<Location> getAllDescentralizedLocations() {
+        ArrayList<Location> locations = new ArrayList<Location>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String[] projection = {
+                FeedEntry._ID,
+                FeedEntry.LOCATION_COLUMN_NAME,
+                FeedEntry.LOCATION_COLUMN_SSID,
+                FeedEntry.LOCATION_COLUMN_BLE,
+                FeedEntry.LOCATION_COLUMN_LAT,
+                FeedEntry.LOCATION_COLUMN_LON,
+                FeedEntry.LOCATION_COLUMN_RAD
+        };
+
+        String sortOrder = FeedEntry.LOCATION_COLUMN_NAME + " ASC";
+
+        Cursor cursor = db.query(
+                FeedEntry.LOCATION_TABLE_NAME,                      // The table to query
+                projection,                                        // The columns to return
+                FeedEntry.LOCATION_COLUMN_CENTRALIZED + " = ?",   // The columns for the WHERE clause
+                new String[]{FeedEntry.DECENTRALIZED},           // The values for the WHERE clause
+                null,                                           // don't group the rows
+                null,                                          // don't filter by row groups
+                sortOrder                                     // The sort order
+        );
+
+        cursor.moveToFirst();
+
+        while(cursor.isAfterLast() == false){
+            locations.add(associateLocation(cursor));
+            cursor.moveToNext();
+        }
+        return locations;
+    }
+
     public ArrayList<String> getAllLocationsNames() {
         ArrayList<String> locations = new ArrayList<String>();
 
@@ -273,6 +323,58 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         return db.delete(table, whereClause, whereArgs) > 0;
 
         //db.delete(FeedEntry.PROFILE_TABLE_NAME, FeedEntry.PROFILE_COLUMN_KEY + "=" + key, null) > 0;
+    }
+
+    public String getLocationsNameHash() throws NoSuchAlgorithmException, IOException {
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String[] projection = {
+                FeedEntry._ID,
+                FeedEntry.LOCATION_COLUMN_NAME,
+        };
+
+        String sortOrder = FeedEntry.LOCATION_COLUMN_NAME + " ASC";
+
+        Cursor cursor = db.query(
+                FeedEntry.LOCATION_TABLE_NAME,            // The table to query
+                projection,                               // The columns to return
+                null,                                     // The columns for the WHERE clause
+                null,                                     // The values for the WHERE clause
+                null,                                     // don't group the rows
+                null,                                     // don't filter by row groups
+                sortOrder                                 // The sort order
+        );
+
+        cursor.moveToFirst();
+
+        ByteArrayOutputStream bOutput = new ByteArrayOutputStream();
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+
+        while(cursor.isAfterLast() == false){
+            String name = cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.LOCATION_COLUMN_NAME));
+            bOutput.write(digest.digest(name.getBytes("UTF-8")));
+            cursor.moveToNext();
+        }
+
+        byte[] locationsNameHash = digest.digest(bOutput.toByteArray());
+
+        return new String(Base64.encode(locationsNameHash, Base64.NO_WRAP));
+    }
+
+    public void setCentralized(String locationName) throws LocationNotFoundException, MultipleRowsAfectedException {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        ContentValues cv = new ContentValues();
+        cv.put(FeedEntry.LOCATION_COLUMN_CENTRALIZED, FeedEntry.CENTRALIZED);
+
+        int result = db.update(FeedEntry.LOCATION_TABLE_NAME, cv, FeedEntry.LOCATION_COLUMN_NAME + " = ?", new String[] {locationName});
+
+        if (result == 0) {
+            throw new LocationNotFoundException();
+        } else if (result > 1) {
+            throw new MultipleRowsAfectedException();
+        }
     }
 
     private Location associateLocation(Cursor cursor) {

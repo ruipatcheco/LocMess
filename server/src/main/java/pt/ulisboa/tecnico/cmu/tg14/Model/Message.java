@@ -73,4 +73,5 @@ public class Message {
     public void setPublisher(String publisher) {
         this.publisher = publisher;
     }
+
 }
