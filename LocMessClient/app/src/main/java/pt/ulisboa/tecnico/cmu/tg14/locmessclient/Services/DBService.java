@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.util.Base64;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 
@@ -14,6 +15,7 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.List;
 
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.HashResult;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.LocationQuery;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
@@ -62,6 +64,14 @@ public class DBService extends Service {
                         Log.d(TAG, "onHTTPResponse: nearLocations Set");
                     }
                 });
+                //FIXME example to
+                serverActions.getListLocationHash(new OnResponseListener<HashResult>() {
+                    @Override
+                    public void onHTTPResponse(HashResult response) {
+                        Log.d(TAG, "onHTTPResponse: "+ response.getHash());
+                    }
+                });
+
 
                 List<Location>  locations = dataHolder.getNearLocations();
                 final FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(getApplicationContext());
