@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+import android.widget.ArrayAdapter;
 
 import com.google.gson.Gson;
 
@@ -82,6 +83,16 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
                     FeedEntry.PROFILE_COLUMN_VALUE +" "+ FeedEntry.TEXT_TYPE +
                 " )";
 
+    private static final String SQL_CREATE_MULE_PROFILE =
+
+            "CREATE TABLE IF NOT EXISTS " + FeedEntry.MULE_PROFILE_TABLE_NAME + " ( " +
+                    FeedEntry._ID + " INTEGER PRIMARY KEY," +
+                    FeedEntry.MULE_PROFILE_COLUMN_UUID+" " + FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
+                    FeedEntry.MULE_PROFILE_COLUMN_KEY +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
+                    FeedEntry.MULE_PROFILE_COLUMN_VALUE +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
+                    FeedEntry.MULE_PROFILE_COLUMN_ISWHITE+" "+ FeedEntry.TEXT_TYPE +
+                    " )";
+
     private static final String SQL_DELETE_ENTRIES = "DROP TABLE IF EXISTS ";
 
     public FeedReaderDbHelper(Context context) {
@@ -97,6 +108,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         createMessageTable(db);
         createMuleTable(db);
         createProfileTable(db);
+        createMuleProfileTable(db);
     }
 
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -746,4 +758,124 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
                 cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.PROFILE_COLUMN_VALUE))
         );
     }
+
+    // PROFILEMULE
+
+    public void createMuleProfileTable(SQLiteDatabase db) {
+
+        db.execSQL(SQL_CREATE_MULE_PROFILE);
+    }
+
+    public void dropMULEProfile() {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        db.execSQL(SQL_DELETE_ENTRIES + FeedEntry.MULE_PROFILE_TABLE_NAME);
+    }
+
+    public void insertMuleProfile (String uuid, String key, String value, boolean isWhite) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String isWhiteHotfix = "false";
+        if(isWhite){
+            isWhiteHotfix = "true";
+        }
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(FeedEntry.MULE_PROFILE_COLUMN_UUID, uuid);
+        contentValues.put(FeedEntry.MULE_PROFILE_COLUMN_KEY, key);
+        contentValues.put(FeedEntry.MULE_PROFILE_COLUMN_VALUE, value);
+        contentValues.put(FeedEntry.MULE_PROFILE_COLUMN_ISWHITE, isWhiteHotfix);
+
+        db.insert(FeedEntry.MULE_PROFILE_TABLE_NAME, null, contentValues);
+    }
+
+    public List<Profile> getMuleProfileWhiteList(String uuid) throws ProfileNotFoundException {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String[] projection = {
+                FeedEntry._ID,
+                FeedEntry.MULE_PROFILE_COLUMN_UUID,
+                FeedEntry.MULE_PROFILE_COLUMN_KEY,
+                FeedEntry.MULE_PROFILE_COLUMN_VALUE,
+                FeedEntry.MULE_PROFILE_COLUMN_ISWHITE,
+        };
+
+        Cursor cursor = db.query(
+                FeedEntry.MULE_PROFILE_TABLE_NAME,             // The table to query
+                projection,                               // The columns to return
+                FeedEntry.MULE_PROFILE_COLUMN_UUID+ " = ?" + FeedEntry.MULE_PROFILE_COLUMN_ISWHITE + " = ?",            // The columns for the WHERE clause
+                new String[]{uuid, "true"},                                     // The values for the WHERE clause
+                null,                                     // don't group the rows
+                null,                                     // don't filter by row groups
+                null                                   // The sort order
+        );
+
+        if (cursor.getCount() == 0) {
+            throw new ProfileNotFoundException();
+        }
+
+        cursor.moveToFirst();
+        ArrayList<Profile> whiteList = new ArrayList<>();
+
+        while(cursor.isAfterLast() == false){
+            whiteList.add(associateProfile(cursor));
+            cursor.moveToNext();
+        }
+
+        return whiteList;
+    }
+
+
+    public List<Profile> getMuleProfileBlackList(String uuid) throws ProfileNotFoundException {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String[] projection = {
+                FeedEntry._ID,
+                FeedEntry.MULE_PROFILE_COLUMN_UUID,
+                FeedEntry.MULE_PROFILE_COLUMN_KEY,
+                FeedEntry.MULE_PROFILE_COLUMN_VALUE,
+                FeedEntry.MULE_PROFILE_COLUMN_ISWHITE,
+        };
+
+        Cursor cursor = db.query(
+                FeedEntry.MULE_PROFILE_TABLE_NAME,             // The table to query
+                projection,                               // The columns to return
+                FeedEntry.MULE_PROFILE_COLUMN_UUID+ " = ?" + FeedEntry.MULE_PROFILE_COLUMN_ISWHITE + " = ?",            // The columns for the WHERE clause
+                new String[]{uuid, "false"},                                     // The values for the WHERE clause
+                null,                                     // don't group the rows
+                null,                                     // don't filter by row groups
+                null                                   // The sort order
+        );
+
+        if (cursor.getCount() == 0) {
+            throw new ProfileNotFoundException();
+        }
+
+        cursor.moveToFirst();
+        ArrayList<Profile> whiteList = new ArrayList<>();
+
+        while(cursor.isAfterLast() == false){
+            whiteList.add(associateProfile(cursor));
+            cursor.moveToNext();
+        }
+
+        return whiteList;
+    }
+
+    public boolean deleteAllMuleProfilesOfMessageID(String uuid) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        String table = FeedEntry.MULE_PROFILE_TABLE_NAME;
+        String whereClause = FeedEntry.MULE_PROFILE_COLUMN_UUID+ "=?";
+        String[] whereArgs = new String[] { uuid };
+
+        return db.delete(table, whereClause, whereArgs) > 0;
+    }
+
+
+    public void deleteAllMuleProfiles() {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        db.execSQL("delete from "+ FeedEntry.MULE_PROFILE_TABLE_NAME);
+    }
+
 }

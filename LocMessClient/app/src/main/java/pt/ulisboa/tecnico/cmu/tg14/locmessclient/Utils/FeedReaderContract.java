@@ -54,6 +54,12 @@ public final class FeedReaderContract {
         public static final String PROFILE_TABLE_NAME = "PROFILE";
         public static final String PROFILE_COLUMN_KEY = "key";
         public static final String PROFILE_COLUMN_VALUE = "value";
+
+        public static final String MULE_PROFILE_TABLE_NAME = "MULEPROFILE";
+        public static final String MULE_PROFILE_COLUMN_UUID = "uuid";
+        public static final String MULE_PROFILE_COLUMN_KEY = "key";
+        public static final String MULE_PROFILE_COLUMN_VALUE = "value";
+        public static final String MULE_PROFILE_COLUMN_ISWHITE = "isWhite";
     }
 
 
