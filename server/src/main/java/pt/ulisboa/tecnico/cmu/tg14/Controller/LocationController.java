@@ -3,6 +3,7 @@ package pt.ulisboa.tecnico.cmu.tg14.Controller;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.web.bind.annotation.*;
+import pt.ulisboa.tecnico.cmu.tg14.DTO.HashResult;
 import pt.ulisboa.tecnico.cmu.tg14.DTO.LocationQuery;
 import pt.ulisboa.tecnico.cmu.tg14.DTO.LocationMover;
 import pt.ulisboa.tecnico.cmu.tg14.DTO.OperationStatus;
@@ -11,6 +12,11 @@ import pt.ulisboa.tecnico.cmu.tg14.Implementation.LocationImpl;
 import pt.ulisboa.tecnico.cmu.tg14.Model.Coordinates;
 import pt.ulisboa.tecnico.cmu.tg14.Model.Location;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -105,5 +111,27 @@ public class LocationController {
         return result;
     }
 
+    @RequestMapping("/list/hash")
+    public HashResult getLocationListHash(){
+        List<Location> result  = locationImpl.getLocationList();
+
+
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            for(Location location : result){
+                byte[] hash = digest.digest(location.getName().getBytes("UTF-8"));
+                out.write(hash);
+            }
+            byte[] listHash  = digest.digest(out.toByteArray());
+            return new HashResult(listHash);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new HashResult(new byte[0]);
+    }
 
 }
