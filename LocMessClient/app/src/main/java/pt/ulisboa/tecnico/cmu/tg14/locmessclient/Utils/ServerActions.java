@@ -21,6 +21,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -270,6 +272,15 @@ public class ServerActions {
         }
     }
 
+    public void removeLocation(String name,OnResponseListener listener){
+        try {
+            String url = endpoint+"/location/delete";
+            url+="?name="+URLEncoder.encode(name,"UTF-8");
+            makeSimpleRequest(Request.Method.DELETE, url, null, listener);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+    }
 
 }
 
