@@ -52,30 +52,33 @@ public class DBService extends Service {
             public void run() {
                 dbHelper = new FeedReaderDbHelper(getApplicationContext());
 
-                //UPDATE NEAR LOCATIONS
-                updateNearLocations();
+                if(dataHolder.isCentralizedMode()){
 
-                //CHECK AND DELETE OFFLINE DELETED LOCATIONS
-                ArrayList<String> offlineDeletedLocationNames = dataHolder.getRemovedLocations();
-                if(offlineDeletedLocationNames.size()!=0){
-                    removeLocationsFromServer(offlineDeletedLocationNames);
+                    //UPDATE NEAR LOCATIONS
+                    updateNearLocations();
+
+                    //CHECK AND DELETE OFFLINE DELETED LOCATIONS
+                    ArrayList<String> offlineDeletedLocationNames = dataHolder.getRemovedLocations();
+                    if(offlineDeletedLocationNames.size()!=0){
+                        removeLocationsFromServer(offlineDeletedLocationNames);
+                    }
+
+                    //CHECK AND INSERT OFFLINE INSERTED LOCATIONS
+                    ArrayList<Location> offlineAddedLocations = checkOfflineAddedLocations();
+                    if(offlineAddedLocations.size()!=0){
+                        //SEND LOCATIONS TO SERVER
+                        sendLocationsToServer(offlineAddedLocations);
+                    }
+    
+                    boolean isUpdated = checkDBEqualToServerDB();
+
+                    if(!isUpdated){
+                        dbHelper.deleteAllLocations();
+                        getAndInsertAllLocations();
+                    }
+
+                    updateMessages();
                 }
-
-                //CHECK AND INSERT OFFLINE INSERTED LOCATIONS
-                ArrayList<Location> offlineAddedLocations = checkOfflineAddedLocations();
-                if(offlineAddedLocations.size()!=0){
-                    //SEND LOCATIONS TO SERVER
-                    sendLocationsToServer(offlineAddedLocations);
-                }
-
-                boolean isUpdated = checkDBEqualToServerDB();
-
-                if(!isUpdated){
-                    dbHelper.deleteAllLocations();
-                    getAndInsertAllLocations();
-                }
-
-                updateMessages();
 
                 handler.postDelayed(runnable, 4000);
             }
