@@ -12,6 +12,9 @@ import android.widget.ArrayAdapter;
 
 import com.google.gson.Gson;
 
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,6 +74,16 @@ public class DBService extends Service {
                         Log.d(TAG, "onHTTPResponse: "+ response.getHash());
                     }
                 });
+                //FIXME to remove example of base64 encode
+                try {
+                    MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                    Log.d(TAG,"Hash: "+new String(Base64.encode(digest.digest("CMUCenas".getBytes("UTF-8")),Base64.NO_WRAP)));
+
+                } catch (NoSuchAlgorithmException e) {
+                    e.printStackTrace();
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
 
 
                 List<Location>  locations = dataHolder.getNearLocations();
