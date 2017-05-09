@@ -121,7 +121,7 @@ public class LocationController {
 
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             for(Location location : result){
-                byte[] hash = digest.digest(location.getName().getBytes(StandardCharsets.UTF_8));
+                byte[] hash = digest.digest(location.getName().getBytes("UTF-8"));
                 out.write(hash);
             }
             byte[] listHash  = digest.digest(out.toByteArray());
