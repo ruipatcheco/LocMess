@@ -55,12 +55,17 @@ public class DBService extends Service {
                 //UPDATE NEAR LOCATIONS
                 updateNearLocations();
 
-                //CHECK AND INSERT OFFLINE INSERTED LOCATIONS
-                ArrayList<Location> offlineLocations = checkOfflineAddedLocations();
+                //CHECK AND DELETE OFFLINE DELETED LOCATIONS
+                ArrayList<String> offlineDeletedLocationNames = dataHolder.getRemovedLocations();
+                if(offlineDeletedLocationNames.size()!=0){
+                    removeLocationsFromServer(offlineDeletedLocationNames);
+                }
 
-                if(offlineLocations.size()!=0){
+                //CHECK AND INSERT OFFLINE INSERTED LOCATIONS
+                ArrayList<Location> offlineAddedLocations = checkOfflineAddedLocations();
+                if(offlineAddedLocations.size()!=0){
                     //SEND LOCATIONS TO SERVER
-                    sendLocationsToServer(offlineLocations);
+                    sendLocationsToServer(offlineAddedLocations);
                 }
 
                 boolean isUpdated = checkDBEqualToServerDB();
@@ -78,6 +83,20 @@ public class DBService extends Service {
 
         handler.postDelayed(runnable, 2000);
 
+    }
+
+    private void removeLocationsFromServer(ArrayList<String> offlineDeletedLocationNames) {
+        for (String name : offlineDeletedLocationNames){
+            serverActions.removeLocation(name, new OnResponseListener<OperationStatus>() {
+                @Override
+                public void onHTTPResponse(OperationStatus response) {
+                    if(response.isERROR()){
+                        //FIXME -> deu asneira
+                    }
+                }
+            });
+        }
+        dataHolder.clearRemovedLocations();
     }
 
     private void updateMessages() {

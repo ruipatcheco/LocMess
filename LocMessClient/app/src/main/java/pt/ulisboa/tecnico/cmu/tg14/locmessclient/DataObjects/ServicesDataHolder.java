@@ -1,12 +1,12 @@
 package pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects;
 
+import java.lang.reflect.Array;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.OperationStatus;
 
 /**
  * Created by trosado on 4/23/17.
@@ -21,9 +21,8 @@ public class ServicesDataHolder {
     private String username;
     private AbstractMap<UUID,Message> messageMap; //FIXME may not be needed
     private List<Location> nearLocations;
+    private ArrayList<String> removedLocations;
     private boolean centralizedMode;
-
-    private OperationStatus operationStatus;
 
     private static final ServicesDataHolder ourInstance = new ServicesDataHolder();
 
@@ -39,7 +38,20 @@ public class ServicesDataHolder {
         longitude = new Float(0);
         messageMap = new HashMap<>();
         nearLocations = new ArrayList<>();
+        removedLocations = new ArrayList<>();
 
+    }
+
+    public ArrayList<String> getRemovedLocations() {
+        return removedLocations;
+    }
+
+    public void addRemovedLocation(String name){
+        removedLocations.add(name);
+    }
+
+    public void clearRemovedLocations(){
+        removedLocations.clear();
     }
 
     public List<Location> getNearLocations() {
