@@ -321,8 +321,6 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         String[] whereArgs = new String[] { locationName };
 
         return db.delete(table, whereClause, whereArgs) > 0;
-
-        //db.delete(FeedEntry.PROFILE_TABLE_NAME, FeedEntry.PROFILE_COLUMN_KEY + "=" + key, null) > 0;
     }
 
     public String getLocationsNameHash() throws NoSuchAlgorithmException, IOException {

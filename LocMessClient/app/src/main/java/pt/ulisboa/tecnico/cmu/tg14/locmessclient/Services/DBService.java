@@ -211,7 +211,6 @@ public class DBService extends Service implements OnResponseListener<String> {
                 dataHolder.setNearLocations(response);
 
                 for(Location l : response){
-
                     Log.d("DBService", "updated near location with name ->"+l.getName());
                 }
 
