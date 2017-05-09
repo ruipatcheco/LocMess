@@ -197,7 +197,7 @@ public class ServerActions {
         return locations;
     }
 
-    public void getListLocationHash(final OnResponseListener<HashResult> listener){
+    public void getListLocationHash(final OnResponseListener<String> listener){
         String url = endpoint + "/location/list/hash";
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET,url,null,new Response.Listener<JSONObject>() {
 
@@ -207,7 +207,7 @@ public class ServerActions {
                 Gson gson = new Gson();
                 Log.d(TAG, "onResponse: " + response.toString());
                 HashResult hashResult= gson.fromJson(response.toString(), HashResult.class);
-                listener.onHTTPResponse(hashResult);
+                listener.onHTTPResponse(hashResult.getHash());
             }
         },new Response.ErrorListener() {
             @Override
