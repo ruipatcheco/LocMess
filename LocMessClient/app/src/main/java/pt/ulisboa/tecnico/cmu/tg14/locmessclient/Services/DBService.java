@@ -5,27 +5,22 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.util.Base64;
 import android.util.Log;
 
 import com.google.gson.Gson;
 
-<<<<<<< HEAD
-import java.io.UnsupportedEncodingException;
-import java.security.MessageDigest;
-=======
 import java.io.IOException;
->>>>>>> a68b79a30b6ea2d2175e691da47f7d24d68bc08c
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.HashResult;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.LocationQuery;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.OperationStatus;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.ServicesDataHolder;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.LocationNotFoundException;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.MultipleRowsAfectedException;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnResponseListener;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderDbHelper;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServerActions;
@@ -61,25 +56,6 @@ public class DBService extends Service implements OnResponseListener<String> {
         handler = new Handler();
         runnable = new Runnable() {
             public void run() {
-
-                //FIXME example to
-                serverActions.getListLocationHash(new OnResponseListener<HashResult>() {
-                    @Override
-                    public void onHTTPResponse(HashResult response) {
-                        Log.d(TAG, "onHTTPResponse: "+ response.getHash());
-                    }
-                });
-                //FIXME to remove example of base64 encode
-                try {
-                    MessageDigest digest = MessageDigest.getInstance("SHA-256");
-                    Log.d(TAG,"Hash: "+new String(Base64.encode(digest.digest("CMUCenas".getBytes("UTF-8")),Base64.NO_WRAP)));
-
-                } catch (NoSuchAlgorithmException e) {
-                    e.printStackTrace();
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-
                 dbHelper = new FeedReaderDbHelper(getApplicationContext());
 
 
@@ -162,7 +138,7 @@ public class DBService extends Service implements OnResponseListener<String> {
     private boolean checkDBEqualToServerDB() {
         String localHash;
 
-        serverActions.getLocationsNameHash(this);
+        serverActions.getListLocationHash(this);
 
         try {
             localHash = dbHelper.getLocationsNameHash();
@@ -178,22 +154,26 @@ public class DBService extends Service implements OnResponseListener<String> {
     }
 
     private void sendLocationsToServer(ArrayList<Location> offlineLocations) {
+
         for(Location l: offlineLocations){
+            try {
+                dbHelper.setCentralized(l.getName());
+            } catch (LocationNotFoundException e) {
+                e.printStackTrace();
+            } catch (MultipleRowsAfectedException e) {
+                e.printStackTrace();
+            }
+
             serverActions.createLocation(l, new OnResponseListener<OperationStatus>() {
                 @Override
                 public void onHTTPResponse(OperationStatus response) {
-                    if(response.isOK()){
-                        //SET BOOLEAN ISOFFLINE TO FALSE
-                        dbHelper.setCentralized(l.getName());
-                    }
                 }
             });
         }
     }
 
     private ArrayList<Location> checkOfflineAddedLocations() {
-
-        return null;
+        return dbHelper.getAllDescentralizedLocations();
     }
 
     private void updateNearLocations(){
