@@ -90,6 +90,7 @@ public class ListLocations extends Fragment {
         }
 
 
+
         FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -105,14 +106,12 @@ public class ListLocations extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_list_locations, container, false);
-
-        listView = (ListView) view.findViewById(R.id.list_locations_list);
-
         locationListNames = new ArrayList<>();
 
+        listView = (ListView) view.findViewById(R.id.list_locations_list);
         arrayAdapter = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1, locationListNames);
-        updateLocationsList();
-
+        listView.setAdapter(arrayAdapter);
+        arrayAdapter.notifyDataSetChanged();
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -229,7 +228,7 @@ public class ListLocations extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        //t.interrupt();
+        t.interrupt();
         Log.d("ListLocations:", "thread updating locations listview ended.");
 
     }
@@ -238,8 +237,8 @@ public class ListLocations extends Fragment {
     public void onResume() {
         super.onResume();
 
-        //t = new Thread(new UpdateLocationsTask());
-        //t.start();
+        t = new Thread(new UpdateLocationsTask());
+        t.start();
         Log.d("ListLocations:", "thread updating locations listview starting...");
 
     }
@@ -253,48 +252,30 @@ public class ListLocations extends Fragment {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        // This code will always run on the UI thread, therefore is safe to modify UI elements.
-                        Log.d("ListLocations:", "thread updating locations listview ");
-                        //updateLocationsList();
-
-                        Log.d("ListLocations:", "IM HERE");
-
-                        listView = (ListView) view.findViewById(R.id.list_locations_list);
-                        arrayAdapter = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1, locationListNames);
-
-
-                        nearLocations = mDataHolder.getNearLocations();
-                        locationListNames = new ArrayList<>();
-                        for (Location location : nearLocations) {
-                            locationListNames.add(location.getName());
-                            Log.d("ListLocations:", "thread updating locations listview added -> "+location.getName());
-                        }
-                        listView.setAdapter(arrayAdapter);
-                        arrayAdapter.notifyDataSetChanged();
-                    }
-                });
+                updateLocationsList();
             }
         }
     }
 
     private void updateLocationsList(){
-        Log.d("ListLocations:", "IM HERE");
-
-        listView = (ListView) view.findViewById(R.id.list_locations_list);
-        arrayAdapter = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1, locationListNames);
+        Log.d("ListLocations:", "thread updating locations listview ");
 
 
-        nearLocations = mDataHolder.getNearLocations();
-        locationListNames = new ArrayList<>();
-        for (Location location : nearLocations) {
-            locationListNames.add(location.getName());
-            Log.d("ListLocations:", "thread updating locations listview added -> "+location.getName());
-        }
-        listView.setAdapter(arrayAdapter);
-        arrayAdapter.notifyDataSetChanged();
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // This code will always run on the UI thread, therefore is safe to modify UI elements.
+                nearLocations = mDataHolder.getNearLocations();
+                locationListNames = new ArrayList<>();
+                for (Location location : nearLocations) {
+                    locationListNames.add(location.getName());
+                }
+                ListView listView = (ListView) view.findViewById(R.id.list_locations_list);
+                listView.setAdapter(arrayAdapter);
+                arrayAdapter.notifyDataSetChanged();
+            }
+        });
+
 
     }
 
