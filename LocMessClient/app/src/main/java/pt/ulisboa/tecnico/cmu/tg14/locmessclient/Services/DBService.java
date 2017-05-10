@@ -63,9 +63,6 @@ public class DBService extends Service implements OnResponseListener<String> {
 
                     Log.d("DBService", "entered DBService");
 
-                    //UPDATE NEAR LOCATIONS
-                    updateNearLocations();
-
                     //CHECK AND DELETE OFFLINE DELETED LOCATIONS
                     ArrayList<String> offlineDeletedLocationNames = dataHolder.getRemovedLocations();
                     if(offlineDeletedLocationNames.size()!=0){
@@ -79,7 +76,10 @@ public class DBService extends Service implements OnResponseListener<String> {
                         //SEND LOCATIONS TO SERVER
                         sendLocationsToServer(offlineAddedLocations);
                     }
-    
+
+                    //UPDATE NEAR LOCATIONS
+                    updateNearLocations();
+
                     boolean isUpdated = checkDBEqualToServerDB();
 
                     if(!isUpdated){
@@ -92,7 +92,7 @@ public class DBService extends Service implements OnResponseListener<String> {
                     updateMessages();
                 }
 
-                handler.postDelayed(runnable, 20000);
+                handler.postDelayed(runnable, 5000);
             }
         };
 
