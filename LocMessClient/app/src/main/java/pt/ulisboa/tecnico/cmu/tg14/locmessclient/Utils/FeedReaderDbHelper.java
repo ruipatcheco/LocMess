@@ -353,12 +353,14 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
         while(cursor.isAfterLast() == false){
             String name = cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.LOCATION_COLUMN_NAME));
+            Log.d("Hash loc name -> ", name);
             bOutput.write(digest.digest(name.getBytes("UTF-8")));
             cursor.moveToNext();
         }
 
         byte[] locationsNameHash = digest.digest(bOutput.toByteArray());
 
+        Log.d("Hash ->" , new String(Base64.encode(locationsNameHash, Base64.DEFAULT)));
         return new String(Base64.encode(locationsNameHash, Base64.DEFAULT));
     }
 

@@ -167,7 +167,7 @@ public class DBService extends Service implements OnResponseListener<String> {
 
 
         if(latestServerHash == null || localHash == null){
-            return true;
+            return false;
         }
 
         return (latestServerHash.equals(localHash) && (latestServerHash!= null) );

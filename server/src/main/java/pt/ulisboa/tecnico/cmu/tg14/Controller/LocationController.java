@@ -11,6 +11,7 @@ import pt.ulisboa.tecnico.cmu.tg14.Implementation.CoordinatesImpl;
 import pt.ulisboa.tecnico.cmu.tg14.Implementation.LocationImpl;
 import pt.ulisboa.tecnico.cmu.tg14.Model.Coordinates;
 import pt.ulisboa.tecnico.cmu.tg14.Model.Location;
+import sun.rmi.runtime.Log;
 
 
 import java.io.ByteArrayOutputStream;
@@ -19,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -123,8 +125,10 @@ public class LocationController {
             for(Location location : result){
                 byte[] hash = digest.digest(location.getName().getBytes("UTF-8"));
                 out.write(hash);
+                System.out.println("Hash loc name -> " + location.getName());
             }
             byte[] listHash  = digest.digest(out.toByteArray());
+            System.out.println("Hash -> " + new String(new HashResult(listHash).getHash(), StandardCharsets.UTF_8));
 
             return new HashResult(listHash);
         } catch (NoSuchAlgorithmException e) {
