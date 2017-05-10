@@ -161,7 +161,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         createLocationTable(this.getReadableDatabase());
     }
 
-    public void insertLocation (String name, String ssid, String ble, float lat, float lon, String centralized) {
+    public void insertLocation (String name, String ssid, String ble, float lat, float lon,int radius, String centralized) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(FeedEntry.LOCATION_COLUMN_NAME, name);
@@ -169,14 +169,15 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         contentValues.put(FeedEntry.LOCATION_COLUMN_BLE, ble);
         contentValues.put(FeedEntry.LOCATION_COLUMN_LAT, lat);
         contentValues.put(FeedEntry.LOCATION_COLUMN_LON, lon);
+        contentValues.put(FeedEntry.LOCATION_COLUMN_RAD, radius);
         contentValues.put(FeedEntry.LOCATION_COLUMN_CENTRALIZED, centralized);
         db.insert(FeedEntry.LOCATION_TABLE_NAME, null, contentValues);
-        Log.d("insertAllLocations: ","added to DB location " + name + ssid + ble + lat + lon);
+        Log.d("insertAllLocations: ","added to DB location " + name + ssid + ble + lat + lon + radius);
     }
 
     public void insertAllLocations(List<Location> locations){
         for (Location location : locations) {
-            insertLocation(location.getName(), location.getSsid(), location.getBle(),location.getLatitude(), location.getLongitude(), FeedEntry.CENTRALIZED);
+            insertLocation(location.getName(), location.getSsid(), location.getBle(),location.getLatitude(), location.getLongitude(),location.getRadius(), FeedEntry.CENTRALIZED);
         }
     }
 

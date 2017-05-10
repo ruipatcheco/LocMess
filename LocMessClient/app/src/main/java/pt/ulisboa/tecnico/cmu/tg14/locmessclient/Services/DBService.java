@@ -92,7 +92,7 @@ public class DBService extends Service implements OnResponseListener<String> {
                     updateMessages();
                 }
 
-                handler.postDelayed(runnable, 5000);
+                handler.postDelayed(runnable, 20000);
             }
         };
 

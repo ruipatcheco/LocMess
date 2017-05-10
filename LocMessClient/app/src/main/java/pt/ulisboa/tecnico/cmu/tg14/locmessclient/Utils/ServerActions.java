@@ -109,7 +109,7 @@ public class ServerActions {
         try{
             Gson gson = new Gson();
             JSONObject jsonObject = new JSONObject(gson.toJson(location));
-
+            Log.d(TAG, "createLocation:"+jsonObject.toString());
             makeSimpleRequest(Request.Method.PUT,url,jsonObject,listener);
 
         }catch (JSONException e){

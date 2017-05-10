@@ -185,11 +185,12 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
                 if(mType.equals(GPS)){
                     if(!mLocationRadius.getText().toString().equals(""))
                         mLocation.setRadius(Integer.parseInt(mLocationRadius.getText().toString()));
+
                     addGPS();
                 }
 
                 FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(getApplicationContext());
-                dbHelper.insertLocation(mLocation.getName(),mLocation.getSsid(),mLocation.getBle(),mLocation.getLatitude(),mLocation.getLongitude(),"false");
+                dbHelper.insertLocation(mLocation.getName(),mLocation.getSsid(),mLocation.getBle(),mLocation.getLatitude(),mLocation.getLongitude(),mLocation.getRadius(),"false");
 
                 finish();
 
@@ -267,6 +268,8 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
         if(! ((Math.abs(lat-0) < delta) && (Math.abs(lon-0) < delta)) ){
             //Checks if lat = 0 and lon = 0
             validLocation = true;
+            Log.d("Addlocationactivity: ", " lat-> " + lat + " lon-> " + lon);
+
             mLocation.setLatitude(lat);
             mLocation.setLongitude(lon);
         }

@@ -80,7 +80,7 @@ public class LocationController {
         if(lat != 0 && lon!=0) {
             List<Location> loc = locationImpl.getLocationByCoord(lat, lon);
             locations.addAll(loc);
-            
+
         }
         List<LocationMover> result = locations.stream().map(this::convertToLocResult).collect(Collectors.toList());
 
