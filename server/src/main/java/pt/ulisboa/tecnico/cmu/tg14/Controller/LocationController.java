@@ -12,6 +12,7 @@ import pt.ulisboa.tecnico.cmu.tg14.Implementation.LocationImpl;
 import pt.ulisboa.tecnico.cmu.tg14.Model.Coordinates;
 import pt.ulisboa.tecnico.cmu.tg14.Model.Location;
 
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -124,6 +125,7 @@ public class LocationController {
                 out.write(hash);
             }
             byte[] listHash  = digest.digest(out.toByteArray());
+
             return new HashResult(listHash);
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();

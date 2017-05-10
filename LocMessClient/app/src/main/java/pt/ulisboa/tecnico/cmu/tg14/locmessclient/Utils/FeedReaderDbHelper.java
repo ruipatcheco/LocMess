@@ -9,6 +9,7 @@ import android.util.Base64;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 
+
 import com.google.gson.Gson;
 
 import java.io.ByteArrayOutputStream;
@@ -358,7 +359,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
         byte[] locationsNameHash = digest.digest(bOutput.toByteArray());
 
-        return new String(Base64.encode(locationsNameHash, Base64.NO_WRAP));
+        return new String(Base64.encode(locationsNameHash, Base64.DEFAULT));
     }
 
     public void setCentralized(String locationName) throws LocationNotFoundException, MultipleRowsAfectedException {
