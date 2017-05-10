@@ -19,7 +19,7 @@ public interface LocationDao {
     List<Location> getLocationBySSID(List<String> ssids);
     Location getLocationByBle(String ble);
     List<Location> getLocationByBle(List<String> bles);
-    Location getLocationByCoord(float lat,float lon);
+    List<Location> getLocationByCoord(float lat,float lon);
     List<Location> getLocationList();
     void delete(String name);
 }

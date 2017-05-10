@@ -83,7 +83,7 @@ public class LocationImpl implements LocationDao {
     }
 
     @Override
-    public Location getLocationByCoord(float lat, float lon) {
+    public List<Location> getLocationByCoord(float lat, float lon) {
         String CoordSQL = "SELECT * ,POW(69.1 * (lat - ?), 2) + POW(69.1 * (? - lon) * COS(lat / 57.3), 2) AS distance FROM Coordinates " +
                 "HAVING distance < POW(radius,2) ORDER BY distance;";
         List<Coordinates> coords = jdbcTemplateObject.query(CoordSQL,new Object[]{lat,lon},new CoordinatesMapper());
@@ -92,7 +92,7 @@ public class LocationImpl implements LocationDao {
             String SQL = "Select * from Location where coordid=?";
             List<Location> loclist = jdbcTemplateObject.query(SQL,new Object[]{coord.getId().toString()},new LocationMapper());
             if(!loclist.isEmpty())
-                return loclist.get(0);
+                return loclist;
 
         }
         return null;

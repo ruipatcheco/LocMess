@@ -77,12 +77,11 @@ public class LocationController {
         locations.removeAll(Collections.singleton(null)); // remove null results
         Float lat = queryString.getLatitude();
         Float lon = queryString.getLongitude();
-        if(lat != 0 && lon!=0){
-            Location loc  = locationImpl.getLocationByCoord(lat,lon);
-            if(loc != null)
-                locations.add(loc);
+        if(lat != 0 && lon!=0) {
+            List<Location> loc = locationImpl.getLocationByCoord(lat, lon);
+            locations.addAll(loc);
+            
         }
-
         List<LocationMover> result = locations.stream().map(this::convertToLocResult).collect(Collectors.toList());
 
 
