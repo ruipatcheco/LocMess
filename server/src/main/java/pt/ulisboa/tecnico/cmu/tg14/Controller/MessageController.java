@@ -18,7 +18,7 @@ import java.util.UUID;
  * Created by trosado on 20/03/17.
  */
 @RestController
-@RequestMapping("/message")
+@RequestMapping("/api/message")
 public class MessageController {
 
     ApplicationContext context =

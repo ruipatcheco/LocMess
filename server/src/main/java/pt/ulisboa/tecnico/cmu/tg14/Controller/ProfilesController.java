@@ -13,7 +13,7 @@ import java.util.List;
  * Created by trosado on 20/03/17.
  */
 @RestController
-@RequestMapping("/profile")
+@RequestMapping("/api/profile")
 public class ProfilesController {
 
     ApplicationContext context =

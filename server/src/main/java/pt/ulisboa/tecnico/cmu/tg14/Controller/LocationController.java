@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
  * Created by trosado on 20/03/17.
  */
 @RestController
-@RequestMapping("/location")
+@RequestMapping("/api/location")
 public class LocationController {
 
     ApplicationContext context =
