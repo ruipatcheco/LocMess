@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringDef;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -55,24 +56,45 @@ public class DBService extends Service implements OnResponseListener<String> {
 
         Log.d("DBUpdater","DB Updater Started");
         serverActions = new ServerActions(this);
+        dbHelper = new FeedReaderDbHelper(getApplicationContext());
 
         //Do once
         if(dataHolder.isCentralizedMode()) {
             //FIXME -> quando o login estiver a bombar
-            //getAllProfileKeys();
+
+            //CHECK AND DELETE OFFLINE DELETED PROFILES
+            ArrayList<Profile> offlineDeletedProfiles = dbHelper.getAllProfilesToRemoveFromServer();
+            Log.d("DBService", "offline deleted profiles -> "+offlineDeletedProfiles.size());
+            if(offlineDeletedProfiles.size()!=0){
+                removeProfilesFromServer(offlineDeletedProfiles);
+            }
+
+            //CHECK AND INSERT OFFLINE INSERTED PROFILES
+            ArrayList<Profile> offlineInsertedProfiles = dbHelper.getAllProfilesAddedWhileDecentralized();
+            Log.d("DBService", "offline inserted profiles -> "+offlineInsertedProfiles.size());
+            if(offlineInsertedProfiles.size()!=0){
+                insertProfilesToServer(offlineInsertedProfiles);
+            }
+
+            dbHelper.deleteAllProfiles();
+
+            //OBTAIN OLDER PROFILES
+            getAndInsertAllProfileKeys();
+
         }
 
 
         handler = new Handler();
         runnable = new Runnable() {
             public void run() {
-                dbHelper = new FeedReaderDbHelper(getApplicationContext());
 
 
                 if(dataHolder.isCentralizedMode()){
 
                     Log.d("DBService", "entered DBService");
 
+
+                    ////////////////---------------PROFILES----------------------/////////////
 
                     //CHECK AND DELETE OFFLINE DELETED PROFILES
                     ArrayList<Profile> offlineDeletedProfiles = dbHelper.getAllProfilesToRemoveFromServer();
@@ -81,6 +103,7 @@ public class DBService extends Service implements OnResponseListener<String> {
                         removeProfilesFromServer(offlineDeletedProfiles);
                     }
 
+
                     //CHECK AND INSERT OFFLINE INSERTED PROFILES
                     ArrayList<Profile> offlineInsertedProfiles = dbHelper.getAllProfilesAddedWhileDecentralized();
                     Log.d("DBService", "offline inserted profiles -> "+offlineInsertedProfiles.size());
@@ -88,6 +111,8 @@ public class DBService extends Service implements OnResponseListener<String> {
                         insertProfilesToServer(offlineInsertedProfiles);
                     }
 
+
+                    ////////////////---------------LOCATIONS----------------------/////////////
 
                     //CHECK AND DELETE OFFLINE DELETED LOCATIONS
                     ArrayList<String> offlineDeletedLocationNames = dataHolder.getRemovedLocations();
@@ -126,6 +151,7 @@ public class DBService extends Service implements OnResponseListener<String> {
         handler.postDelayed(runnable, 2000);
 
     }
+
 
     private void insertProfilesToServer(ArrayList<Profile> offlineInsertedProfiles) {
         for(Profile p : offlineInsertedProfiles){
@@ -168,7 +194,7 @@ public class DBService extends Service implements OnResponseListener<String> {
     }
 
 
-    private void getAllProfileKeys() {
+    private void getAndInsertAllProfileKeys() {
         serverActions.getProfileKeys(new OnResponseListener<List<Profile>>() {
 
             @Override
@@ -177,7 +203,9 @@ public class DBService extends Service implements OnResponseListener<String> {
                 for(Profile p : response){
                     profiles.put(p.getKey(),p.getValue());
                 }
-                dbHelper.insertAllProfiles(profiles);
+                Log.d("DBService", "Adding old profile keys -> "+profiles.size());
+
+                dbHelper.insertAllProfilesFromServer(profiles);
             }
         });
     }

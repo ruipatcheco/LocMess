@@ -735,9 +735,28 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         db.insert(FeedEntry.PROFILE_TABLE_NAME, null, contentValues);
     }
 
+    public void insertProfileFromServer (String key, String value) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(FeedEntry.PROFILE_COLUMN_KEY, key);
+        contentValues.put(FeedEntry.PROFILE_COLUMN_VALUE, value);
+        contentValues.put(FeedEntry.PROFILE_COLUMN_ADDEDDECENTRALIZED, "false");
+        contentValues.put(FeedEntry.PROFILE_COLUMN_DELETEDDECENTRALIZED, "false");
+
+
+        db.insert(FeedEntry.PROFILE_TABLE_NAME, null, contentValues);
+    }
+
     public void insertAllProfiles(HashMap<String, String> profiles){
         for (String key : profiles.keySet()) {
             insertProfile(key, profiles.get(key));
+        }
+    }
+
+    public void insertAllProfilesFromServer(HashMap<String, String> profiles){
+        for (String key : profiles.keySet()) {
+            insertProfileFromServer(key, profiles.get(key));
         }
     }
 
