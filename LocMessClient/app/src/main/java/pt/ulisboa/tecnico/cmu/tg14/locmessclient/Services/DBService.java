@@ -165,12 +165,11 @@ public class DBService extends Service implements OnResponseListener<String> {
 
         Log.d("DBService", "CheckDBEquals local -> " + localHash + " server -> "+latestServerHash);
 
-
         if(latestServerHash == null || localHash == null){
             return false;
         }
 
-        return (latestServerHash.equals(localHash) && (latestServerHash!= null) );
+        return latestServerHash.equals(localHash);
 
     }
 

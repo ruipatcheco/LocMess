@@ -78,8 +78,13 @@ public class LocationController {
         locations.addAll(locationImpl.getLocationByBle(queryString.getBleList()));
         locations.addAll(locationImpl.getLocationBySSID(queryString.getSsidList()));
         locations.removeAll(Collections.singleton(null)); // remove null results
+
         Float lat = queryString.getLatitude();
         Float lon = queryString.getLongitude();
+
+        System.out.println("/nearbylocations: lat -> " + lat);
+        System.out.println("/nearbylocations: lon -> " + lat);
+
         if(lat != 0 && lon!=0) {
             List<Location> loc = locationImpl.getLocationByCoord(lat, lon);
             locations.addAll(loc);
@@ -125,10 +130,9 @@ public class LocationController {
             for(Location location : result){
                 byte[] hash = digest.digest(location.getName().getBytes("UTF-8"));
                 out.write(hash);
-                System.out.println("Hash loc name -> " + location.getName());
+               // System.out.println("Hash loc name -> " + location.getName());
             }
             byte[] listHash  = digest.digest(out.toByteArray());
-            System.out.println("Hash -> " + new String(new HashResult(listHash).getHash(), StandardCharsets.UTF_8));
 
             return new HashResult(listHash);
         } catch (NoSuchAlgorithmException e) {

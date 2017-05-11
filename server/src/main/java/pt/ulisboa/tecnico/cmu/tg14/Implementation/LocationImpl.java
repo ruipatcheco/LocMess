@@ -88,12 +88,18 @@ public class LocationImpl implements LocationDao {
                 "HAVING distance < POW(radius,2) ORDER BY distance;";
         List<Coordinates> coords = jdbcTemplateObject.query(CoordSQL,new Object[]{lat,lon},new CoordinatesMapper());
 
+        System.out.println("getLocationByCoord: found locations size -> "+coords.size());
+
         List<Location> loclist = new ArrayList<>();
+        List<Location> result = new ArrayList<>();
         for(Coordinates coord: coords){
             String SQL = "Select * from Location where coordid=?";
             loclist = jdbcTemplateObject.query(SQL,new Object[]{coord.getId().toString()},new LocationMapper());
+            for (Location l : loclist){
+                result.add(l);
+            }
         }
-        return loclist;
+        return result;
     }
 
     @Override
