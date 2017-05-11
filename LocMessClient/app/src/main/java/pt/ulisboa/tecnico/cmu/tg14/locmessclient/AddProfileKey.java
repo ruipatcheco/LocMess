@@ -71,8 +71,8 @@ public class AddProfileKey extends AppCompatActivity {
                     return;
                 }
 
-                String key = mKey.getText().toString();
-                String val = mValue.getText().toString();
+                String key = mKey.getText().toString().toLowerCase();
+                String val = mValue.getText().toString().toLowerCase();
 
 
                 keyValueMap.put(key,val);
