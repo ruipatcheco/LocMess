@@ -311,7 +311,7 @@ public class DBService extends Service implements OnResponseListener<String> {
 
     private void updateNearLocations(){
         LocationQuery query = new LocationQuery(dataHolder.getLatitude(),dataHolder.getLongitude(),
-                dataHolder.getSsidAddresses(),dataHolder.getBleAddresses());
+                dataHolder.getSsidNames(),dataHolder.getBleNames());
         Gson gson = new Gson();
         Log.d(TAG,"DB service query "+gson.toJson(query));
         serverActions.getNearLocations(query, new OnResponseListener<List<Location>>() {

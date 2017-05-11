@@ -152,12 +152,12 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
                     case BLE:
                         Log.d(TAG, "onItemSelected: BT Name : "+name);
                         Log.d(TAG, "onItemSelected: BT Selected : "+nameBLEMAP.get(name));
-                        mLocation.setBle(nameBLEMAP.get(name));
+                        mLocation.setBle(name);
                         break;
                     case WIFI:
                         Log.d(TAG, "onItemSelected: WIFI Name : "+name);
                         Log.d(TAG, "onItemSelected: WIFI Selected : "+nameWifiMap.get(name));
-                        mLocation.setSsid(nameWifiMap.get(name));
+                        mLocation.setSsid(name);
                         break;
 
                 }

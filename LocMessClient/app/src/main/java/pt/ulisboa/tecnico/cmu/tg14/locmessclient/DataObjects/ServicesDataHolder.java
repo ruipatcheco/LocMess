@@ -134,13 +134,13 @@ public class ServicesDataHolder {
         this.latitude = latitude;
     }
 
-    public List<String> getBleAddresses(){
-        return new ArrayList(bleContent.values());
+    public List<String> getBleNames(){
+        return new ArrayList(bleContent.keySet());
     }
 
 
-    public List<String> getSsidAddresses(){
-        return new ArrayList(ssidContent.values());
+    public List<String> getSsidNames(){
+        return new ArrayList(ssidContent.keySet());
     }
 
     public static ServicesDataHolder getOurInstance() {
