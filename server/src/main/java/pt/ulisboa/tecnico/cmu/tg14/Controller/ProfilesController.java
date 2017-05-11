@@ -2,6 +2,8 @@ package pt.ulisboa.tecnico.cmu.tg14.Controller;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import pt.ulisboa.tecnico.cmu.tg14.DTO.OperationStatus;
 import pt.ulisboa.tecnico.cmu.tg14.Implementation.ProfileImpl;
@@ -22,7 +24,10 @@ public class ProfilesController {
     ProfileImpl profileImpl =
             (ProfileImpl)context.getBean("profileImpl");
 
-
+    /*TODO
+    * - verify username on profile key delete
+    * - get username on profile key creation
+    * */
     @RequestMapping(value = "/create", method = RequestMethod.PUT)
     public OperationStatus create(@RequestBody Profile keyValueData){
 
@@ -44,10 +49,20 @@ public class ProfilesController {
 
     @RequestMapping("/listAll")
     public List<Profile>  listAll(){
-        List<Profile> profileList = profileImpl.listAll();
+        List<Profile> profileList = profileImpl.list();
         for(Profile p : profileList)
             p.setUsername(null);
         return profileList;
+    }
+
+    //FIXME one example of user
+    @RequestMapping("/myList")
+    public List<Profile> listMyPKeys(){
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String name = auth.getName(); //get logged in username
+        System.out.print("<<<<<<<<<<<<<<<<<<"+name);
+        List<Profile> userProfileKeys = profileImpl.list(name);
+        return userProfileKeys;
     }
 
     }

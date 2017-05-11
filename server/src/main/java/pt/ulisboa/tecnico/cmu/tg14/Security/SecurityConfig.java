@@ -21,7 +21,6 @@ import pt.ulisboa.tecnico.cmu.tg14.Service.UserLoginService;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     /*TODO
-    *  - Make createUser public
     *  - Use pwd cyphering on checking
     *  - Get User loggedIn
     * */

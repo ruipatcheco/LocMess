@@ -34,10 +34,18 @@ public class ProfileImpl implements ProfileDao {
     }
 
     @Override
-    public List<Profile> listAll() {
+    public List<Profile> list() {
         String SQL = "select * from Profile";
 
         List<Profile> profileList = jdbcTemplateObject.query(SQL,new ProfileMapper());
+
+        return profileList;
+    }
+
+    @Override
+    public List<Profile> list(String username) {
+        String SQL = "select * from Profile where username = ?;";
+        List<Profile> profileList = jdbcTemplateObject.query(SQL,new Object[]{username},new ProfileMapper());
 
         return profileList;
     }
