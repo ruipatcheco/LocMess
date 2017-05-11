@@ -30,9 +30,9 @@ public class ProfilesController {
     * */
     @RequestMapping(value = "/create", method = RequestMethod.PUT)
     public OperationStatus create(@RequestBody Profile keyValueData){
-
-            //@RequestParam(value="username") String username, @RequestParam(value="key") String key,@RequestParam(value="value") String value){
-        profileImpl.create(keyValueData.getUsername(), keyValueData.getKey(),keyValueData.getValue());
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName(); //get logged in username
+        profileImpl.create(username, keyValueData.getKey(),keyValueData.getValue());
         OperationStatus status = new OperationStatus();
         status.setOK();
         return status;
@@ -40,7 +40,9 @@ public class ProfilesController {
 
     @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
     public OperationStatus delete(@RequestBody Profile keyValueData){
-        profileImpl.delete(keyValueData.getUsername(), keyValueData.getKey());
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName(); //get logged in username
+        profileImpl.delete(username, keyValueData.getKey());
         OperationStatus status = new OperationStatus();
         status.setOK();
         return status;
@@ -55,12 +57,11 @@ public class ProfilesController {
         return profileList;
     }
 
-    //FIXME one example of user
+
     @RequestMapping("/myList")
     public List<Profile> listMyPKeys(){
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String name = auth.getName(); //get logged in username
-        System.out.print("<<<<<<<<<<<<<<<<<<"+name);
         List<Profile> userProfileKeys = profileImpl.list(name);
         return userProfileKeys;
     }

@@ -55,8 +55,6 @@ public class LocationController {
 
     @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
     public OperationStatus deleteLocation(@RequestParam String name){
-        //TODO
-
         locationImpl.delete(name);
         OperationStatus status = new OperationStatus();
         status.setOK();

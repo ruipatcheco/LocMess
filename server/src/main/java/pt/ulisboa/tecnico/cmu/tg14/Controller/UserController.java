@@ -2,6 +2,8 @@ package pt.ulisboa.tecnico.cmu.tg14.Controller;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -37,21 +39,19 @@ public class UserController {
         return status;
     }
 
+    //FIXME to remove
     @RequestMapping("/list")
     public List<User> listUser(){
         return userImpl.listUser();
     }
 
-   /* @RequestMapping("/updatePassword")
-    public void updatePassword(@RequestParam(value="username") String username, @RequestParam(value="password") String password){
+   @RequestMapping("/updatePassword")
+   public void updatePassword(@RequestParam(value="password") String password){
+       Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+       String username = auth.getName(); //get logged in username
         userImpl.update(username,password);
-    }
+   }
 
-*/
-   /* public boolean checkPassword(@RequestParam(value="username") String username, @RequestParam(value="password") String password){
-        User u = userImpl.getUser(username);
-        return PasswordHasher.isExpectedPassword(password.toCharArray(),u.getPassword());
-    }*/
    public PasswordEncoder passwordEncoder(){
        PasswordEncoder encoder = new BCryptPasswordEncoder();
        return encoder;
