@@ -228,31 +228,38 @@ public class ListLocations extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        t.interrupt();
-        Log.d("ListLocations:", "thread updating locations listview ended.");
-
+        mDataHolder.setKillThread(true);
+        mDataHolder.setThreadHasBeenStarted(false);
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        mDataHolder.setKillThread(false);
 
-        t = new Thread(new UpdateLocationsTask());
-        t.start();
-        Log.d("ListLocations:", "thread updating locations listview starting...");
+        if(!mDataHolder.isThreadHasBeenStarted()){
+            mDataHolder.setThreadHasBeenStarted(true);
+            mDataHolder.setKillThread(false);
+            t = new Thread(new UpdateLocationsTask());
+            t.start();
+            Log.d("ListLocations:", "new thread updating locations listview starting...");
+        }
+
 
     }
 
     class UpdateLocationsTask implements Runnable {
         @Override
         public void run() {
-            while (true){
+            while (!mDataHolder.isKillThread()){
                 try {
                     Thread.sleep(5000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+
                 updateLocationsList();
+
             }
         }
     }
@@ -260,13 +267,12 @@ public class ListLocations extends Fragment {
     private void updateLocationsList(){
         Log.d("ListLocations:", "thread updating locations listview ");
 
-
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 // This code will always run on the UI thread, therefore is safe to modify UI elements.
 
-                Log.d("ListLocations:", "inside run thread");
+                Log.d("ListLocations:", "inside UI thread");
 
                 nearLocations = mDataHolder.getNearLocations();
                 locationListNames.clear();

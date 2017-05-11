@@ -1,6 +1,5 @@
 package pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects;
 
-import java.lang.reflect.Array;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,6 +22,8 @@ public class ServicesDataHolder {
     private List<Location> nearLocations;
     private ArrayList<String> removedLocations;
     private boolean centralizedMode;
+    private boolean threadHasBeenStarted = false;
+    private boolean killThread = false;
 
     private static final ServicesDataHolder ourInstance = new ServicesDataHolder();
 
@@ -140,8 +141,19 @@ public class ServicesDataHolder {
         return ourInstance;
     }
 
+    public boolean isThreadHasBeenStarted() {
+        return threadHasBeenStarted;
+    }
 
+    public void setThreadHasBeenStarted(boolean threadHasBeenStarted) {
+        this.threadHasBeenStarted = threadHasBeenStarted;
+    }
 
+    public boolean isKillThread() {
+        return killThread;
+    }
 
-
+    public void setKillThread(boolean killThread) {
+        this.killThread = killThread;
+    }
 }
