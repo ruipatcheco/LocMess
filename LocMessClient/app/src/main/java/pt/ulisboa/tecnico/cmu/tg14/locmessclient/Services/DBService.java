@@ -12,12 +12,15 @@ import com.google.gson.Gson;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.LocationQuery;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.OperationStatus;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Profile;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.ServicesDataHolder;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.LocationNotFoundException;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.MultipleRowsAfectedException;
@@ -51,6 +54,11 @@ public class DBService extends Service implements OnResponseListener<String> {
 
         Log.d("DBUpdater","DB Updater Started");
         serverActions = new ServerActions(this);
+
+        //Do once
+        if(dataHolder.isCentralizedMode()) {
+            //getAllProfileKeys();
+        }
 
 
         handler = new Handler();
@@ -98,6 +106,20 @@ public class DBService extends Service implements OnResponseListener<String> {
 
         handler.postDelayed(runnable, 2000);
 
+    }
+
+    private void getAllProfileKeys() {
+        serverActions.getProfileKeys(new OnResponseListener<List<Profile>>() {
+
+            @Override
+            public void onHTTPResponse(List<Profile> response) {
+                HashMap<String,String> profiles = new HashMap<String, String>();
+                for(Profile p : response){
+                    profiles.put(p.getKey(),p.getValue());
+                }
+                dbHelper.insertAllProfiles(profiles);
+            }
+        });
     }
 
     private void removeLocationsFromServer(ArrayList<String> offlineDeletedLocationNames) {
@@ -169,7 +191,7 @@ public class DBService extends Service implements OnResponseListener<String> {
             return false;
         }
 
-        return latestServerHash.equals(localHash);
+        return localHash.contains(latestServerHash);
 
     }
 

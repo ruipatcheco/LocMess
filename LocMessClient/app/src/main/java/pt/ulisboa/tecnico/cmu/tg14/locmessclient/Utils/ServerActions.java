@@ -31,6 +31,7 @@ import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.LocationQuery;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.OperationStatus;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Profile;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnResponseListener;
 
 import static android.content.ContentValues.TAG;
@@ -67,6 +68,42 @@ public class ServerActions {
         });
 
         queue.add(request);
+    }
+
+
+    public List<Profile> getProfileKeys(final OnResponseListener listener) {
+        String url = endpoint + "/profile/listAll";
+
+        final List<Profile> profiles = new ArrayList<>();
+        JsonArrayRequest stringRequest = new JsonArrayRequest(url, new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
+                for(int i = 0;i<response.length();i++){
+                    try {
+                        JSONObject obj = response.getJSONObject(i);
+                        Gson gson = new Gson();
+                        Profile p = gson.fromJson(obj.toString(),Profile.class);
+                        profiles.add(p);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                listener.onHTTPResponse(profiles);
+
+                Log.d(TAG, "onResponse: "+response);
+            }}, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                //mTextView.setText("That didn't work!");
+                System.out.print("error: " + error);
+            }
+        });
+
+        // Add the request to the RequestQueue.
+        queue.add(stringRequest);
+
+        return profiles;
     }
 
     public void createUser(String username,String password,final OnResponseListener listener){

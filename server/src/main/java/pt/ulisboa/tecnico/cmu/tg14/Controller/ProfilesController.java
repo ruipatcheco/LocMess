@@ -45,6 +45,9 @@ public class ProfilesController {
     @RequestMapping("/listAll")
     public List<Profile>  listAll(){
         List<Profile> profileList = profileImpl.listAll();
+
+        //FIXME -> check username and return profiles from thsat username
+
         for(Profile p : profileList)
             p.setUsername(null);
         return profileList;
