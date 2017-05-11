@@ -17,10 +17,14 @@ public class ServicesDataHolder {
     private AbstractMap<String,String> ssidContent;
     private Float longitude;
     private Float latitude;
-    private String username;
+
+    //FIXME -> retirar e fazer como deve ser
+    private String username = "tiagu";
+
     private AbstractMap<UUID,Message> messageMap; //FIXME may not be needed
     private List<Location> nearLocations;
     private ArrayList<String> removedLocations;
+
     private boolean centralizedMode;
     private boolean threadHasBeenStarted = false;
     private boolean killThread = false;
@@ -58,6 +62,8 @@ public class ServicesDataHolder {
     public List<Location> getNearLocations() {
         return nearLocations;
     }
+
+    public void addNearLocation(Location l){nearLocations.add(l);}
 
     public void setNearLocations(List<Location> nearLocations) {
         this.nearLocations = nearLocations;

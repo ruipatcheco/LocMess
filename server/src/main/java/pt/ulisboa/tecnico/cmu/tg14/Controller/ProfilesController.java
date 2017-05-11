@@ -25,7 +25,7 @@ public class ProfilesController {
 
     @RequestMapping(value = "/create", method = RequestMethod.PUT)
     public OperationStatus create(@RequestBody Profile keyValueData){
-
+        System.out.println("Creating profile -> " + keyValueData.getKey());
             //@RequestParam(value="username") String username, @RequestParam(value="key") String key,@RequestParam(value="value") String value){
         profileImpl.create(keyValueData.getUsername(), keyValueData.getKey(),keyValueData.getValue());
         OperationStatus status = new OperationStatus();
@@ -33,8 +33,11 @@ public class ProfilesController {
         return status;
     }
 
-    @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
+
+
+    @RequestMapping(value = "/delete", method = RequestMethod.PUT)
     public OperationStatus delete(@RequestBody Profile keyValueData){
+        System.out.println("Deleting key -> " + keyValueData.getKey());
         profileImpl.delete(keyValueData.getUsername(), keyValueData.getKey());
         OperationStatus status = new OperationStatus();
         status.setOK();

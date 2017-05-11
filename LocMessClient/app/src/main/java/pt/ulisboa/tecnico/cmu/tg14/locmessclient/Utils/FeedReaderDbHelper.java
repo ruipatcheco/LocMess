@@ -26,6 +26,7 @@ import java.util.UUID;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Profile;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.ServicesDataHolder;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.LocationNotFoundException;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.MessageMuleNotFoundException;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.MessageNotFoundException;
@@ -90,7 +91,9 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
             "CREATE TABLE IF NOT EXISTS " + FeedEntry.PROFILE_TABLE_NAME + " ( " +
                     FeedEntry._ID + " INTEGER PRIMARY KEY," +
                     FeedEntry.PROFILE_COLUMN_KEY +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
-                    FeedEntry.PROFILE_COLUMN_VALUE +" "+ FeedEntry.TEXT_TYPE +
+                    FeedEntry.PROFILE_COLUMN_VALUE +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
+                    FeedEntry.PROFILE_COLUMN_ADDEDDECENTRALIZED +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
+                    FeedEntry.PROFILE_COLUMN_DELETEDDECENTRALIZED +" "+ FeedEntry.TEXT_TYPE +
                 " )";
 
     private static final String SQL_CREATE_MULE_PROFILE =
@@ -725,6 +728,9 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         ContentValues contentValues = new ContentValues();
         contentValues.put(FeedEntry.PROFILE_COLUMN_KEY, key);
         contentValues.put(FeedEntry.PROFILE_COLUMN_VALUE, value);
+        contentValues.put(FeedEntry.PROFILE_COLUMN_ADDEDDECENTRALIZED, "true");
+        contentValues.put(FeedEntry.PROFILE_COLUMN_DELETEDDECENTRALIZED, "false");
+
 
         db.insert(FeedEntry.PROFILE_TABLE_NAME, null, contentValues);
     }
@@ -741,14 +747,18 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         String[] projection = {
                 FeedEntry._ID,
                 FeedEntry.PROFILE_COLUMN_KEY,
-                FeedEntry.PROFILE_COLUMN_VALUE
+                FeedEntry.PROFILE_COLUMN_VALUE,
+                FeedEntry.PROFILE_COLUMN_ADDEDDECENTRALIZED,
+                FeedEntry.PROFILE_COLUMN_DELETEDDECENTRALIZED
         };
+
+
 
         Cursor cursor = db.query(
                 FeedEntry.PROFILE_TABLE_NAME,             // The table to query
                 projection,                               // The columns to return
-                FeedEntry.PROFILE_COLUMN_KEY + " = ?",            // The columns for the WHERE clause
-                new String[]{key},                                     // The values for the WHERE clause
+                FeedEntry.PROFILE_COLUMN_KEY + " = ?" + FeedEntry.PROFILE_COLUMN_DELETEDDECENTRALIZED + " = ? ",            // The columns for the WHERE clause
+                new String[]{key, "false"},                                     // The values for the WHERE clause
                 null,                                     // don't group the rows
                 null,                                     // don't filter by row groups
                 null                                   // The sort order
@@ -772,13 +782,15 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
                 FeedEntry._ID,
                 FeedEntry.PROFILE_COLUMN_KEY,
                 FeedEntry.PROFILE_COLUMN_VALUE,
+                FeedEntry.PROFILE_COLUMN_ADDEDDECENTRALIZED,
+                FeedEntry.PROFILE_COLUMN_DELETEDDECENTRALIZED
         };
 
         Cursor cursor = db.query(
                 FeedEntry.PROFILE_TABLE_NAME,            // The table to query
                 projection,                               // The columns to return
-                null,                                     // The columns for the WHERE clause
-                null,                                     // The values for the WHERE clause
+                FeedEntry.PROFILE_COLUMN_DELETEDDECENTRALIZED + " = ? ",                                     // The columns for the WHERE clause
+                new String[]{"false"},                                     // The values for the WHERE clause
                 null,                                     // don't group the rows
                 null,                                     // don't filter by row groups
                 null                                   // The sort order
@@ -803,6 +815,8 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
                 FeedEntry._ID,
                 FeedEntry.PROFILE_COLUMN_KEY,
                 FeedEntry.PROFILE_COLUMN_VALUE,
+                FeedEntry.PROFILE_COLUMN_ADDEDDECENTRALIZED,
+                FeedEntry.PROFILE_COLUMN_DELETEDDECENTRALIZED
         };
 
         String sortOrder = FeedEntry.PROFILE_COLUMN_KEY + " ASC";
@@ -810,8 +824,8 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         Cursor cursor = db.query(
                 FeedEntry.PROFILE_TABLE_NAME,            // The table to query
                 projection,                               // The columns to return
-                null,                                     // The columns for the WHERE clause
-                null,                                     // The values for the WHERE clause
+                FeedEntry.PROFILE_COLUMN_DELETEDDECENTRALIZED + " = ? ",                                     // The columns for the WHERE clause
+                new String[]{"false"},                                     // The values for the WHERE clause
                 null,                                     // don't group the rows
                 null,                                     // don't filter by row groups
                 sortOrder                                   // The sort order
@@ -834,8 +848,104 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         String[] whereArgs = new String[] { key };
 
         return db.delete(table, whereClause, whereArgs) > 0;
+    }
 
-        //db.delete(FeedEntry.PROFILE_TABLE_NAME, FeedEntry.PROFILE_COLUMN_KEY + "=" + key, null) > 0;
+    public void deleteProfileInTheFuture(String key) throws ProfileNotFoundException, MultipleRowsAfectedException {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        ContentValues cv = new ContentValues();
+        cv.put(FeedEntry.PROFILE_COLUMN_DELETEDDECENTRALIZED, "true");
+
+        int result = db.update(FeedEntry.PROFILE_TABLE_NAME, cv, FeedEntry.PROFILE_COLUMN_KEY + " = ?", new String[] {key});
+
+        if (result == 0) {
+            throw new ProfileNotFoundException();
+        } else if (result > 1) {
+            throw new MultipleRowsAfectedException();
+        }
+    }
+
+    public void updateProfileInsertedToServer(String key) throws ProfileNotFoundException, MultipleRowsAfectedException {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        ContentValues cv = new ContentValues();
+        cv.put(FeedEntry.PROFILE_COLUMN_ADDEDDECENTRALIZED, "false");
+
+        int result = db.update(FeedEntry.PROFILE_TABLE_NAME, cv, FeedEntry.PROFILE_COLUMN_KEY + " = ?", new String[] {key});
+
+        if (result == 0) {
+            throw new ProfileNotFoundException();
+        } else if (result > 1) {
+            throw new MultipleRowsAfectedException();
+        }
+    }
+
+    public ArrayList<Profile> getAllProfilesToRemoveFromServer() {
+        ArrayList<Profile> profiles = new ArrayList<Profile>();
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String[] projection = {
+                FeedEntry._ID,
+                FeedEntry.PROFILE_COLUMN_KEY,
+                FeedEntry.PROFILE_COLUMN_VALUE,
+                FeedEntry.PROFILE_COLUMN_ADDEDDECENTRALIZED,
+                FeedEntry.PROFILE_COLUMN_DELETEDDECENTRALIZED
+        };
+
+        String sortOrder = FeedEntry.PROFILE_COLUMN_KEY + " ASC";
+
+        Cursor cursor = db.query(
+                FeedEntry.PROFILE_TABLE_NAME,            // The table to query
+                projection,                               // The columns to return
+                FeedEntry.PROFILE_COLUMN_DELETEDDECENTRALIZED + " = ? ",                                     // The columns for the WHERE clause
+                new String[]{"true"},                                     // The values for the WHERE clause
+                null,                                     // don't group the rows
+                null,                                     // don't filter by row groups
+                sortOrder                                   // The sort order
+        );
+
+        cursor.moveToFirst();
+
+        while(cursor.isAfterLast() == false){
+            profiles.add(associateProfile(cursor));
+            cursor.moveToNext();
+        }
+        return profiles;
+    }
+
+    public ArrayList<Profile> getAllProfilesAddedWhileDecentralized() {
+        ArrayList<Profile> profiles = new ArrayList<Profile>();
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String[] projection = {
+                FeedEntry._ID,
+                FeedEntry.PROFILE_COLUMN_KEY,
+                FeedEntry.PROFILE_COLUMN_VALUE,
+                FeedEntry.PROFILE_COLUMN_ADDEDDECENTRALIZED,
+                FeedEntry.PROFILE_COLUMN_DELETEDDECENTRALIZED
+        };
+
+        String sortOrder = FeedEntry.PROFILE_COLUMN_KEY + " ASC";
+
+        Cursor cursor = db.query(
+                FeedEntry.PROFILE_TABLE_NAME,            // The table to query
+                projection,                               // The columns to return
+                FeedEntry.PROFILE_COLUMN_ADDEDDECENTRALIZED + " = ? ",                                     // The columns for the WHERE clause
+                new String[]{"true"},                                     // The values for the WHERE clause
+                null,                                     // don't group the rows
+                null,                                     // don't filter by row groups
+                sortOrder                                   // The sort order
+        );
+
+        cursor.moveToFirst();
+
+        while(cursor.isAfterLast() == false){
+            profiles.add(associateProfile(cursor));
+            cursor.moveToNext();
+        }
+        return profiles;
     }
 
     public boolean deleteProfiles(HashMap<String, String> profiles) {
@@ -857,9 +967,11 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
     }
 
     private Profile associateProfile(Cursor cursor) {
+        String username = ServicesDataHolder.getInstance().getUsername();
         return new Profile(
                 cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.PROFILE_COLUMN_KEY)),
-                cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.PROFILE_COLUMN_VALUE))
+                cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.PROFILE_COLUMN_VALUE)),
+                username
         );
     }
 

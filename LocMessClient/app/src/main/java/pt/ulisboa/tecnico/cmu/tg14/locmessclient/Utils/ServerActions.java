@@ -71,6 +71,35 @@ public class ServerActions {
     }
 
 
+
+    public void insertProfile( Profile p,final OnResponseListener listener){
+        String url = endpoint+"/profile/create";
+        try{
+            Gson gson = new Gson();
+            JSONObject jsonObject = new JSONObject(gson.toJson(p));
+            Log.d(TAG, "createProfile:"+jsonObject.toString());
+            makeSimpleRequest(Request.Method.PUT,url,jsonObject,listener);
+
+        }catch (JSONException e){
+            e.printStackTrace();
+        }
+    }
+
+
+
+    public void removeProfile( Profile p,OnResponseListener listener){
+        String url = endpoint+"/profile/delete";
+        try{
+            Gson gson = new Gson();
+            JSONObject jsonObject = new JSONObject(gson.toJson(p));
+            Log.d(TAG, "removeProfile:"+jsonObject.toString());
+            makeSimpleRequest(Request.Method.PUT,url,jsonObject,listener);
+
+        }catch (JSONException e){
+            e.printStackTrace();
+        }
+    }
+
     public List<Profile> getProfileKeys(final OnResponseListener listener) {
         String url = endpoint + "/profile/listAll";
 

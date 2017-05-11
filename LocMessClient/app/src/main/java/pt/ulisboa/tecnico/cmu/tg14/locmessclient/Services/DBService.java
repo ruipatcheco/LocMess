@@ -24,6 +24,7 @@ import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Profile;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.ServicesDataHolder;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.LocationNotFoundException;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.MultipleRowsAfectedException;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.ProfileNotFoundException;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnResponseListener;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderDbHelper;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServerActions;
@@ -57,6 +58,7 @@ public class DBService extends Service implements OnResponseListener<String> {
 
         //Do once
         if(dataHolder.isCentralizedMode()) {
+            //FIXME -> quando o login estiver a bombar
             //getAllProfileKeys();
         }
 
@@ -71,8 +73,25 @@ public class DBService extends Service implements OnResponseListener<String> {
 
                     Log.d("DBService", "entered DBService");
 
+
+                    //CHECK AND DELETE OFFLINE DELETED PROFILES
+                    ArrayList<Profile> offlineDeletedProfiles = dbHelper.getAllProfilesToRemoveFromServer();
+                    Log.d("DBService", "offline deleted profiles -> "+offlineDeletedProfiles.size());
+                    if(offlineDeletedProfiles.size()!=0){
+                        removeProfilesFromServer(offlineDeletedProfiles);
+                    }
+
+                    //CHECK AND INSERT OFFLINE INSERTED PROFILES
+                    ArrayList<Profile> offlineInsertedProfiles = dbHelper.getAllProfilesAddedWhileDecentralized();
+                    Log.d("DBService", "offline inserted profiles -> "+offlineInsertedProfiles.size());
+                    if(offlineInsertedProfiles.size()!=0){
+                        insertProfilesToServer(offlineInsertedProfiles);
+                    }
+
+
                     //CHECK AND DELETE OFFLINE DELETED LOCATIONS
                     ArrayList<String> offlineDeletedLocationNames = dataHolder.getRemovedLocations();
+                    Log.d("DBService", "offline deleted locations -> "+offlineDeletedLocationNames.size());
                     if(offlineDeletedLocationNames.size()!=0){
                         removeLocationsFromServer(offlineDeletedLocationNames);
                     }
@@ -107,6 +126,47 @@ public class DBService extends Service implements OnResponseListener<String> {
         handler.postDelayed(runnable, 2000);
 
     }
+
+    private void insertProfilesToServer(ArrayList<Profile> offlineInsertedProfiles) {
+        for(Profile p : offlineInsertedProfiles){
+
+            Log.d("DBService", "inserting to server profile key -> "+p.getKey());
+
+            serverActions.insertProfile(p, new OnResponseListener<OperationStatus>() {
+                @Override
+                public void onHTTPResponse(OperationStatus response) {
+                    if(response.isERROR()){
+                        //FIXME -> deu asneira
+                    }
+                }
+            });
+            try {
+                dbHelper.updateProfileInsertedToServer(p.getKey());
+            } catch (ProfileNotFoundException e) {
+                e.printStackTrace();
+            } catch (MultipleRowsAfectedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void removeProfilesFromServer(ArrayList<Profile> offlineDeletedProfiles) {
+        for(Profile p : offlineDeletedProfiles){
+
+            Log.d("DBService", "removing from server profile key -> "+p.getKey());
+
+            serverActions.removeProfile(p, new OnResponseListener<OperationStatus>() {
+                @Override
+                public void onHTTPResponse(OperationStatus response) {
+                    if(response.isERROR()){
+                        //FIXME -> deu asneira
+                    }
+                }
+            });
+            dbHelper.deleteProfile(p.getKey());
+        }
+    }
+
 
     private void getAllProfileKeys() {
         serverActions.getProfileKeys(new OnResponseListener<List<Profile>>() {

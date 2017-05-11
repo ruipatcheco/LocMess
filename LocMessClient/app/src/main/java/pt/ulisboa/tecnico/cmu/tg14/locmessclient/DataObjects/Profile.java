@@ -7,10 +7,20 @@ package pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects;
 public class Profile {
     private String key;
     private String value;
+    private String username;
 
-    public Profile(String key, String value) {
+    public Profile(String key, String value, String username) {
         this.key = key;
         this.value = value;
+        this.username = username;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getKey() {

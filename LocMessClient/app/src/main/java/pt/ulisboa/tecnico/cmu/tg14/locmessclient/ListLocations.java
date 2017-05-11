@@ -253,13 +253,11 @@ public class ListLocations extends Fragment {
         public void run() {
             while (!mDataHolder.isKillThread()){
                 try {
+                    updateLocationsList();
                     Thread.sleep(5000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-
-                updateLocationsList();
-
             }
         }
     }

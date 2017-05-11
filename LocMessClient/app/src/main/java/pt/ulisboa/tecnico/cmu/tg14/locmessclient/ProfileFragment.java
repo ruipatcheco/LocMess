@@ -24,6 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Profile;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.MultipleRowsAfectedException;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.ProfileNotFoundException;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderDbHelper;
 
 
@@ -244,7 +246,13 @@ public class ProfileFragment extends Fragment {
         @Override
         protected Void doInBackground(Void... params) {
             FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(getActivity());
-            dbHelper.deleteProfile(k);
+            try {
+                dbHelper.deleteProfileInTheFuture(k);
+            } catch (ProfileNotFoundException e) {
+                e.printStackTrace();
+            } catch (MultipleRowsAfectedException e) {
+                    e.printStackTrace();
+            }
 
             return null;
         }
