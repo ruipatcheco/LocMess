@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pt.ulisboa.tecnico.cmu.tg14.Implementation.UserImpl;
 import pt.ulisboa.tecnico.cmu.tg14.Model.User;
-import pt.ulisboa.tecnico.cmu.tg14.PasswordHasher;
 import pt.ulisboa.tecnico.cmu.tg14.exceptions.UserNotFoundException;
 
 import java.util.ArrayList;

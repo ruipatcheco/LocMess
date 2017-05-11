@@ -2,11 +2,12 @@ package pt.ulisboa.tecnico.cmu.tg14.Controller;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import pt.ulisboa.tecnico.cmu.tg14.DTO.OperationStatus;
 import pt.ulisboa.tecnico.cmu.tg14.Implementation.UserImpl;
 import pt.ulisboa.tecnico.cmu.tg14.Model.User;
-import pt.ulisboa.tecnico.cmu.tg14.PasswordHasher;
 
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Base64;
@@ -30,7 +31,7 @@ public class UserController {
         if(userImpl.getUser(user.getUsername()) != null)
             status.setError();
         else{
-            userImpl.create(user.getUsername(),PasswordHasher.hashToString(user.getPassword()));
+            userImpl.create(user.getUsername(),passwordEncoder().encode(user.getPassword()));
             status.setOK();
         }
         return status;
@@ -51,6 +52,9 @@ public class UserController {
         User u = userImpl.getUser(username);
         return PasswordHasher.isExpectedPassword(password.toCharArray(),u.getPassword());
     }*/
-
+   public PasswordEncoder passwordEncoder(){
+       PasswordEncoder encoder = new BCryptPasswordEncoder();
+       return encoder;
+   }
 
     }

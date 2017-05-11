@@ -1,7 +1,8 @@
 
-CREATE TABLE User(
+CREATE TABLE Users(
   username VARCHAR(100) NOT NULL,
   password VARCHAR(100) NOT NULL,
+  enabled boolean not null DEFAULT TRUE ,
   PRIMARY KEY (username)
 );
 
@@ -9,7 +10,7 @@ CREATE TABLE Profile(
   username VARCHAR(100) NOT NULL,
   NAME VARCHAR(100) NOT NULL,
   VALUE VARCHAR(100) NOT NULL,
-  FOREIGN KEY (username) REFERENCES User(username)
+  FOREIGN KEY (username) REFERENCES Users(username)
 );
 
 CREATE TABLE Coordinates(
@@ -39,7 +40,7 @@ CREATE TABLE Message(
   PUBLISHER VARCHAR(100) NOT NULL,
   PRIMARY KEY (ID),
   FOREIGN KEY (LOCATION) REFERENCES Location(name),
-  FOREIGN KEY (PUBLISHER) REFERENCES User(username)
+  FOREIGN KEY (PUBLISHER) REFERENCES Users(username)
 );
 
 CREATE TABLE ListType(
