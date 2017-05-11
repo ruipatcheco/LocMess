@@ -112,8 +112,19 @@ public class LocationImpl implements LocationDao {
 
     @Override
     public void delete(String name) {
+        String SQL = "Select * from Location where name = ?";
+        List <Location> loclist = jdbcTemplateObject.query(SQL,new Object[]{name},new LocationMapper());
 
-        String SQL = "delete from Location where name = ?";
+        SQL = "delete from Location where name = ?";
         jdbcTemplateObject.update(SQL, name);
+
+        for (Location l : loclist){
+
+            System.out.println("deleting location -> "+l.getName());
+            System.out.println("deleting coordinates -> "+l.getCoordinates());
+
+            SQL = "delete from Coordinates where id = ?";
+            jdbcTemplateObject.update(SQL, l.getCoordinates().toString());
+        }
     }
 }
