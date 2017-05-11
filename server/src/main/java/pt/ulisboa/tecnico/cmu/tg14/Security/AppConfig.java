@@ -1,19 +1,28 @@
 package pt.ulisboa.tecnico.cmu.tg14.Security;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import pt.ulisboa.tecnico.cmu.tg14.Implementation.*;
+
+import javax.validation.Valid;
 
 /**
  * Created by tiago on 11/05/2017.
  */
 @Configuration
 public class AppConfig {
+    @Value("${spring.datasource.url}")
+    String url;
+    @Value("${spring.datasource.data-username}")
+    String username;
+    @Value("${spring.datasource.data-password}")
+    String password;
 
     @Bean
     public DriverManagerDataSource dataSource(){
-        return new DriverManagerDataSource("jdbc:mysql://localhost:3306/LocMess","root","toor");
+        return new DriverManagerDataSource(url,username,password);
     }
 
     @Bean
