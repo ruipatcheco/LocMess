@@ -435,7 +435,7 @@ public class ServerActions {
             Gson gson = new Gson();
             JSONObject jsonObject = new JSONObject(gson.toJson(m));
             Log.d(TAG, "removeMessage:"+jsonObject.toString());
-            makeSimpleRequest(Request.Method.PUT,url,jsonObject,listener);
+            makeAuthenticatedRequest(Request.Method.PUT,url,jsonObject,listener);
 
         }catch (JSONException e){
             e.printStackTrace();

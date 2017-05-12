@@ -847,7 +847,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
     public boolean deleteMessage(String uuid) {
         SQLiteDatabase db = this.getWritableDatabase();
 
-        return db.delete(FeedEntry.MESSAGE_TABLE_NAME, FeedEntry.MESSAGE_COLUMN_UUID + "=" + uuid, null) > 0;
+        return db.delete(FeedEntry.MESSAGE_TABLE_NAME, FeedEntry.MESSAGE_COLUMN_UUID + "= '" + uuid + "'", null) > 0;
     }
 
     public boolean deleteListMessage(List<String> messages) {
