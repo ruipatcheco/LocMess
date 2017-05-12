@@ -38,11 +38,11 @@ public class MessageController {
         Timestamp endTime  = message.getEndTime();
 
         if(endTime.getTime() <= 0)
-            messageImpl.create(message.getStartTime(),
+            messageImpl.create(message.getId(),message.getStartTime(),
                     message.getCreationTime(),message.getContent(),
                     username,message.getLocation());
         else
-            messageImpl.create(message.getStartTime(),endTime,
+            messageImpl.create(message.getId(),message.getStartTime(),endTime,
                     message.getCreationTime(),message.getContent(),
                     message.getPublisher(),message.getLocation());
 
@@ -81,6 +81,11 @@ public class MessageController {
         return messageList;
     }
 
-
-
+    @RequestMapping(value = "/myMessages")
+    public List<Message> getMyMessages(){
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName(); //get logged in username
+        return messageImpl.getMessagesByUsername(username);
     }
+
+}

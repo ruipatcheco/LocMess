@@ -324,6 +324,7 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
         protected Boolean doInBackground(Void... params) {
 
             ServerActions serverActions = new ServerActions(getApplicationContext());
+            serverActions.getMyMessages((OnResponseListener) mActivity);
             serverActions.createUser(mEmail,mPassword,(OnResponseListener) mActivity);
 
             return true;

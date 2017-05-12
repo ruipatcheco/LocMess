@@ -12,6 +12,7 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -203,6 +204,38 @@ public class ServerActions {
         }
     }
 
+    public  void getMyMessages(final OnResponseListener listener){
+        String url = endpoint+"/message/myMessages";
+
+        final List<Message> messages = new ArrayList<>();
+        final Gson gson = new Gson();
+
+        JsonArrayAuthenticatedRequest request = new JsonArrayAuthenticatedRequest(url, username, password
+                , new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
+                for(int i = 0;i<response.length();i++){
+                    try {
+                        JSONObject obj = response.getJSONObject(i);
+
+                        Message message = gson.fromJson(obj.toString(),Message.class);
+                        messages.add(message);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e(TAG, "onErrorResponse: ", error);
+            }
+        });
+
+        queue.add(request);
+    }
+
+
     public static List<Message> getMessagesFromLocation(Location location, final OnResponseListener listener){
         String url = endpoint+"/message/getMessagesByLocation";
 
@@ -308,7 +341,7 @@ public class ServerActions {
     }
 
 
-    public static List<Location> getNearLocations(LocationQuery query, final OnResponseListener listener){
+    public List<Location> getNearLocations(LocationQuery query, final OnResponseListener listener){
         String url = endpoint+"/location/nearbyLocations";
 
         final List<Location> locations = new ArrayList<>();
@@ -367,7 +400,4 @@ public class ServerActions {
             e.printStackTrace();
         }
     }
-
-}
-
-
+        }
