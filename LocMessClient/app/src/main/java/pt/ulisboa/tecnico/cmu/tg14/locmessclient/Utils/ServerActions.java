@@ -290,7 +290,7 @@ public class ServerActions {
                             Log.d(TAG, "onResponse: "+obj.toString());
                             MessageServer msg = gson.fromJson(obj.toString(),MessageServer.class);
 
-                            Message m = new Message(msg.getId(),msg.getCreationTime(), msg.getStartTime(),msg.getEndTime(),msg.getContent(),msg.getPublisher(),msg.getLocation(),true,true);
+                            Message m = new Message(msg.getId(),msg.getCreationTime(), msg.getStartTime(),msg.getEndTime(),msg.getContent(),msg.getPublisher(),msg.getLocation(),true,true,null,null);
                             messages.add(m);
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -417,7 +417,7 @@ public class ServerActions {
     }
 
 
-    public void createMessage(Message message,final OnResponseListener listener) {
+    public void createMessage(MessageServer message,final OnResponseListener listener) {
         String url = endpoint+"/message/create";
         try {
             Gson  gson = new Gson();
@@ -429,7 +429,7 @@ public class ServerActions {
         }
     }
 
-    public void removeMessage( Message m,OnResponseListener listener){
+    public void removeMessage( MessageServer m,OnResponseListener listener){
         String url = endpoint+"/message/delete";
         try{
             Gson gson = new Gson();

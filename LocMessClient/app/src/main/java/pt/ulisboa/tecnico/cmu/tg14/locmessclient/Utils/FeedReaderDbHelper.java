@@ -539,7 +539,9 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
                 cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MULE_MESSAGE_COLUMN_PUBLISHER)),
                 cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MULE_MESSAGE_COLUMN_LOCATION)),
                 isCentralized,
-                false
+                false,
+                null,
+                null
         );
     }
 
@@ -891,7 +893,9 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
                 cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_PUBLISHER)),
                 cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_LOCATION)),
                 isCentralized,
-                isNearby
+                isNearby,
+                null,
+                null
         );
     }
 
