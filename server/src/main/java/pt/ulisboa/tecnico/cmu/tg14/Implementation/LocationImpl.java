@@ -4,9 +4,11 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import pt.ulisboa.tecnico.cmu.tg14.Mapper.CoordinatesMapper;
 import pt.ulisboa.tecnico.cmu.tg14.Mapper.LocationMapper;
+import pt.ulisboa.tecnico.cmu.tg14.Mapper.MessageMapper;
 import pt.ulisboa.tecnico.cmu.tg14.Mapper.UserMapper;
 import pt.ulisboa.tecnico.cmu.tg14.Model.Coordinates;
 import pt.ulisboa.tecnico.cmu.tg14.Model.Location;
+import pt.ulisboa.tecnico.cmu.tg14.Model.Message;
 import pt.ulisboa.tecnico.cmu.tg14.Model.User;
 import pt.ulisboa.tecnico.cmu.tg14.dao.LocationDao;
 
@@ -115,16 +117,30 @@ public class LocationImpl implements LocationDao {
         String SQL = "Select * from Location where name = ?";
         List <Location> loclist = jdbcTemplateObject.query(SQL,new Object[]{name},new LocationMapper());
 
-        SQL = "delete from Location where name = ?";
-        jdbcTemplateObject.update(SQL, name);
-
         for (Location l : loclist){
 
-            System.out.println("deleting location -> "+l.getName());
-            System.out.println("deleting coordinates -> "+l.getCoordinates());
+            SQL = "Select * from Message where location = ?";
+            List <Message> meslist = jdbcTemplateObject.query(SQL,new Object[]{l.getName()},new MessageMapper());
 
-            SQL = "delete from Coordinates where id = ?";
-            jdbcTemplateObject.update(SQL, l.getCoordinates().toString());
+            for(Message m : meslist){
+                System.out.println("deleting message -> "+m.getId());
+                SQL = "delete from Message where location = ?";
+                jdbcTemplateObject.update(SQL, l.getName());
+            }
+
+            if(l.getCoordinates()!=null){
+                System.out.println("deleting coordinates -> "+l.getCoordinates());
+                SQL = "delete from Coordinates where id = ?";
+                jdbcTemplateObject.update(SQL, l.getCoordinates().toString());
+            }
+
         }
+
+
+        System.out.println("deleting location -> "+name);
+        SQL = "delete from Location where name = ?";
+        jdbcTemplateObject.update(SQL, name);
     }
 }
+
+
