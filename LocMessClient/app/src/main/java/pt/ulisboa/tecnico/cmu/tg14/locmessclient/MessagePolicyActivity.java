@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -47,6 +48,7 @@ public class MessagePolicyActivity extends AppCompatActivity implements OnRespon
     private Button mFinish;
     Activity activity;
 
+    private FeedReaderDbHelper dbHelper;
 
     ListView mListView;
     ArrayAdapter<Model> adapter;
@@ -74,6 +76,7 @@ public class MessagePolicyActivity extends AppCompatActivity implements OnRespon
         mFinish = (Button) findViewById(R.id.message_profile_button_finish);
         mListView = (ListView) findViewById(R.id.message_profiles_list);
 
+        dbHelper = new FeedReaderDbHelper(activity);
 
         adapter = new ProfileChoiceAdapter(this, getModel());
         mListView.setAdapter(adapter);
@@ -92,9 +95,8 @@ public class MessagePolicyActivity extends AppCompatActivity implements OnRespon
 
                 String message = mKey.getText().toString() + " -> " + mValue.getText().toString();
 
-                Profile profile = new Profile(mKey.getText().toString(), mValue.getText().toString(), "tiago");
+                Profile profile = new Profile(mKey.getText().toString(), mValue.getText().toString());
 
-                FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(activity);
                 dbHelper.insertProfile(profile);
 
                 list.add(0, new Model(profile));
@@ -167,7 +169,11 @@ public class MessagePolicyActivity extends AppCompatActivity implements OnRespon
     }
 
     private List<Model> getModel() {
-        list.add(new Model(new Profile("Linux", "value", "tiago")));
+        List<Profile> profileList = dbHelper.getListProfiles();
+        for(Profile profile : profileList ){
+            list.add(new Model(profile));
+        }
+        /*
         list.add(new Model(new Profile("Windows7", "value", "tiago")));
         list.add(new Model(new Profile("Suse", "value", "tiago")));
         list.add(new Model(new Profile("Eclipse", "value", "tiago")));
@@ -178,6 +184,7 @@ public class MessagePolicyActivity extends AppCompatActivity implements OnRespon
         list.add(new Model(new Profile("Java", "value", "tiago")));
         list.add(new Model(new Profile(".Net", "value", "tiago")));
         list.add(new Model(new Profile("PHP", "value", "tiago")));
+        */
         return list;
     }
 
