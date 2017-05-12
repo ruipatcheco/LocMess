@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.LocationQuery;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.MessageServer;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.OperationStatus;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
@@ -291,9 +292,11 @@ public class DBService extends Service implements OnResponseListener<String> {
     private void deleteMessagesFromServer(ArrayList<Message> offlineDeletedMessages) {
         for(Message m : offlineDeletedMessages){
 
+            MessageServer ms = new MessageServer(m.getUUID(),m.getCreationTime(),m.getStartTime(),m.getEndTime(),m.getContent(),m.getPublisher(),m.getLocation(),m.getWhiteList(),m.getBlackList());
+
             Log.d("DBService", "deleting message from server -> "+m.getUUID());
 
-            serverActions.removeMessage(m, new OnResponseListener<OperationStatus>() {
+            serverActions.removeMessage(ms, new OnResponseListener<OperationStatus>() {
                 @Override
                 public void onHTTPResponse(OperationStatus response) {
                     if(response.isERROR()){
@@ -310,8 +313,9 @@ public class DBService extends Service implements OnResponseListener<String> {
         for(Message m : offlineInsertedMessages){
 
             Log.d("DBService", "inserting to server message -> "+m.getUUID());
+            MessageServer ms = new MessageServer(m.getUUID(),m.getCreationTime(),m.getStartTime(),m.getEndTime(),m.getContent(),m.getPublisher(),m.getLocation(),m.getWhiteList(),m.getBlackList());
 
-            serverActions.createMessage(m, new OnResponseListener<OperationStatus>() {
+            serverActions.createMessage(ms, new OnResponseListener<OperationStatus>() {
                 @Override
                 public void onHTTPResponse(OperationStatus response) {
                     if(response.isERROR()){

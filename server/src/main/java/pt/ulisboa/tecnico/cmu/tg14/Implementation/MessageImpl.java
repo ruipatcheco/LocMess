@@ -44,7 +44,7 @@ public class MessageImpl implements MessageDao {
     @Override
     public void create(UUID id,Timestamp startTime, Timestamp endTime, Timestamp creationTime, String content, String publisher, String location) {
         String SQL = "insert into Message (id, location, content, creationtime, starttime, endtime, publisher) values (?,?,?,?,?,?,?)";
-        jdbcTemplateObject.update( SQL,id,location,content,creationTime,startTime,endTime,publisher);
+        jdbcTemplateObject.update( SQL,id.toString(),location,content,creationTime,startTime,endTime,publisher);
         return;
 
     }
@@ -52,7 +52,7 @@ public class MessageImpl implements MessageDao {
     @Override
     public void create(UUID id,Timestamp startTime, Timestamp creationTime, String content, String publisher, String location) {
         String SQL = "insert into Message (id, location, content, creationtime, endtime, publisher) values (?,?,?,?,?,?)";
-        jdbcTemplateObject.update( SQL,id,location,content,creationTime,startTime,publisher);
+        jdbcTemplateObject.update( SQL,id.toString(),location,content,creationTime,startTime,publisher);
         return;
 
     }

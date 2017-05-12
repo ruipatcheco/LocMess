@@ -283,7 +283,7 @@ public class ListMessages extends Fragment {
         @Override
         protected Void doInBackground(Void... params) {
             FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(getActivity());
-            List<Message> dbMessages = dbHelper.getAllMessages();
+            List<Message> dbMessages = dbHelper.getAllNearbyMessages();
 
             for(Message m: dbMessages){
                 auxList.add(m);

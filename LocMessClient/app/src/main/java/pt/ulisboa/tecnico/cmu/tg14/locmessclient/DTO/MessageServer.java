@@ -1,7 +1,10 @@
 package pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO;
 
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.UUID;
+
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Profile;
 
 /**
  * Created by basilio on 12-05-2017.
@@ -16,6 +19,37 @@ public class MessageServer {
     private String content;
     private String publisher;
     private String location;
+    List<Profile> whiteList;
+    List<Profile> blackList;
+
+
+    public MessageServer(UUID id, long creationTime, long startTime, long endTime, String content, String publisher, String location, List<Profile> whiteList, List<Profile> blackList) {
+        this.id = id;
+        this.creationTime = creationTime;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.content = content;
+        this.publisher = publisher;
+        this.location = location;
+        this.whiteList = whiteList;
+        this.blackList = blackList;
+    }
+
+    public List<Profile> getWhiteList() {
+        return whiteList;
+    }
+
+    public void setWhiteList(List<Profile> whiteList) {
+        this.whiteList = whiteList;
+    }
+
+    public List<Profile> getBlackList() {
+        return blackList;
+    }
+
+    public void setBlackList(List<Profile> blackList) {
+        this.blackList = blackList;
+    }
 
     public String getLocation() {
         return location;

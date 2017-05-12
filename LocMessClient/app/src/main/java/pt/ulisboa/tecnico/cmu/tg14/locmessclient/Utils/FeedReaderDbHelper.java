@@ -11,6 +11,9 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.MessageDigest;
@@ -539,7 +542,9 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
                 cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MULE_MESSAGE_COLUMN_PUBLISHER)),
                 cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MULE_MESSAGE_COLUMN_LOCATION)),
                 isCentralized,
-                false
+                false,
+                null,
+                null
         );
     }
 
@@ -604,6 +609,18 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
     }
 
     public void insertMessageFromServer(Message message) {
+
+        Gson gson = new Gson();
+        JSONObject jsonObject = null;
+        try {
+            jsonObject = new JSONObject(gson.toJson(message));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        Log.d("DBHelper: ", "inserting message from server -> "+jsonObject.toString());
+
+
+
         insertMessageFromServer(
                 message.getUUID().toString(),
                 message.getCreationTime(),
@@ -619,7 +636,6 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
     public void insertMessageFromServer (String uuid, long creationTime, long startTime, long endTime, String content, String publisher, String location, boolean isCentralized, boolean isNearby) {
         SQLiteDatabase db = this.getWritableDatabase();
-
 
         ContentValues contentValues = new ContentValues();
         contentValues.put(FeedEntry.MESSAGE_COLUMN_UUID, uuid);
@@ -690,6 +706,8 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
     }
 
     public List<Message> getMessagesFromUser(String publisher) throws PublisherNotFoundException {
+        Log.d("DBHelper: ", "obtaining messages from username = " +publisher);
+
         ArrayList<Message> messages = new ArrayList<Message>();
 
         SQLiteDatabase db = this.getReadableDatabase();
@@ -734,6 +752,32 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
                 projection,                               // The columns to return
                 null,                                     // The columns for the WHERE clause
                 null,                                     // The values for the WHERE clause
+                null,                                     // don't group the rows
+                null,                                     // don't filter by row groups
+                null                                   // The sort order
+        );
+
+        cursor.moveToFirst();
+
+        while(cursor.isAfterLast() == false){
+            messages.add(associateMessage(cursor));
+            cursor.moveToNext();
+        }
+        return messages;
+    }
+
+    public ArrayList<Message> getAllNearbyMessages() {
+        ArrayList<Message> messages = new ArrayList<Message>();
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String[] projection = makeDefaultMessageProjection();
+
+        Cursor cursor = db.query(
+                FeedEntry.MESSAGE_TABLE_NAME,            // The table to query
+                projection,                               // The columns to return
+                FeedEntry.MESSAGE_COLUMN_NEARBY+ " = ? ",                                     // The columns for the WHERE clause
+                new String[]{"true"},                                     // The values for the WHERE clause
                 null,                                     // don't group the rows
                 null,                                     // don't filter by row groups
                 null                                   // The sort order
@@ -891,7 +935,9 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
                 cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_PUBLISHER)),
                 cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_LOCATION)),
                 isCentralized,
-                isNearby
+                isNearby,
+                null,
+                null
         );
     }
 
