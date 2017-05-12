@@ -12,6 +12,8 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Switch;
 import android.widget.Toast;
 
@@ -24,9 +26,12 @@ import java.util.regex.Pattern;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.OperationStatus;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Profile;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.ServicesDataHolder;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnResponseListener;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderDbHelper;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.Model;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.MyAdapter;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServerActions;
 
 public class MessagePolicyActivity extends AppCompatActivity implements OnResponseListener<OperationStatus>{
@@ -41,12 +46,21 @@ public class MessagePolicyActivity extends AppCompatActivity implements OnRespon
 
     private EditText mKey;
     private EditText mValue;
-    private Switch mSwitch;
     private Button mAdd;
-    private ListView mWhite;
-    private ListView mBlack;
     private Button mFinish;
     Activity activity;
+
+
+    ListView mListView;
+    ArrayAdapter<Model> adapter;
+    List<String> whiteList;
+    List<String> blackList;
+    List<Model> list = new ArrayList<Model>();
+
+    private RadioGroup radioCcToGroup;
+    private RadioButton radioTypeButton;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,25 +68,23 @@ public class MessagePolicyActivity extends AppCompatActivity implements OnRespon
         setContentView(R.layout.activity_message_policy);
 
         getExtrasIntent(getIntent());
+        adapter = new MyAdapter(this, getModel());
+
 
         activity = this;
 
         mKey = (EditText) findViewById(R.id.message_profile_key);
         mValue = (EditText) findViewById(R.id.message_profile_value);
-        mSwitch = (Switch) findViewById(R.id.message_profile_toggle);
         mAdd = (Button) findViewById(R.id.message_profile_button_add);
-        mWhite = (ListView) findViewById(R.id.message_profile_white_list);
-        mBlack = (ListView) findViewById(R.id.message_profile_black_list);
         mFinish = (Button) findViewById(R.id.message_profile_button_finish);
+        mListView = (ListView) findViewById(R.id.message_profiles_list);
+
+        mListView.setAdapter(adapter);
+
 
         final List<String> whiteList = new ArrayList<>();
         final List<String> blackList = new ArrayList<>();
 
-        final ArrayAdapter<String> adapterWhite = new ArrayAdapter<String>(activity,android.R.layout.simple_dropdown_item_1line,whiteList);
-        final ArrayAdapter<String> adapterBlack = new ArrayAdapter<String>(activity,android.R.layout.simple_dropdown_item_1line,blackList);
-
-        mBlack.setAdapter(adapterBlack);
-        mWhite.setAdapter(adapterWhite);
 
         mAdd.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -87,6 +99,7 @@ public class MessagePolicyActivity extends AppCompatActivity implements OnRespon
 
                 String message = mKey.getText().toString() + " -> " + mValue.getText().toString();
 
+                /*
                 if(mSwitch.isChecked()){
                     blackList.add(message);
                     adapterBlack.notifyDataSetChanged();
@@ -94,6 +107,7 @@ public class MessagePolicyActivity extends AppCompatActivity implements OnRespon
                     whiteList.add(message);
                     adapterWhite.notifyDataSetChanged();
                 }
+                */
 
                 Log.d("TAG", message);
 
@@ -105,6 +119,11 @@ public class MessagePolicyActivity extends AppCompatActivity implements OnRespon
         mFinish.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+
+                fillBlackAndWhiteLists();
+
+
                 Message message = new Message();
                 message.setContent(mMessageContent);
                 Calendar c = Calendar.getInstance();
@@ -127,6 +146,46 @@ public class MessagePolicyActivity extends AppCompatActivity implements OnRespon
                 finish();
             }
         });
+    }
+
+    private void fillBlackAndWhiteLists() {
+        whiteList.clear();
+        blackList.clear();
+
+        for (int i = 0; i < list.size(); i++) {
+            if (adapter.getItem(i).isSelected()) {
+                if (list.get(i).isCcOrIsTo()) {
+                    whiteList.add(list.get(i).getName());
+                } else {
+                    blackList.add(list.get(i).getName());
+                }
+            }
+        }
+
+        Log.i("o", "WHITE");
+        for (String s : whiteList) {
+            Log.i("o", s);
+        }
+
+        Log.i("o", "BLACK");
+        for (String s : blackList) {
+            Log.i("o", s);
+        }
+    }
+
+    private List<Model> getModel() {
+        list.add(new Model("Linux"));
+        list.add(new Model("Windows7"));
+        list.add(new Model("Suse"));
+        list.add(new Model("Eclipse"));
+        list.add(new Model("Ubuntu"));
+        list.add(new Model("Solaris"));
+        list.add(new Model("Android"));
+        list.add(new Model("iPhone"));
+        list.add(new Model("Java"));
+        list.add(new Model(".Net"));
+        list.add(new Model("PHP"));
+        return list;
     }
 
 
