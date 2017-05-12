@@ -431,15 +431,15 @@ public class ServerActions {
 
     public void removeMessage( MessageServer m,OnResponseListener listener){
         String url = endpoint+"/message/delete";
-        try{
-            Gson gson = new Gson();
-            JSONObject jsonObject = new JSONObject(gson.toJson(m));
-            Log.d(TAG, "removeMessage:"+jsonObject.toString());
-            makeAuthenticatedRequest(Request.Method.PUT,url,jsonObject,listener);
-
-        }catch (JSONException e){
+        try {
+            url += "?id="+URLEncoder.encode(m.getId().toString(),"UTF-8");
+            Log.d(TAG, "removeMessage:"+m.getId());
+            makeAuthenticatedRequest(Request.Method.PUT,url,null,listener);
+        } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
+
+
     }
 
     public void removeLocation(String name,OnResponseListener listener){
