@@ -24,6 +24,7 @@ import java.util.List;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.HashResult;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.LocationQuery;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.MessageServer;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.OperationStatus;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
@@ -36,7 +37,7 @@ import static android.content.ContentValues.TAG;
  * Created by trosado on 31/03/17.
  */
 public class ServerActions {
-    private final static  String addr = "193.136.167.169";
+    private final static  String addr = "193.136.167.2";
     private final static String port = "8080";
     private final static String endpoint = "http://"+addr+":"+port+"/api";
     private static RequestQueue queue;
@@ -254,8 +255,10 @@ public class ServerActions {
                             JSONObject obj = response.getJSONObject(i);
                             Gson gson = new Gson();
                             Log.d(TAG, "onResponse: "+obj.toString());
-                            Message msg = gson.fromJson(obj.toString(),Message.class);
-                            messages.add(msg);
+                            MessageServer msg = gson.fromJson(obj.toString(),MessageServer.class);
+
+                            Message m = new Message(msg.getId(),msg.getCreationTime(), msg.getStartTime(),msg.getEndTime(),msg.getContent(),msg.getPublisher(),msg.getLocation(),true,true);
+                            messages.add(m);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }

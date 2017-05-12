@@ -19,7 +19,7 @@ public class ServicesDataHolder {
     private Float latitude;
 
     //FIXME -> retirar e fazer como deve ser
-    private String username = "tiagu";
+    private String username = "test";
 
     private AbstractMap<UUID,Message> messageMap; //FIXME may not be needed
     private List<Location> nearLocations;

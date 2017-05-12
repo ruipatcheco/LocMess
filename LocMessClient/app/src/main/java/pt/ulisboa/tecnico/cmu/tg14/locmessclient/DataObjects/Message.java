@@ -17,13 +17,14 @@ public class Message {
     private String publisher;
     private String location;
     private boolean isCentralized;
+    private boolean isNearby;
     List<Profile> whiteList;
     List<Profile> blackList;
 
 
     public Message(){}
 
-    public Message(UUID id, long creationTime, long startTime, long endTime, String content, String publisher, String location, boolean isCentralized) {
+    public Message(UUID id, long creationTime, long startTime, long endTime, String content, String publisher, String location, boolean isCentralized, boolean isNearby) {
         this.id = id;
         this.creationTime = creationTime;
         this.startTime = startTime;
@@ -32,6 +33,15 @@ public class Message {
         this.publisher = publisher;
         this.location = location;
         this.isCentralized = isCentralized;
+        this.isNearby = isNearby;
+    }
+
+    public boolean isNearby() {
+        return isNearby;
+    }
+
+    public void setNearby(boolean nearby) {
+        isNearby = nearby;
     }
 
     public boolean isCentralized() {

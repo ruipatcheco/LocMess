@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.support.annotation.StringDef;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -13,7 +12,6 @@ import com.google.gson.Gson;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -80,7 +78,10 @@ public class DBService extends Service implements OnResponseListener<String> {
             dbHelper.deleteAllProfiles();
 
             //OBTAIN OLDER PROFILES
-            getAndInsertAllProfileKeys();
+            getAndInsertOldProfileKeys();
+
+            //OBTAIN OLDER MESSAGES
+            getAndInsertOldMessages();
 
         }
 
@@ -136,7 +137,7 @@ public class DBService extends Service implements OnResponseListener<String> {
                     boolean isUpdated = checkDBEqualToServerDB();
 
                     if(!isUpdated){
-                        Log.d("DBService", "Localmessages DB differs from server's, clearing local DB");
+                        Log.d("DBService", "Local Locations DB differs from server's, clearing local DB");
 
                         dbHelper.deleteAllLocations();
                         getAndInsertAllLocations();
@@ -151,6 +152,25 @@ public class DBService extends Service implements OnResponseListener<String> {
 
         handler.postDelayed(runnable, 2000);
 
+    }
+
+    private void getAndInsertOldMessages() {
+        ArrayList<Message> result = new ArrayList<>();
+        /*
+        serverActions.getMyMessages(new OnResponseListener<List<Profile>>() {
+
+            @Override
+            public void onHTTPResponse(List<Profile> response) {
+                HashMap<String,String> profiles = new HashMap<String, String>();
+                for(Profile p : response){
+                    profiles.put(p.getKey(),p.getValue());
+                }
+                Log.d("DBService", "Adding old profile keys -> "+profiles.size());
+
+                dbHelper.insertAllProfilesFromServer(profiles);
+            }
+        });
+        */
     }
 
 
@@ -195,8 +215,7 @@ public class DBService extends Service implements OnResponseListener<String> {
     }
 
 
-    private void getAndInsertAllProfileKeys() {
-        String username = dataHolder.getUsername();
+    private void getAndInsertOldProfileKeys() {
         serverActions.getMyProfileKeys(new OnResponseListener<List<Profile>>() {
 
             @Override
@@ -233,6 +252,8 @@ public class DBService extends Service implements OnResponseListener<String> {
         List<Location>  locations = dataHolder.getNearLocations();
 
         ArrayList<Message> offlineInsertedMessages = dbHelper.getAllMessagesAddedWhileDecentralized();
+        Log.d("DBService", "offline inserted messages -> " + offlineInsertedMessages.size());
+
 
         if(offlineInsertedMessages.size()!=0){
             insertMessagesToServer(offlineInsertedMessages);
@@ -243,17 +264,22 @@ public class DBService extends Service implements OnResponseListener<String> {
         if(offlineDeletedMessages.size()!=0){
             deleteMessagesFromServer(offlineDeletedMessages);
         }
+        Log.d("DBService", "offline deleted messages -> " + offlineDeletedMessages.size());
+
 
         for(Location location: locations){
+            Log.d("DBService", "searching for messages on location -> " + location.getName());
+
             serverActions.getMessagesFromLocation(location, new OnResponseListener<List<Message>>() {
                 @Override
                 public void onHTTPResponse(List<Message> response) {
 
-                    dbHelper.deleteAllMessagesExceptMyOwnAndCentralized();
-                    dbHelper.insertAllMessages(response);
+                    dbHelper.deleteAllNearbyMessages();
 
+                    Gson gson = new Gson();
                     for(Message m : response){
-                        Log.d("DBService", "added nearby message" + m.getUUID());
+                        Log.d("DBService", "added nearby message " + gson.toJson(m));
+                        dbHelper.insertMessageFromServer(m);
                     }
 
                 }
