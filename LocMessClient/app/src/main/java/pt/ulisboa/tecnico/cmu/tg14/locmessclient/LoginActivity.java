@@ -32,6 +32,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -344,9 +345,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                             servicesDataHolder.setPassword(mPassword);
                             Intent intent = new Intent(mActivity,MainActivity.class);
                             startActivity(intent);
-                            finish();
-                        }
 
+                        }else {
+                            Intent intent = new Intent(mActivity,LoginActivity.class);
+                            Toast.makeText(mActivity, "Wrong credentials", Toast.LENGTH_SHORT).show();
+                            startActivity(intent);
+                        }
+                        finish();
                     }
                 });
                 Thread.sleep(2000);
