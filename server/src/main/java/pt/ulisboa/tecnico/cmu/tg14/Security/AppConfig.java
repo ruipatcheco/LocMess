@@ -50,5 +50,9 @@ public class AppConfig {
         return new ProfileImpl();
     }
 
+    @Bean
+    public MessageKeysImpl messageKeysImpl(){
+        return new MessageKeysImpl();
+    }
 
 }

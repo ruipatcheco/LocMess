@@ -42,15 +42,16 @@ public class LocationController {
     @ResponseBody
     public OperationStatus createLocation(@RequestBody LocationMover locationMover){
             //@RequestParam(value="name") String name,@RequestParam(value="ssid",required = false) String ssid,@RequestParam(value="ble",required = false) String ble,@RequestParam(value="lat",required = false) Float lat,@RequestParam(value="lon",required = false) Float lon,@RequestParam(value="radius",required = false) Integer radius){
-        UUID cid = null;
         Double lat = locationMover.getLatitude();
         Double lon = locationMover.getLongitude();
         Integer radius = locationMover.getRadius();
+
+        locationImpl.create(locationMover.getName(),locationMover.getSsid(),locationMover.getBle());
+
         if(lat!=0&&lon!=0&&radius!=0){
             CoordinatesImpl coord = (CoordinatesImpl) context.getBean("coordinatesImpl");
-            cid = coord.create(lat,lon,radius);
+            coord.create(locationMover.getName(),lat,lon,radius);
         }
-        locationImpl.create(locationMover.getName(),locationMover.getSsid(),locationMover.getBle(),cid);
         OperationStatus status = new OperationStatus();
         status.setOK();
         return status;
@@ -99,7 +100,7 @@ public class LocationController {
         UUID coordID = location.getCoordinates();
         Coordinates coord = null;
         if(coordID != null){
-            coord = coordinatesImpl.getCoordinates(coordID);
+            coord = coordinatesImpl.getCoordinates(location.getName());
             return new LocationMover(location.getName(),location.getSsid()
                     ,location.getBle(),coord.getLatitude()
                     ,coord.getLongitude(),coord.getRadius());
