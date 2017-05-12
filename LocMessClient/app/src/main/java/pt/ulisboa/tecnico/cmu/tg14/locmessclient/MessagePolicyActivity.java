@@ -25,6 +25,7 @@ import java.util.regex.Pattern;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.OperationStatus;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Profile;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.ServicesDataHolder;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnResponseListener;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderDbHelper;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.Model;
@@ -124,12 +125,12 @@ public class MessagePolicyActivity extends AppCompatActivity implements OnRespon
                 message.setUUID(UUID.randomUUID());
                 message.setStartTime(Long.valueOf(mStartTime));
                 message.setEndTime(Long.valueOf(mEndTime));
-                message.setPublisher("tiago"); //TODO to remove
+                message.setPublisher(ServicesDataHolder.getInstance().getUsername());
                 message.setLocation(mID);
                 message.setCentralized(!mIsDecentralized);
                 message.setNearby(false);
                 message.setWhiteList(whiteList);
-                message.setblackList(blackList);
+                message.setBlackList(blackList);
 
                 FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(activity);
                 dbHelper.insertMessage(message);
