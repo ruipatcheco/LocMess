@@ -1,7 +1,7 @@
 package pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils;
 
-import android.app.DownloadManager;
 import android.content.Context;
+import android.util.Base64;
 import android.util.Log;
 
 import com.android.volley.Request;
@@ -10,12 +10,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,20 +36,22 @@ import static android.content.ContentValues.TAG;
  * Created by trosado on 31/03/17.
  */
 public class ServerActions {
-    private final static  String addr = "193.136.167.2";
+    private final static  String addr = "193.136.167.169";
     private final static String port = "8080";
-    private final static String endpoint = "http://"+addr+":"+port;
+    private final static String endpoint = "http://"+addr+":"+port+"/api";
     private static RequestQueue queue;
+    //FIXME to remove
+    private final static String username = "test";
+    private final static String password = "test";
+    //FIXME to remove
 
     public ServerActions(Context context) {
         queue = Volley.newRequestQueue(context);
     }
 
-    private void makeSimpleRequest(int method, String url, JSONObject jsonObject, final OnResponseListener listener){
-        JsonObjectRequest request = new JsonObjectRequest(method,url,jsonObject,new Response.Listener<JSONObject>() {
+    private void makeAuthenticatedRequest(int method, String url, JSONObject jsonObject, final OnResponseListener listener){
 
-
-            @Override
+        JsonObjectAuthenticatedRequest request = new JsonObjectAuthenticatedRequest(method,url,username,password,jsonObject,new Response.Listener<JSONObject>() {            @Override
             public void onResponse(JSONObject response) {
                 Gson gson = new Gson();
                 Log.d(TAG, "onResponse: " + response.toString());
@@ -78,7 +76,7 @@ public class ServerActions {
             Gson gson = new Gson();
             JSONObject jsonObject = new JSONObject(gson.toJson(p));
             Log.d(TAG, "createProfile:"+jsonObject.toString());
-            makeSimpleRequest(Request.Method.PUT,url,jsonObject,listener);
+            makeAuthenticatedRequest(Request.Method.PUT,url,jsonObject,listener);
 
         }catch (JSONException e){
             e.printStackTrace();
@@ -93,7 +91,7 @@ public class ServerActions {
             Gson gson = new Gson();
             JSONObject jsonObject = new JSONObject(gson.toJson(p));
             Log.d(TAG, "removeProfile:"+jsonObject.toString());
-            makeSimpleRequest(Request.Method.PUT,url,jsonObject,listener);
+            makeAuthenticatedRequest(Request.Method.PUT,url,jsonObject,listener);
 
         }catch (JSONException e){
             e.printStackTrace();
@@ -104,7 +102,7 @@ public class ServerActions {
         String url = endpoint + "/profile/listAll";
 
         final List<Profile> profiles = new ArrayList<>();
-        JsonArrayRequest stringRequest = new JsonArrayRequest(url, new Response.Listener<JSONArray>() {
+        JsonArrayAuthenticatedRequest stringRequest = new JsonArrayAuthenticatedRequest(url,username,password, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
                 for(int i = 0;i<response.length();i++){
@@ -135,6 +133,25 @@ public class ServerActions {
         return profiles;
     }
 
+    private void makeSimpleRequest(int method, String url, JSONObject jsonObject, final OnResponseListener listener){
+        JsonObjectRequest request = new JsonObjectRequest(method,url,jsonObject,new Response.Listener<JSONObject>() {            @Override
+        public void onResponse(JSONObject response) {
+            Gson gson = new Gson();
+            Log.d(TAG, "onResponse: " + response.toString());
+            OperationStatus statusResponse = gson.fromJson(response.toString(), OperationStatus.class);
+            listener.onHTTPResponse(statusResponse);
+        }
+        },new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e(TAG, "onErrorResponse: ",error);
+            }
+        });
+
+        queue.add(request);
+
+    }
+
     public void createUser(String username,String password,final OnResponseListener listener){
         String url = endpoint +"/user/create";
 
@@ -162,7 +179,7 @@ public class ServerActions {
             jsonObject.accumulate("username",username);
             jsonObject.accumulate("password",password);
 
-            makeSimpleRequest(Request.Method.PUT,url,jsonObject,listener);
+            makeAuthenticatedRequest(Request.Method.PUT,url,jsonObject,listener);
 
         }catch (JSONException e){
             e.printStackTrace();
@@ -175,8 +192,11 @@ public class ServerActions {
         try{
             Gson gson = new Gson();
             JSONObject jsonObject = new JSONObject(gson.toJson(location));
+
             Log.d(TAG, "createLocation:"+jsonObject.toString());
-            makeSimpleRequest(Request.Method.PUT,url,jsonObject,listener);
+
+            makeAuthenticatedRequest(Request.Method.PUT,url,jsonObject,listener);
+
 
         }catch (JSONException e){
             e.printStackTrace();
@@ -191,7 +211,7 @@ public class ServerActions {
         try {
             JSONObject jsonObject = new JSONObject(gson.toJson(location));
 
-            JsonArrayFromJsonObjectRequest request = new JsonArrayFromJsonObjectRequest(Request.Method.POST,url,jsonObject,null, new Response.Listener<JSONArray>() {
+            JsonArrayFromJsonObjectAuthenticatedRequest request = new JsonArrayFromJsonObjectAuthenticatedRequest(Request.Method.POST,url,username,password,jsonObject,null, new Response.Listener<JSONArray>() {
                 @Override
                 public void onResponse(JSONArray response) {
                     for(int i = 0;i<response.length();i++){
@@ -232,7 +252,7 @@ public class ServerActions {
         String url = endpoint + "/location/list";
 
         final List<Location> locations = new ArrayList<>();
-        JsonArrayRequest stringRequest = new JsonArrayRequest(url, new Response.Listener<JSONArray>() {
+        JsonArrayAuthenticatedRequest stringRequest = new JsonArrayAuthenticatedRequest(url,username,password, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
                 for(int i = 0;i<response.length();i++){
@@ -265,7 +285,7 @@ public class ServerActions {
 
     public void getListLocationHash(final OnResponseListener<String> listener){
         String url = endpoint + "/location/list/hash";
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET,url,null,new Response.Listener<JSONObject>() {
+        JsonObjectAuthenticatedRequest request = new JsonObjectAuthenticatedRequest(Request.Method.GET,url,username,password,null,new Response.Listener<JSONObject>() {
 
 
             @Override
@@ -293,7 +313,7 @@ public class ServerActions {
 
         final List<Location> locations = new ArrayList<>();
         Log.d(TAG, "request: "+query.toJSON());
-        JsonArrayFromJsonObjectRequest request = new JsonArrayFromJsonObjectRequest(Request.Method.POST,url,query.toJSON(),null, new Response.Listener<JSONArray>() {
+        JsonArrayFromJsonObjectAuthenticatedRequest request = new JsonArrayFromJsonObjectAuthenticatedRequest(Request.Method.POST,url,username,password,query.toJSON(),null, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
                 for(int i = 0;i<response.length();i++){
@@ -332,7 +352,7 @@ public class ServerActions {
             Gson  gson = new Gson();
             JSONObject jsonObject = new JSONObject(gson.toJson(message));
             Log.d(TAG, "createMessage: "+jsonObject);
-            makeSimpleRequest(Request.Method.PUT,url,jsonObject,listener);
+            makeAuthenticatedRequest(Request.Method.PUT,url,jsonObject,listener);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -355,7 +375,7 @@ public class ServerActions {
         try {
             String url = endpoint+"/location/delete";
             url+="?name="+URLEncoder.encode(name,"UTF-8");
-            makeSimpleRequest(Request.Method.DELETE, url, null, listener);
+            makeAuthenticatedRequest(Request.Method.DELETE, url, null, listener);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }

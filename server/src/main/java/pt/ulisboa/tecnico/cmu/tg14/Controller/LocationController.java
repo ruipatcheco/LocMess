@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
  * Created by trosado on 20/03/17.
  */
 @RestController
-@RequestMapping("/location")
+@RequestMapping("/api/location")
 public class LocationController {
 
     ApplicationContext context =
@@ -58,8 +58,6 @@ public class LocationController {
 
     @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
     public OperationStatus deleteLocation(@RequestParam String name){
-        //TODO
-
         locationImpl.delete(name);
         OperationStatus status = new OperationStatus();
         status.setOK();

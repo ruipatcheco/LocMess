@@ -21,5 +21,6 @@ public interface ProfileDao {
     */
    String create(String username, String key, String value);
    String delete(String username, String key);
-   List<Profile> listAll();
+   List<Profile> list();
+   List<Profile> list(String username);
 }

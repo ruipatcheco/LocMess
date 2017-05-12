@@ -26,7 +26,7 @@ public class UserImpl implements UserDao {
 
     @Override
     public void create(String username, String password) {
-        String SQL = "insert into User (username, password) values (?, ?)";
+        String SQL = "insert into Users (username, password) values (?, ?)";
         jdbcTemplateObject.update( SQL, username, password);
 
         return;
@@ -34,7 +34,7 @@ public class UserImpl implements UserDao {
 
     @Override
     public User getUser(String username) {
-        String SQL = "select * from User where username=?";
+        String SQL = "select * from Users where username=?";
         try {
             User user = jdbcTemplateObject.queryForObject(SQL,
                     new Object[]{username}, new UserMapper());
@@ -46,7 +46,7 @@ public class UserImpl implements UserDao {
 
     @Override
     public List<User> listUser() {
-        String SQL = "select * from User";
+        String SQL = "select * from Users";
         List <User> users = jdbcTemplateObject.query(SQL,
                 new UserMapper());
         return users;
@@ -54,7 +54,7 @@ public class UserImpl implements UserDao {
 
     @Override
     public void delete(String username) {
-        String SQL = "delete from User where username = ?";
+        String SQL = "delete from Users where username = ?";
         jdbcTemplateObject.update(SQL, username);
         System.out.println("Deleted user = " + username );
         return;
@@ -62,7 +62,7 @@ public class UserImpl implements UserDao {
 
     @Override
     public void update(String username, String password) {
-        String SQL = "update User set password = ? where username = ?";
+        String SQL = "update Users set password = ? where username = ?";
         jdbcTemplateObject.update(SQL, password, username);
         System.out.println("Updated Record with username = " + username);
         return;

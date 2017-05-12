@@ -2,11 +2,14 @@ package pt.ulisboa.tecnico.cmu.tg14.Controller;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import pt.ulisboa.tecnico.cmu.tg14.DTO.OperationStatus;
 import pt.ulisboa.tecnico.cmu.tg14.Implementation.UserImpl;
 import pt.ulisboa.tecnico.cmu.tg14.Model.User;
-import pt.ulisboa.tecnico.cmu.tg14.PasswordHasher;
 
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Base64;
@@ -15,7 +18,7 @@ import java.util.List;
  * Created by trosado on 20/03/17.
  */
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/api/user")
 public class UserController {
 
     ApplicationContext context =
@@ -30,27 +33,29 @@ public class UserController {
         if(userImpl.getUser(user.getUsername()) != null)
             status.setError();
         else{
-            userImpl.create(user.getUsername(),PasswordHasher.hashToString(user.getPassword()));
+            userImpl.create(user.getUsername(),passwordEncoder().encode(user.getPassword()));
             status.setOK();
         }
         return status;
     }
 
+    //FIXME to remove
     @RequestMapping("/list")
     public List<User> listUser(){
         return userImpl.listUser();
     }
 
-   /* @RequestMapping("/updatePassword")
-    public void updatePassword(@RequestParam(value="username") String username, @RequestParam(value="password") String password){
+    //FIXME change to request body
+   @RequestMapping("/updatePassword")
+   public void updatePassword(@RequestParam(value="password") String password){
+       Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+       String username = auth.getName(); //get logged in username
         userImpl.update(username,password);
-    }
+   }
 
-*/
-   /* public boolean checkPassword(@RequestParam(value="username") String username, @RequestParam(value="password") String password){
-        User u = userImpl.getUser(username);
-        return PasswordHasher.isExpectedPassword(password.toCharArray(),u.getPassword());
-    }*/
-
+   public PasswordEncoder passwordEncoder(){
+       PasswordEncoder encoder = new BCryptPasswordEncoder();
+       return encoder;
+   }
 
     }
