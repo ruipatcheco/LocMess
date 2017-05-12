@@ -938,6 +938,10 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         db.insert(FeedEntry.PROFILE_TABLE_NAME, null, contentValues);
     }
 
+    public void insertProfile(Profile profile) {
+        insertProfile(profile.getKey(), profile.getValue());
+    }
+
     public void insertProfileFromServer (String key, String value) {
         SQLiteDatabase db = this.getWritableDatabase();
 

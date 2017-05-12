@@ -6,17 +6,18 @@
         android:id="@+id/label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@+id/label"
         android:layout_toRightOf="@+id/check"
-        android:textSize="20sp" >
-    </TextView>
+        android:layout_marginTop="8dip"
+        android:gravity="center_vertical|center_horizontal"
+        android:text="@+id/label"
+        android:textSize="14sp"></TextView>
 
     <CheckBox
         android:id="@+id/check"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_marginLeft="4dip"
+        android:layout_marginLeft="15dip"
         android:layout_marginRight="10dip"
         android:focusable="false"
 
@@ -36,6 +37,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dip"
+            android:layout_marginRight="15dip"
             android:enabled="false"
             android:checked="true"/>
 
@@ -44,7 +46,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:enabled="false"
-            android:layout_marginLeft="10dip"/>
+            android:layout_marginRight="15dip"/>
     </RadioGroup>
 
 </RelativeLayout>

@@ -1,21 +1,23 @@
 package pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils;
 
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Profile;
+
 /**
  * Created by brigadinhos on 12/05/2017.
  */
 
 public class Model {
 
-    private String name;
+    private Profile profile;
     private boolean selected;
-    private boolean isCcOrIsTo;
+    private boolean isWhite;
 
-    public Model(String name) {
-        this.name = name;
+    public Model(Profile profile) {
+        this.profile = profile;
     }
 
-    public String getName() {
-        return name;
+    public Profile getProfile() {
+        return profile;
     }
 
     public boolean isSelected() {
@@ -26,19 +28,19 @@ public class Model {
         this.selected = selected;
     }
 
-    public boolean isCcOrIsTo() {
-        return isCcOrIsTo;
+    public boolean isWhite() {
+        return isWhite;
     }
 
-    public void setCcOrIsTo(boolean isCcOrIsTo) {
-        this.isCcOrIsTo = isCcOrIsTo;
+    public void setWhite(boolean isWhite) {
+        this.isWhite = isWhite;
     }
 
     @Override
     public String toString() {
         String selectedString = selected ? "selected" : "not selected";
-        String value = isCcOrIsTo ? "CC" : "To";
-        return name+" -> "+selectedString+ " with value "+value;
+        String value = isWhite ? "CC" : "To";
+        return profile.getKey() + " -> " + selectedString + " with value " + value;
     }
 
 }

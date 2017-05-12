@@ -2,7 +2,6 @@ package pt.ulisboa.tecnico.cmu.tg14.locmessclient;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,7 +13,6 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.Switch;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -27,12 +25,10 @@ import java.util.regex.Pattern;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.OperationStatus;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Profile;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.ServicesDataHolder;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnResponseListener;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderDbHelper;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.Model;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.MyAdapter;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServerActions;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Adapters.ProfileChoiceAdapter;
 
 public class MessagePolicyActivity extends AppCompatActivity implements OnResponseListener<OperationStatus>{
 
@@ -53,8 +49,8 @@ public class MessagePolicyActivity extends AppCompatActivity implements OnRespon
 
     ListView mListView;
     ArrayAdapter<Model> adapter;
-    List<String> whiteList;
-    List<String> blackList;
+    List<Profile> whiteList = new ArrayList<>();
+    List<Profile> blackList = new ArrayList<>();
     List<Model> list = new ArrayList<Model>();
 
     private RadioGroup radioCcToGroup;
@@ -68,8 +64,6 @@ public class MessagePolicyActivity extends AppCompatActivity implements OnRespon
         setContentView(R.layout.activity_message_policy);
 
         getExtrasIntent(getIntent());
-        adapter = new MyAdapter(this, getModel());
-
 
         activity = this;
 
@@ -79,11 +73,9 @@ public class MessagePolicyActivity extends AppCompatActivity implements OnRespon
         mFinish = (Button) findViewById(R.id.message_profile_button_finish);
         mListView = (ListView) findViewById(R.id.message_profiles_list);
 
+
+        adapter = new ProfileChoiceAdapter(this, getModel());
         mListView.setAdapter(adapter);
-
-
-        final List<String> whiteList = new ArrayList<>();
-        final List<String> blackList = new ArrayList<>();
 
 
         mAdd.setOnClickListener(new View.OnClickListener() {
@@ -99,15 +91,14 @@ public class MessagePolicyActivity extends AppCompatActivity implements OnRespon
 
                 String message = mKey.getText().toString() + " -> " + mValue.getText().toString();
 
-                /*
-                if(mSwitch.isChecked()){
-                    blackList.add(message);
-                    adapterBlack.notifyDataSetChanged();
-                }else {
-                    whiteList.add(message);
-                    adapterWhite.notifyDataSetChanged();
-                }
-                */
+                Profile profile = new Profile(mKey.getText().toString(), mValue.getText().toString(), "tiago");
+
+                FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(activity);
+                dbHelper.insertProfile(profile);
+
+                list.add(0, new Model(profile));
+
+                adapter.notifyDataSetChanged();
 
                 Log.d("TAG", message);
 
@@ -137,7 +128,8 @@ public class MessagePolicyActivity extends AppCompatActivity implements OnRespon
                 message.setLocation(mID);
                 message.setCentralized(!mIsDecentralized);
                 message.setNearby(false);
-
+                message.setWhiteList(whiteList);
+                message.setblackList(blackList);
 
                 FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(activity);
                 dbHelper.insertMessage(message);
@@ -154,37 +146,37 @@ public class MessagePolicyActivity extends AppCompatActivity implements OnRespon
 
         for (int i = 0; i < list.size(); i++) {
             if (adapter.getItem(i).isSelected()) {
-                if (list.get(i).isCcOrIsTo()) {
-                    whiteList.add(list.get(i).getName());
+                if (list.get(i).isWhite()) {
+                    whiteList.add(list.get(i).getProfile());
                 } else {
-                    blackList.add(list.get(i).getName());
+                    blackList.add(list.get(i).getProfile());
                 }
             }
         }
 
-        Log.i("o", "WHITE");
-        for (String s : whiteList) {
-            Log.i("o", s);
+        Log.i("IMPRIMIR", "IMPRIMIR WHITE");
+        for (Profile s : whiteList) {
+            Log.i("IMPRIMIR", s.getKey());
         }
 
-        Log.i("o", "BLACK");
-        for (String s : blackList) {
-            Log.i("o", s);
+        Log.i("IMPRIMIR", "IMPRIMIR BLACK");
+        for (Profile s : blackList) {
+            Log.i("IMPRIMIR", s.getKey());
         }
     }
 
     private List<Model> getModel() {
-        list.add(new Model("Linux"));
-        list.add(new Model("Windows7"));
-        list.add(new Model("Suse"));
-        list.add(new Model("Eclipse"));
-        list.add(new Model("Ubuntu"));
-        list.add(new Model("Solaris"));
-        list.add(new Model("Android"));
-        list.add(new Model("iPhone"));
-        list.add(new Model("Java"));
-        list.add(new Model(".Net"));
-        list.add(new Model("PHP"));
+        list.add(new Model(new Profile("Linux", "value", "tiago")));
+        list.add(new Model(new Profile("Windows7", "value", "tiago")));
+        list.add(new Model(new Profile("Suse", "value", "tiago")));
+        list.add(new Model(new Profile("Eclipse", "value", "tiago")));
+        list.add(new Model(new Profile("Ubuntu", "value", "tiago")));
+        list.add(new Model(new Profile("Solaris", "value", "tiago")));
+        list.add(new Model(new Profile("Android", "value", "tiago")));
+        list.add(new Model(new Profile("iPhone", "value", "tiago")));
+        list.add(new Model(new Profile("Java", "value", "tiago")));
+        list.add(new Model(new Profile(".Net", "value", "tiago")));
+        list.add(new Model(new Profile("PHP", "value", "tiago")));
         return list;
     }
 

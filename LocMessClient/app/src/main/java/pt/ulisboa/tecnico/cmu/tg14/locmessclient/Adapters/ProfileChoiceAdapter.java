@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils;
+package pt.ulisboa.tecnico.cmu.tg14.locmessclient.Adapters;
 
 
 import android.app.Activity;
@@ -13,14 +13,16 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Profile;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.R;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.Model;
 
 /**
  * Created by brigadinhos on 12/05/2017.
  */
 
 
-public class MyAdapter extends ArrayAdapter<Model> {
+public class ProfileChoiceAdapter extends ArrayAdapter<Model> {
 
     private class ViewHolder {
         protected TextView text;
@@ -34,7 +36,7 @@ public class MyAdapter extends ArrayAdapter<Model> {
     boolean checkAll_flag = false;
     boolean checkItem_flag = false;
 
-    public MyAdapter(Activity context, List<Model> list) {
+    public ProfileChoiceAdapter(Activity context, List<Model> list) {
         super(context, R.layout.row, list);
         this.context = context;
         this.list = list;
@@ -60,7 +62,9 @@ public class MyAdapter extends ArrayAdapter<Model> {
             viewHolder = (ViewHolder) convertView.getTag();
         }
 
-        viewHolder.text.setText(list.get(position).getName());
+        Profile profile = list.get(position).getProfile();
+
+        viewHolder.text.setText(profile.getKey() + " -> " + profile.getValue());
         viewHolder.checkbox.setChecked(list.get(position).isSelected());
         final ViewHolder finalViewHolder = viewHolder;
         viewHolder.checkbox.setOnClickListener(new View.OnClickListener() {
@@ -81,9 +85,9 @@ public class MyAdapter extends ArrayAdapter<Model> {
 
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
-                boolean isCcOrIsTo = (checkedId == R.id.cc);
+                boolean isWhite = (checkedId == R.id.cc);
                 int getPosition = (Integer) group.getTag();
-                list.get(getPosition).setCcOrIsTo(isCcOrIsTo);
+                list.get(getPosition).setWhite(isWhite);
             }
         });
 
