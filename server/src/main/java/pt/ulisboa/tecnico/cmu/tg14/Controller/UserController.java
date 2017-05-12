@@ -45,6 +45,7 @@ public class UserController {
         return userImpl.listUser();
     }
 
+    //FIXME change to request body
    @RequestMapping("/updatePassword")
    public void updatePassword(@RequestParam(value="password") String password){
        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
