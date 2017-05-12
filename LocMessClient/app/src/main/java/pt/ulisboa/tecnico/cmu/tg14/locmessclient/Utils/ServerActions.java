@@ -338,6 +338,19 @@ public class ServerActions {
         }
     }
 
+    public void removeMessage( Message m,OnResponseListener listener){
+        String url = endpoint+"/message/delete";
+        try{
+            Gson gson = new Gson();
+            JSONObject jsonObject = new JSONObject(gson.toJson(m));
+            Log.d(TAG, "removeMessage:"+jsonObject.toString());
+            makeSimpleRequest(Request.Method.PUT,url,jsonObject,listener);
+
+        }catch (JSONException e){
+            e.printStackTrace();
+        }
+    }
+
     public void removeLocation(String name,OnResponseListener listener){
         try {
             String url = endpoint+"/location/delete";

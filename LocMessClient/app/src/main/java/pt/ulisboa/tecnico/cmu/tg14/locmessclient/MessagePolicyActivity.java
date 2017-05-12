@@ -124,6 +124,7 @@ public class MessagePolicyActivity extends AppCompatActivity implements OnRespon
                 FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(activity);
                 dbHelper.insertMessage(message);
 
+
                 finish();
             }
         });

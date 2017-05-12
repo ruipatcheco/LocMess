@@ -47,7 +47,7 @@ public class MessageController {
         return status;
     }
 
-    @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/delete", method = RequestMethod.PUT)
     public OperationStatus delete(@RequestParam(value = "id") String id){
         OperationStatus status = new OperationStatus();
         messageImpl.delete(UUID.fromString(id));
