@@ -20,5 +20,5 @@ public class OperationStatus {
 
     public String getStatus(){
         return status;
-    };
+    }
 }
