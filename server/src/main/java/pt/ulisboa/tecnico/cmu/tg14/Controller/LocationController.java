@@ -73,7 +73,7 @@ public class LocationController {
     @RequestMapping(value = "/nearbyLocations", method = RequestMethod.POST)
     public List<LocationMover> getNearByLocations(@RequestBody LocationQuery queryString){
         List<Location> locations = new ArrayList<>();
-        locations.addAll(locationImpl.getLocationByBle(queryString.getBleList()));
+//        locations.addAll(locationImpl.getLocationByBle(queryString.getBleList()));
         locations.addAll(locationImpl.getLocationBySSID(queryString.getSsidList()));
         locations.removeAll(Collections.singleton(null)); // remove null results
 
