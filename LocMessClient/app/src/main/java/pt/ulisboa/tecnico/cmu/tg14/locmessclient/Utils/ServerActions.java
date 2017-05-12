@@ -34,6 +34,7 @@ import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.OperationStatus;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Profile;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.ServicesDataHolder;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnResponseListener;
 
 import static android.content.ContentValues.TAG;
@@ -47,12 +48,15 @@ public class ServerActions {
     private final static String endpoint = "http://"+addr+":"+port+"/api";
     private static RequestQueue queue;
     //FIXME to remove
-    private final static String username = "test";
-    private final static String password = "test";
+    private static String username = "";
+    private static String password = "";
     //FIXME to remove
 
     public ServerActions(Context context) {
         queue = Volley.newRequestQueue(context);
+        ServicesDataHolder dataHolder = ServicesDataHolder.getInstance();
+        username = dataHolder.getUsername();
+        password = dataHolder.getPassword();
     }
 
     private void makeAuthenticatedRequest(int method, String url, JSONObject jsonObject, final OnResponseListener listener){

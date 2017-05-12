@@ -6,6 +6,7 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Credentials;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -332,13 +333,20 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             try {
 
                // Simulate network access.
-               ServerActions serverActions = new ServerActions(mActivity);
+               final ServerActions serverActions = new ServerActions(mActivity);
                serverActions.goodLogin(mUsername, mPassword, new OnResponseListener<Boolean>() {
                     @Override
                     public void onHTTPResponse(Boolean response) {
-                        //FIXME
-                        //returns true if login is successful
-                        Log.d(TAG,"Tata:"+response);
+
+                        if(response){
+                            ServicesDataHolder servicesDataHolder = ServicesDataHolder.getInstance();
+                            servicesDataHolder.setUsername(mUsername);
+                            servicesDataHolder.setPassword(mPassword);
+                            Intent intent = new Intent(mActivity,MainActivity.class);
+                            startActivity(intent);
+                            finish();
+                        }
+
                     }
                 });
                 Thread.sleep(2000);
