@@ -9,6 +9,11 @@ public class Profile {
     private String value;
     private String username;
 
+    public Profile(String key, String value) {
+        this.key = key;
+        this.value = value;
+    }
+
     public Profile(String key, String value, String username) {
         this.key = key;
         this.value = value;

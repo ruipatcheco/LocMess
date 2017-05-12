@@ -11,6 +11,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Switch;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,7 +59,9 @@ public class MessageLocationActivity extends AppCompatActivity {
             public void onClick(View v){
                 Intent i = new Intent(activity, MessagePolicyActivity.class);
 
-                fixIDNull();
+                if (!fixIDNull()) {
+                    return;
+                }
                 putExtras(i);
                 startActivity(i);
                 finish();
@@ -67,11 +70,13 @@ public class MessageLocationActivity extends AppCompatActivity {
 
     }
 
-    private void fixIDNull() {
+    private boolean fixIDNull() {
         if (locationListNames.size() < 1) {
-            mID = "";
+            Toast.makeText(activity, "Please provide location", Toast.LENGTH_SHORT).show();
+            return false;
         } else {
             mID = mLocationList.getSelectedItem().toString();
+            return true;
         }
     }
 
