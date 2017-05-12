@@ -1,25 +1,33 @@
 package pt.ulisboa.tecnico.cmu.tg14.locmessclient;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.ServicesDataHolder;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.MessageNotFoundException;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.MultipleRowsAfectedException;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.PublisherNotFoundException;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.DBService;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderDbHelper;
 
 
@@ -43,6 +51,7 @@ public class MyMessagesFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
     private List<String> messagesList;
+    private HashMap<String, String> hashAux;
     private ArrayAdapter<String> arrayAdapter;
 
     private ListView listView;
@@ -107,11 +116,74 @@ public class MyMessagesFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_my_messages, container, false);
         messagesList = new ArrayList<>();
+        hashAux = new HashMap<>();
 
         listView = (ListView) view.findViewById(R.id.list_my_messages_list);
         arrayAdapter = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1, messagesList);
 
         listView.setAdapter(arrayAdapter);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, final View view, final int position, long l) {
+                Toast.makeText(view.getContext(), "Long press to delete", Toast.LENGTH_LONG).show();
+            }
+        });
+
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, final View view, final int position, long l) {
+                final FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(getContext());
+                final String messageContent = messagesList.get(position);
+
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                        getActivity());
+
+                String aux = getResources().getString(R.string.prompt_delete_key);
+
+                alertDialogBuilder.setTitle(aux + ' ' + messageContent + '?');
+
+                // set dialog message
+                alertDialogBuilder
+                        //.setMessage("Click yes to exit!")
+                        .setCancelable(false)
+                        .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                Toast.makeText(getActivity(),"DELETE MODAFOKAAAAA!!",Toast.LENGTH_LONG).show();
+
+                                try {
+                                    dbHelper.deleteMessageInTheFuture(hashAux.get(messageContent));
+                                } catch (MessageNotFoundException e) {
+                                    e.printStackTrace();
+                                } catch (MultipleRowsAfectedException e) {
+                                    e.printStackTrace();
+                                }
+
+                                hashAux.remove(messageContent);
+                                messagesList.remove(position);
+                                arrayAdapter.notifyDataSetChanged();
+
+                            }
+                        })
+                        .setNegativeButton("No",new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                // if this button is clicked, just close
+                                // the dialog box and do nothing
+                                dialog.cancel();
+                            }
+                        });
+
+                // create alert dialog
+                AlertDialog alertDialog = alertDialogBuilder.create();
+
+                // show it
+                alertDialog.show();
+
+                return true;
+            }
+        });
+
+
 
         return view;
     }
@@ -190,20 +262,16 @@ public class MyMessagesFragment extends Fragment {
         protected Void doInBackground(Void... params) {
             FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(getActivity());
 
-            String username; //= ServicesDataHolder.getInstance().getUsername();
+            String username = ServicesDataHolder.getInstance().getUsername();
 
             List<Message> messagesDB;
 
-
             try {
-
-                //FIXME remove dis
-                username = "tiago";
-
 
                 messagesDB = dbHelper.getMessagesFromUser(username);
                 for(Message m: messagesDB){
                     list2update.add(m.getContent());
+                    hashAux.put(m.getContent(),m.getUUID().toString());
                     Log.d("MyMessages: ", "received message ->" + m.getUUID());
                 }
 

@@ -751,6 +751,22 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         return messages;
     }
 
+    public void deleteMessageInTheFuture(String uuid) throws MessageNotFoundException, MultipleRowsAfectedException {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        ContentValues cv = new ContentValues();
+        cv.put(FeedEntry.MESSAGE_COLUMN_DELETEDDECENTRALIZED, "true");
+
+        int result = db.update(FeedEntry.MESSAGE_TABLE_NAME, cv, FeedEntry.MESSAGE_COLUMN_UUID + " = ?", new String[] {uuid});
+
+        if (result == 0) {
+            throw new MessageNotFoundException();
+        } else if (result > 1) {
+            throw new MultipleRowsAfectedException();
+        }
+    }
+
+
     public boolean deleteAllMessagesExceptMyOwnAndCentralized() {
         SQLiteDatabase db = this.getWritableDatabase();
         String username = ServicesDataHolder.getInstance().getUsername();

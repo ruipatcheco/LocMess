@@ -197,7 +197,7 @@ public class DBService extends Service implements OnResponseListener<String> {
 
     private void getAndInsertAllProfileKeys() {
         String username = dataHolder.getUsername();
-        serverActions.getMyProfileKeys(username,new OnResponseListener<List<Profile>>() {
+        serverActions.getMyProfileKeys(new OnResponseListener<List<Profile>>() {
 
             @Override
             public void onHTTPResponse(List<Profile> response) {
@@ -227,6 +227,7 @@ public class DBService extends Service implements OnResponseListener<String> {
         }
         dataHolder.clearRemovedLocations();
     }
+
 
     private void updateMessages() {
         List<Location>  locations = dataHolder.getNearLocations();
