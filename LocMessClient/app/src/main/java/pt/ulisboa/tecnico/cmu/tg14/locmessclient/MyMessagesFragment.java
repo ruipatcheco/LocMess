@@ -133,7 +133,7 @@ public class MyMessagesFragment extends Fragment {
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, final View view, final int position, long l) {
-                final FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(getContext());
+                final FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(getActivity());
                 final String messageContent = messagesList.get(position);
 
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(

@@ -128,7 +128,6 @@ public class MessagePolicyActivity extends AppCompatActivity implements OnRespon
                 message.setContent(mMessageContent);
                 Calendar c = Calendar.getInstance();
                 String TAG ="";
-                //FIXME tratar disto
                 message.setCreationTime(Calendar.getInstance().getTime().getTime());
                 Log.d(TAG, "onClick: "+mStartTime);
                 message.setUUID(UUID.randomUUID());
@@ -137,6 +136,7 @@ public class MessagePolicyActivity extends AppCompatActivity implements OnRespon
                 message.setPublisher("tiago"); //TODO to remove
                 message.setLocation(mID);
                 message.setCentralized(!mIsDecentralized);
+                message.setNearby(false);
 
 
                 FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(activity);

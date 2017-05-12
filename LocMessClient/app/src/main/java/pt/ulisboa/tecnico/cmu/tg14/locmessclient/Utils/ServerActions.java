@@ -12,6 +12,7 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -24,6 +25,7 @@ import java.util.List;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.HashResult;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.LocationQuery;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.MessageServer;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.OperationStatus;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
@@ -36,7 +38,7 @@ import static android.content.ContentValues.TAG;
  * Created by trosado on 31/03/17.
  */
 public class ServerActions {
-    private final static  String addr = "193.136.167.169";
+    private final static  String addr = "193.136.167.2";
     private final static String port = "8080";
     private final static String endpoint = "http://"+addr+":"+port+"/api";
     private static RequestQueue queue;
@@ -238,6 +240,38 @@ public class ServerActions {
         }
     }
 
+    public  void getMyMessages(final OnResponseListener listener){
+        String url = endpoint+"/message/myMessages";
+
+        final List<Message> messages = new ArrayList<>();
+        final Gson gson = new Gson();
+
+        JsonArrayAuthenticatedRequest request = new JsonArrayAuthenticatedRequest(url, username, password
+                , new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
+                for(int i = 0;i<response.length();i++){
+                    try {
+                        JSONObject obj = response.getJSONObject(i);
+
+                        Message message = gson.fromJson(obj.toString(),Message.class);
+                        messages.add(message);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e(TAG, "onErrorResponse: ", error);
+            }
+        });
+
+        queue.add(request);
+    }
+
+
     public static List<Message> getMessagesFromLocation(Location location, final OnResponseListener listener){
         String url = endpoint+"/message/getMessagesByLocation";
 
@@ -254,8 +288,10 @@ public class ServerActions {
                             JSONObject obj = response.getJSONObject(i);
                             Gson gson = new Gson();
                             Log.d(TAG, "onResponse: "+obj.toString());
-                            Message msg = gson.fromJson(obj.toString(),Message.class);
-                            messages.add(msg);
+                            MessageServer msg = gson.fromJson(obj.toString(),MessageServer.class);
+
+                            Message m = new Message(msg.getId(),msg.getCreationTime(), msg.getStartTime(),msg.getEndTime(),msg.getContent(),msg.getPublisher(),msg.getLocation(),true,true);
+                            messages.add(m);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -343,7 +379,7 @@ public class ServerActions {
     }
 
 
-    public static List<Location> getNearLocations(LocationQuery query, final OnResponseListener listener){
+    public List<Location> getNearLocations(LocationQuery query, final OnResponseListener listener){
         String url = endpoint+"/location/nearbyLocations";
 
         final List<Location> locations = new ArrayList<>();
@@ -399,7 +435,7 @@ public class ServerActions {
             Gson gson = new Gson();
             JSONObject jsonObject = new JSONObject(gson.toJson(m));
             Log.d(TAG, "removeMessage:"+jsonObject.toString());
-            makeSimpleRequest(Request.Method.PUT,url,jsonObject,listener);
+            makeAuthenticatedRequest(Request.Method.PUT,url,jsonObject,listener);
 
         }catch (JSONException e){
             e.printStackTrace();
@@ -415,7 +451,4 @@ public class ServerActions {
             e.printStackTrace();
         }
     }
-
-}
-
-
+        }

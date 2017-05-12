@@ -57,6 +57,7 @@ public final class FeedReaderContract {
         public static final String MESSAGE_COLUMN_CENTRALIZED = "centralized";
         public static final String MESSAGE_COLUMN_ADDEDDECENTRALIZED = "addedDecentralized";
         public static final String MESSAGE_COLUMN_DELETEDDECENTRALIZED= "deletedDecentralized";
+        public static final String MESSAGE_COLUMN_NEARBY= "nearby";
 
 
         public static final String PROFILE_TABLE_NAME = "PROFILE";

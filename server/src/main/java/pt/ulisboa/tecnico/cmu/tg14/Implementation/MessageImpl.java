@@ -42,18 +42,16 @@ public class MessageImpl implements MessageDao {
     */
 
     @Override
-    public void create(Timestamp startTime, Timestamp endTime, Timestamp creationTime, String content, String publisher, String location) {
+    public void create(UUID id,Timestamp startTime, Timestamp endTime, Timestamp creationTime, String content, String publisher, String location) {
         String SQL = "insert into Message (id, location, content, creationtime, starttime, endtime, publisher) values (?,?,?,?,?,?,?)";
-        String id = UUID.randomUUID().toString();
         jdbcTemplateObject.update( SQL,id,location,content,creationTime,startTime,endTime,publisher);
         return;
 
     }
 
-
-    public void create(Timestamp startTime, Timestamp creationTime, String content, String publisher, String location) {
+    @Override
+    public void create(UUID id,Timestamp startTime, Timestamp creationTime, String content, String publisher, String location) {
         String SQL = "insert into Message (id, location, content, creationtime, endtime, publisher) values (?,?,?,?,?,?)";
-        String id = UUID.randomUUID().toString();
         jdbcTemplateObject.update( SQL,id,location,content,creationTime,startTime,publisher);
         return;
 
@@ -87,6 +85,16 @@ public class MessageImpl implements MessageDao {
         List<Message> messageList = jdbcTemplateObject.query(SQL,
                 new Object[]{location}, new MessageMapper());
 
+        return messageList;
+    }
+
+    @Override
+    public List<Message> getMessagesByUsername(String username) {
+
+        String SQL = "" +
+                "select * from Message where PUBLISHER=?";
+
+        List<Message> messageList = jdbcTemplateObject.query(SQL,new Object[]{username}, new MessageMapper());
         return messageList;
     }
 
