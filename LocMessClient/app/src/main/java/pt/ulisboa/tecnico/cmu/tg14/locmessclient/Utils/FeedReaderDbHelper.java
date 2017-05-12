@@ -717,8 +717,8 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         Cursor cursor = db.query(
                 FeedEntry.MESSAGE_TABLE_NAME,                        // The table to query
                 projection,                                         // The columns to return
-                FeedEntry.MESSAGE_COLUMN_PUBLISHER + " = ?",       // The columns for the WHERE clause
-                new String[]{publisher},                          // The values for the WHERE clause
+                FeedEntry.MESSAGE_COLUMN_PUBLISHER + " = ? and "+FeedEntry.MESSAGE_COLUMN_NEARBY +" =?",       // The columns for the WHERE clause
+                new String[]{publisher, "false"},                          // The values for the WHERE clause
                 null,                                            // don't group the rows
                 null,                                           // don't filter by row groups
                 null                                           // The sort order
