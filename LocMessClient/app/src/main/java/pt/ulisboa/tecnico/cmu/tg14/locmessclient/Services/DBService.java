@@ -9,6 +9,9 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -268,6 +271,8 @@ public class DBService extends Service implements OnResponseListener<String> {
         Log.d("DBService", "offline deleted messages -> " + offlineDeletedMessages.size());
 
 
+        dbHelper.deleteAllNearbyMessages();
+
         for(Location location: locations){
             Log.d("DBService", "searching for messages on location -> " + location.getName());
 
@@ -275,17 +280,17 @@ public class DBService extends Service implements OnResponseListener<String> {
                 @Override
                 public void onHTTPResponse(List<Message> response) {
 
-                    dbHelper.deleteAllNearbyMessages();
-
                     Gson gson = new Gson();
                     for(Message m : response){
                         Log.d("DBService", "added nearby message " + gson.toJson(m));
                         dbHelper.insertMessageFromServer(m);
                     }
-
                 }
             });
         }
+
+
+
     }
 
 
