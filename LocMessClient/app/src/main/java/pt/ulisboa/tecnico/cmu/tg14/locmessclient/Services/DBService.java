@@ -24,6 +24,7 @@ import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Profile;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.ServicesDataHolder;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.LocationNotFoundException;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.MessageNotFoundException;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.MultipleRowsAfectedException;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.ProfileNotFoundException;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnResponseListener;
@@ -195,7 +196,8 @@ public class DBService extends Service implements OnResponseListener<String> {
 
 
     private void getAndInsertAllProfileKeys() {
-        serverActions.getProfileKeys(new OnResponseListener<List<Profile>>() {
+        String username = dataHolder.getUsername();
+        serverActions.getMyProfileKeys(new OnResponseListener<List<Profile>>() {
 
             @Override
             public void onHTTPResponse(List<Profile> response) {
@@ -226,25 +228,84 @@ public class DBService extends Service implements OnResponseListener<String> {
         dataHolder.clearRemovedLocations();
     }
 
+
     private void updateMessages() {
         List<Location>  locations = dataHolder.getNearLocations();
+
+        ArrayList<Message> offlineInsertedMessages = dbHelper.getAllMessagesAddedWhileDecentralized();
+
+        if(offlineInsertedMessages.size()!=0){
+            insertMessagesToServer(offlineInsertedMessages);
+        }
+
+        ArrayList<Message> offlineDeletedMessages = dbHelper.getAllMessagesDeletedWhileDecentralized();
+
+        if(offlineDeletedMessages.size()!=0){
+            deleteMessagesFromServer(offlineDeletedMessages);
+        }
 
         for(Location location: locations){
             serverActions.getMessagesFromLocation(location, new OnResponseListener<List<Message>>() {
                 @Override
                 public void onHTTPResponse(List<Message> response) {
 
-                    dbHelper.deleteAllMessages();
+                    dbHelper.deleteAllMessagesExceptMyOwnAndCentralized();
                     dbHelper.insertAllMessages(response);
 
                     for(Message m : response){
-                        Log.d("DBService", "added nearby ");
+                        Log.d("DBService", "added nearby message" + m.getUUID());
                     }
 
                 }
             });
         }
     }
+
+
+    private void deleteMessagesFromServer(ArrayList<Message> offlineDeletedMessages) {
+        for(Message m : offlineDeletedMessages){
+
+            Log.d("DBService", "deleting message from server -> "+m.getUUID());
+
+            serverActions.removeMessage(m, new OnResponseListener<OperationStatus>() {
+                @Override
+                public void onHTTPResponse(OperationStatus response) {
+                    if(response.isERROR()){
+                        //FIXME -> deu asneira
+                    }
+                }
+            });
+
+            dbHelper.deleteMessage(m.getUUID().toString());
+        }
+    }
+
+    private void insertMessagesToServer(ArrayList<Message> offlineInsertedMessages) {
+        for(Message m : offlineInsertedMessages){
+
+            Log.d("DBService", "inserting to server message -> "+m.getUUID());
+
+            serverActions.createMessage(m, new OnResponseListener<OperationStatus>() {
+                @Override
+                public void onHTTPResponse(OperationStatus response) {
+                    if(response.isERROR()){
+                        //FIXME -> deu asneira
+                    }
+                }
+            });
+
+            try {
+                dbHelper.updateMessageInsertedToServer(m.getUUID().toString());
+            } catch (MultipleRowsAfectedException e) {
+                e.printStackTrace();
+            } catch (MessageNotFoundException e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
+
 
     private void getAndInsertAllLocations() {
         List<Location> locations = null;

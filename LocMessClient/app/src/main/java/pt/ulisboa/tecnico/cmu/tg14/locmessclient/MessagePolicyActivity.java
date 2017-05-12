@@ -117,12 +117,12 @@ public class MessagePolicyActivity extends AppCompatActivity implements OnRespon
                 message.setEndTime(Long.valueOf(mEndTime));
                 message.setPublisher("tiago"); //TODO to remove
                 message.setLocation(mID);
+                message.setCentralized(!mIsDecentralized);
 
-                ServerActions actions = new ServerActions(activity);
-                actions.createMessage(message,(OnResponseListener) activity);
 
                 FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(activity);
                 dbHelper.insertMessage(message);
+
 
                 finish();
             }

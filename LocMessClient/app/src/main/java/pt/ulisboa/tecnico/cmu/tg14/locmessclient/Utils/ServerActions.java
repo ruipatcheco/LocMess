@@ -99,6 +99,41 @@ public class ServerActions {
         }
     }
 
+    public List<Profile> getMyProfileKeys(final OnResponseListener listener) {
+        String url = endpoint + "/profile/myList";
+
+        final List<Profile> profiles = new ArrayList<>();
+        JsonArrayAuthenticatedRequest stringRequest = new JsonArrayAuthenticatedRequest(url,username,password, new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
+                for(int i = 0;i<response.length();i++){
+                    try {
+                        JSONObject obj = response.getJSONObject(i);
+                        Gson gson = new Gson();
+                        Profile p = gson.fromJson(obj.toString(),Profile.class);
+                        profiles.add(p);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                listener.onHTTPResponse(profiles);
+
+                Log.d(TAG, "onResponse: "+response);
+            }}, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                //mTextView.setText("That didn't work!");
+                System.out.print("error: " + error);
+            }
+        });
+
+        // Add the request to the RequestQueue.
+        queue.add(stringRequest);
+
+        return profiles;
+    }
+
     public List<Profile> getProfileKeys(final OnResponseListener listener) {
         String url = endpoint + "/profile/listAll";
 
@@ -387,6 +422,19 @@ public class ServerActions {
             Log.d(TAG, "createMessage: "+jsonObject);
             makeAuthenticatedRequest(Request.Method.PUT,url,jsonObject,listener);
         } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void removeMessage( Message m,OnResponseListener listener){
+        String url = endpoint+"/message/delete";
+        try{
+            Gson gson = new Gson();
+            JSONObject jsonObject = new JSONObject(gson.toJson(m));
+            Log.d(TAG, "removeMessage:"+jsonObject.toString());
+            makeSimpleRequest(Request.Method.PUT,url,jsonObject,listener);
+
+        }catch (JSONException e){
             e.printStackTrace();
         }
     }

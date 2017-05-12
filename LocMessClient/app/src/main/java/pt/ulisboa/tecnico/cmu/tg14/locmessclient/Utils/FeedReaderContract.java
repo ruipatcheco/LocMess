@@ -35,14 +35,15 @@ public final class FeedReaderContract {
         public static final String LOCATION_COLUMN_CENTRALIZED = "centralized";
 
 
-        public static final String MULE_TABLE_NAME = "MULE";
-        public static final String MULE_COLUMN_UUID = "uuid";
-        public static final String MULE_COLUMN_CREATIONTIME = "creationTime";
-        public static final String MULE_COLUMN_STARTTIME = "startTime";
-        public static final String MULE_COLUMN_ENDTIME = "endTime";
-        public static final String MULE_COLUMN_CONTENT = "content";
-        public static final String MULE_COLUMN_PUBLISHER = "publisher";
-        public static final String MULE_COLUMN_LOCATION = "location";
+        public static final String MULE_MESSAGE_TABLE_NAME = "MULE";
+        public static final String MULE_MESSAGE_COLUMN_UUID = "uuid";
+        public static final String MULE_MESSAGE_COLUMN_CREATIONTIME = "creationTime";
+        public static final String MULE_MESSAGE_COLUMN_STARTTIME = "startTime";
+        public static final String MULE_MESSAGE_COLUMN_ENDTIME = "endTime";
+        public static final String MULE_MESSAGE_COLUMN_CONTENT = "content";
+        public static final String MULE_MESSAGE_COLUMN_PUBLISHER = "publisher";
+        public static final String MULE_MESSAGE_COLUMN_LOCATION = "location";
+
 
 
         public static final String MESSAGE_TABLE_NAME = "MESSAGE";
@@ -53,6 +54,9 @@ public final class FeedReaderContract {
         public static final String MESSAGE_COLUMN_CONTENT = "content";
         public static final String MESSAGE_COLUMN_PUBLISHER = "publisher";
         public static final String MESSAGE_COLUMN_LOCATION = "location";
+        public static final String MESSAGE_COLUMN_CENTRALIZED = "centralized";
+        public static final String MESSAGE_COLUMN_ADDEDDECENTRALIZED = "addedDecentralized";
+        public static final String MESSAGE_COLUMN_DELETEDDECENTRALIZED= "deletedDecentralized";
 
 
         public static final String PROFILE_TABLE_NAME = "PROFILE";

@@ -51,7 +51,8 @@ public class MessageController {
         return status;
     }
 
-    @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
+
+    @RequestMapping(value = "/delete", method = RequestMethod.PUT)
     public ResponseEntity<OperationStatus> delete(@RequestParam(value = "id") String id){
         UUID msgId = UUID.fromString(id);
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();

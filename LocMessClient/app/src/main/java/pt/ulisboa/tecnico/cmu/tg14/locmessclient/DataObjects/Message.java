@@ -16,13 +16,14 @@ public class Message {
     private String content;
     private String publisher;
     private String location;
+    private boolean isCentralized;
     List<Profile> whiteList;
     List<Profile> blackList;
 
 
     public Message(){}
 
-    public Message(UUID id, long creationTime, long startTime, long endTime, String content, String publisher, String location) {
+    public Message(UUID id, long creationTime, long startTime, long endTime, String content, String publisher, String location, boolean isCentralized) {
         this.id = id;
         this.creationTime = creationTime;
         this.startTime = startTime;
@@ -30,6 +31,15 @@ public class Message {
         this.content = content;
         this.publisher = publisher;
         this.location = location;
+        this.isCentralized = isCentralized;
+    }
+
+    public boolean isCentralized() {
+        return isCentralized;
+    }
+
+    public void setCentralized(boolean centralized) {
+        isCentralized = centralized;
     }
 
     public UUID getUUID() {
