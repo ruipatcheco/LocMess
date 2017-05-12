@@ -2,9 +2,8 @@ package pt.ulisboa.tecnico.cmu.tg14.locmessclient;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -24,12 +23,10 @@ import java.util.regex.Pattern;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.OperationStatus;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.ServicesDataHolder;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnResponseListener;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderDbHelper;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServerActions;
 
-public class MessagePolicyActivity extends AppCompatActivity implements OnResponseListener<OperationStatus>{
+public class MessagePolicyActivity_2 extends AppCompatActivity implements OnResponseListener<OperationStatus>{
 
     // === PREV ACTIVITY ===
     private String mMessageContent;
@@ -41,36 +38,17 @@ public class MessagePolicyActivity extends AppCompatActivity implements OnRespon
 
     private EditText mKey;
     private EditText mValue;
-    //private Switch mSwitch;
+    private Switch mSwitch;
     private Button mAdd;
     private ListView mWhite;
-    //private ListView mBlack;
+    private ListView mBlack;
     private Button mFinish;
     Activity activity;
-    List<Model> list = new ArrayList<Model>();
-
-    private List<Model> getModel() {
-        list.add(new Model("Linux"));
-        list.add(new Model("Windows7"));
-        list.add(new Model("Suse"));
-        list.add(new Model("Linux"));
-        list.add(new Model("Windows7"));
-        list.add(new Model("Suse"));
-        list.add(new Model("Eclipse"));
-        list.add(new Model("Ubuntu"));
-        list.add(new Model("Solaris"));
-        list.add(new Model("Android"));
-        list.add(new Model("iPhone"));
-        list.add(new Model("Java"));
-        list.add(new Model(".Net"));
-        list.add(new Model("PHP"));
-        return list;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_message_policy_test);
+        setContentView(R.layout.activity_message_policy);
 
         getExtrasIntent(getIntent());
 
@@ -78,22 +56,20 @@ public class MessagePolicyActivity extends AppCompatActivity implements OnRespon
 
         mKey = (EditText) findViewById(R.id.message_profile_key);
         mValue = (EditText) findViewById(R.id.message_profile_value);
-        //mSwitch = (Switch) findViewById(R.id.message_profile_toggle);
+        mSwitch = (Switch) findViewById(R.id.message_profile_toggle);
         mAdd = (Button) findViewById(R.id.message_profile_button_add);
         mWhite = (ListView) findViewById(R.id.message_profile_white_list);
-        //mBlack = (ListView) findViewById(R.id.message_profile_black_list);
+        mBlack = (ListView) findViewById(R.id.message_profile_black_list);
         mFinish = (Button) findViewById(R.id.message_profile_button_finish);
 
         final List<String> whiteList = new ArrayList<>();
-        //final List<String> blackList = new ArrayList<>();
+        final List<String> blackList = new ArrayList<>();
 
-        //final ArrayAdapter<String> adapterWhite = new ArrayAdapter<String>(activity,android.R.layout.simple_dropdown_item_1line,whiteList);
+        final ArrayAdapter<String> adapterWhite = new ArrayAdapter<String>(activity,android.R.layout.simple_dropdown_item_1line,whiteList);
+        final ArrayAdapter<String> adapterBlack = new ArrayAdapter<String>(activity,android.R.layout.simple_dropdown_item_1line,blackList);
 
-        final ArrayAdapter<Model> adapter = new MyAdapter(this, getModel());
-        //final ArrayAdapter<String> adapterBlack = new ArrayAdapter<String>(activity,android.R.layout.simple_dropdown_item_1line,blackList);
-
-        //mBlack.setAdapter(adapterBlack);
-        mWhite.setAdapter(adapter);
+        mBlack.setAdapter(adapterBlack);
+        mWhite.setAdapter(adapterWhite);
 
         mAdd.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -108,13 +84,13 @@ public class MessagePolicyActivity extends AppCompatActivity implements OnRespon
 
                 String message = mKey.getText().toString() + " -> " + mValue.getText().toString();
 
-                //if(mSwitch.isChecked()){
-                    //blackList.add(message);
-                    //adapterBlack.notifyDataSetChanged();
-                //}else {
-                //    whiteList.add(message);
-                //    adapter.notifyDataSetChanged();
-                //}
+                if(mSwitch.isChecked()){
+                    blackList.add(message);
+                    adapterBlack.notifyDataSetChanged();
+                }else {
+                    whiteList.add(message);
+                    adapterWhite.notifyDataSetChanged();
+                }
 
                 Log.d("TAG", message);
 

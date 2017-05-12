@@ -55,6 +55,8 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
     private static final String WIFI="WIFI";
     private static final String BLE="BLE";
 
+    private static final int MIN_RADIUS = 1;
+
 
     private RadioGroup mLocationRadio;
     private Spinner mLocationList;
@@ -183,9 +185,16 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
                 mLocation.setName(mLocationName.getText().toString());
 
                 if(mType.equals(GPS)){
-                    if(!mLocationRadius.getText().toString().equals(""))
+                    String radius = mLocationRadius.getText().toString();
+                    if(radius.equals("")) {
+                        Toast.makeText(activity, "You must specify a radius grater than 0", Toast.LENGTH_LONG).show();
+                        return;
+                    } else if (Integer.parseInt(radius) < 1) {
+                        Toast.makeText(activity, "You must specify a radius grater than 0", Toast.LENGTH_LONG).show();
+                        return;
+                    } else {
                         mLocation.setRadius(Integer.parseInt(mLocationRadius.getText().toString()));
-
+                    }
                     addGPS();
                 }
 
@@ -253,7 +262,11 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
 
         if ( (mType == GPS) && !validLocation) {
             Toast.makeText(activity, "Acquiring a valid GPS signal, try again in 1 minute ", Toast.LENGTH_LONG).show();
+
+            // TODO : este addGPS está aqui bem??????????????????? O addGPS está a ser feito 2 vezes
             addGPS();
+            // TODO : este addGPS está aqui bem??????????????????? O addGPS está a ser feito 2 vezes
+
             return false;
         }
 
