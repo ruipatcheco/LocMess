@@ -2,6 +2,8 @@ package pt.ulisboa.tecnico.cmu.tg14.Controller;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import pt.ulisboa.tecnico.cmu.tg14.DTO.HashResult;
 import pt.ulisboa.tecnico.cmu.tg14.DTO.LocationQuery;
@@ -87,13 +89,32 @@ public class LocationController {
         if(lat != 0 && lon!=0) {
             List<Location> loc = locationImpl.getLocationByCoord(lat, lon);
             locations.addAll(loc);
-
         }
+
+        //List<Location> allowedLocations = isAllowed(locations);
+
+        //List<LocationMover> result = allowedLocations.stream().map(this::convertToLocResult).collect(Collectors.toList());
+
         List<LocationMover> result = locations.stream().map(this::convertToLocResult).collect(Collectors.toList());
 
 
         return result;
     }
+
+    private List<Location> isAllowed(List<Location> locations) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName(); //get logged in username
+        ArrayList<Location> result = new ArrayList<>();
+
+        for(Location l : locations){
+            //check timeframe
+            //check se tem chave/key na blacklist -> se sim discart
+            //check se tem chave/key na blacklist -> se nao discart
+        }
+
+        return result;
+    }
+
 
     private LocationMover convertToLocResult(Location location){
 
