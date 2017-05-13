@@ -38,7 +38,7 @@ import static android.content.ContentValues.TAG;
  * Created by trosado on 31/03/17.
  */
 public class ServerActions {
-    private final static  String addr = "85.240.121.161";
+    private final static  String addr = "193.136.167.2";
     private final static String port = "8080";
     private final static String endpoint = "http://"+addr+":"+port+"/api";
     private static RequestQueue queue;
