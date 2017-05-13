@@ -113,10 +113,13 @@ public class ServerActions {
                         Gson gson = new Gson();
                         Profile p = gson.fromJson(obj.toString(),Profile.class);
                         profiles.add(p);
+                        Log.d("ServerActions: ", "received my own profile ->"+ p.getKey());
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                 }
+
+                Log.d("ServerActions: ", "received my own profile size ->"+ profiles.size());
 
                 listener.onHTTPResponse(profiles);
 

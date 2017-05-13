@@ -47,6 +47,7 @@ public class DBService extends Service implements OnResponseListener<String> {
     private ServicesDataHolder dataHolder = ServicesDataHolder.getInstance();
     private FeedReaderDbHelper dbHelper;
     private String latestServerHash;
+    private boolean updateProfiles = true;
 
     @Nullable
     @Override
@@ -65,30 +66,11 @@ public class DBService extends Service implements OnResponseListener<String> {
         if(dataHolder.isCentralizedMode()) {
             //FIXME -> quando o login estiver a bombar
 
-            //CHECK AND DELETE OFFLINE DELETED PROFILES
-            ArrayList<Profile> offlineDeletedProfiles = dbHelper.getAllProfilesToRemoveFromServer();
-            Log.d("DBService", "offline deleted profiles -> "+offlineDeletedProfiles.size());
-            if(offlineDeletedProfiles.size()!=0){
-                removeProfilesFromServer(offlineDeletedProfiles);
-            }
-
-            //CHECK AND INSERT OFFLINE INSERTED PROFILES
-            ArrayList<Profile> offlineInsertedProfiles = dbHelper.getAllProfilesAddedWhileDecentralized();
-            Log.d("DBService", "offline inserted profiles -> "+offlineInsertedProfiles.size());
-            if(offlineInsertedProfiles.size()!=0){
-                insertProfilesToServer(offlineInsertedProfiles);
-            }
-
-            dbHelper.deleteAllProfiles();
-
             //OBTAIN OLDER PROFILES
             getAndInsertOldProfileKeys();
 
             //OBTAIN OLDER MESSAGES
             getAndInsertOldMessages();
-
-            //OBTAIN ALL PROFILES FROM SERVER
-            getAndInsertAllServerProfiles();
 
         }
 
@@ -110,6 +92,7 @@ public class DBService extends Service implements OnResponseListener<String> {
                     Log.d("DBService", "offline deleted profiles -> "+offlineDeletedProfiles.size());
                     if(offlineDeletedProfiles.size()!=0){
                         removeProfilesFromServer(offlineDeletedProfiles);
+                        updateProfiles =true;
                     }
 
 
@@ -118,7 +101,16 @@ public class DBService extends Service implements OnResponseListener<String> {
                     Log.d("DBService", "offline inserted profiles -> "+offlineInsertedProfiles.size());
                     if(offlineInsertedProfiles.size()!=0){
                         insertProfilesToServer(offlineInsertedProfiles);
+                        updateProfiles = true;
                     }
+
+                    if(updateProfiles){
+                        //CLEAR SERVER PROFILE LIST AND OBTAIN ALL PROFILES FROM SERVER
+                        getAndInsertAllServerProfiles();
+                        updateProfiles = false;
+                    }
+
+
 
 
                     ////////////////---------------LOCATIONS----------------------/////////////
@@ -195,7 +187,7 @@ public class DBService extends Service implements OnResponseListener<String> {
                 }
             });
             try {
-                dbHelper.updateProfileInsertedToServer(p.getKey());
+                dbHelper.updateProfileInsertedToServer(p.getKey(),p.getValue());
             } catch (ProfileNotFoundException e) {
                 e.printStackTrace();
             } catch (MultipleRowsAfectedException e) {
@@ -231,7 +223,7 @@ public class DBService extends Service implements OnResponseListener<String> {
                 for(Profile p : response){
                     profiles.add(p);
                 }
-                Log.d("DBService", "Adding old profile keys -> "+profiles.size());
+                Log.d("DBService", "Adding server profile keys -> "+profiles.size());
 
                 dbHelper.deleteAllServerProfiles();
                 dbHelper.insertAllServerProfiles(profiles);
@@ -243,13 +235,9 @@ public class DBService extends Service implements OnResponseListener<String> {
         serverActions.getMyProfileKeys(new OnResponseListener<List<Profile>>() {
 
             @Override
-            public void onHTTPResponse(List<Profile> response) {
-                HashMap<String,String> profiles = new HashMap<String, String>();
-                for(Profile p : response){
-                    profiles.put(p.getKey(),p.getValue());
-                }
-                Log.d("DBService", "Adding old profile keys -> "+profiles.size());
-
+            public void onHTTPResponse(List<Profile> profiles) {
+                Log.d("DBService", "Adding my own old profile keys -> "+profiles.size());
+                dbHelper.deleteAllProfiles();
                 dbHelper.insertAllProfilesFromServer(profiles);
             }
         });

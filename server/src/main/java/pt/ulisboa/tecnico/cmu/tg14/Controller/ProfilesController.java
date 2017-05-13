@@ -69,6 +69,9 @@ public class ProfilesController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String name = auth.getName(); //get logged in username
         List<Profile> userProfileKeys = profileImpl.list(name);
+        System.out.println("/myList -> user profile keys from username = " +name);
+        System.out.println("/myList -> user profile keys " +userProfileKeys.size());
+
         return userProfileKeys;
     }
 

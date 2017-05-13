@@ -209,8 +209,7 @@ public class ProfileFragment extends Fragment {
         @Override
         protected Void doInBackground(Void... params) {
             FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(getActivity());
-            List<Profile> profilesList = dbHelper.getListProfiles();
-
+            List<Profile> profilesList = dbHelper.getMyProfiles();
 
             for(Profile p: profilesList){
                 String s = p.getKey() + " -> " + p.getValue();

@@ -1136,9 +1136,9 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         }
     }
 
-    public void insertAllProfilesFromServer(HashMap<String, String> profiles){
-        for (String key : profiles.keySet()) {
-            insertProfileFromServer(key, profiles.get(key));
+    public void insertAllProfilesFromServer(List<Profile> profiles){
+        for (Profile p : profiles) {
+            insertProfileFromServer(p.getKey(), p.getValue());
         }
     }
 
@@ -1207,7 +1207,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         return profiles;
     }
 
-    public List<Profile> getListProfiles() {
+    public List<Profile> getMyProfiles() {
         ArrayList<Profile> profiles = new ArrayList<Profile>();
 
         SQLiteDatabase db = this.getReadableDatabase();
@@ -1266,13 +1266,17 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         }
     }
 
-    public void updateProfileInsertedToServer(String key) throws ProfileNotFoundException, MultipleRowsAfectedException {
+    public void updateProfileInsertedToServer(String key, String value) throws ProfileNotFoundException, MultipleRowsAfectedException {
         SQLiteDatabase db = this.getReadableDatabase();
 
         ContentValues cv = new ContentValues();
         cv.put(FeedEntry.PROFILE_COLUMN_ADDEDDECENTRALIZED, "false");
 
-        int result = db.update(FeedEntry.PROFILE_TABLE_NAME, cv, FeedEntry.PROFILE_COLUMN_KEY + " = ?", new String[] {key});
+        String table = FeedEntry.PROFILE_TABLE_NAME;
+        String whereClause = FeedEntry.PROFILE_COLUMN_KEY + " = ?" +" and "+ FeedEntry.PROFILE_COLUMN_VALUE +" = ?";
+        String[] whereArgs = new String[] { key, value };
+
+        int result = db.update(table,cv, whereClause, whereArgs);
 
         if (result == 0) {
             throw new ProfileNotFoundException();
@@ -1377,7 +1381,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
     }
 
 
-    // SERCERPROFILES
+    // SERVERPROFILES
 
     public void createServerProfilesTable(SQLiteDatabase db) {
 
