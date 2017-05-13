@@ -48,6 +48,8 @@ public class DBService extends Service implements OnResponseListener<String> {
     private FeedReaderDbHelper dbHelper;
     private String latestServerHash;
     private boolean updateProfiles = true;
+    private boolean updateOldProfileKeys = true;
+    private boolean updateOldMessages = true;
 
     @Nullable
     @Override
@@ -66,12 +68,6 @@ public class DBService extends Service implements OnResponseListener<String> {
         if(dataHolder.isCentralizedMode()) {
             //FIXME -> quando o login estiver a bombar
 
-            //OBTAIN OLDER PROFILES
-            getAndInsertOldProfileKeys();
-
-            //OBTAIN OLDER MESSAGES
-            getAndInsertOldMessages();
-
         }
 
 
@@ -86,6 +82,13 @@ public class DBService extends Service implements OnResponseListener<String> {
 
 
                     ////////////////---------------PROFILES----------------------/////////////
+
+                    //OBTAIN OLDER PROFILES
+                    if(updateOldProfileKeys){
+                        updateOldProfileKeys = false;
+                        getAndInsertOldProfileKeys();
+                    }
+
 
                     //CHECK AND DELETE OFFLINE DELETED PROFILES
                     ArrayList<Profile> offlineDeletedProfiles = dbHelper.getAllProfilesToRemoveFromServer();
@@ -107,7 +110,6 @@ public class DBService extends Service implements OnResponseListener<String> {
                     if(updateProfiles){
                         //CLEAR SERVER PROFILE LIST AND OBTAIN ALL PROFILES FROM SERVER
                         getAndInsertAllServerProfiles();
-                        updateProfiles = false;
                     }
 
 
@@ -142,6 +144,14 @@ public class DBService extends Service implements OnResponseListener<String> {
                         getAndInsertAllLocations();
                     }
 
+                    ////////////////---------------LOCATIONS----------------------/////////////
+
+                    if(updateOldMessages){
+                        //OBTAIN OLDER MESSAGES
+                        getAndInsertOldMessages();
+                    }
+
+
                     updateMessages();
                 }
 
@@ -161,6 +171,7 @@ public class DBService extends Service implements OnResponseListener<String> {
 
             @Override
             public void onHTTPResponse(List<Message> response) {
+                updateOldMessages = false;
                 Log.d("DBService", "Adding my own old messages -> "+response.size());
 
 
@@ -219,6 +230,7 @@ public class DBService extends Service implements OnResponseListener<String> {
 
             @Override
             public void onHTTPResponse(List<Profile> response) {
+                updateProfiles = false;
                 List<Profile> profiles = new ArrayList<Profile>();
                 for(Profile p : response){
                     profiles.add(p);
