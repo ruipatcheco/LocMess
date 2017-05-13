@@ -648,15 +648,17 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
 
-        for(Profile p : profileList){
-            contentValues.put(FeedEntry.MESSAGEKEYS_COLUMN_UUID, uuid);
-            contentValues.put(FeedEntry.MESSAGEKEYS_COLUMN_KEY, p.getKey());
-            contentValues.put(FeedEntry.MESSAGEKEYS_COLUMN_VALUE, p.getValue());
-            contentValues.put(FeedEntry.MESSAGEKEYS_COLUMN_ISWHITE, isWhite);
+        if(profileList != null){
+            for(Profile p : profileList){
+                contentValues.put(FeedEntry.MESSAGEKEYS_COLUMN_UUID, uuid);
+                contentValues.put(FeedEntry.MESSAGEKEYS_COLUMN_KEY, p.getKey());
+                contentValues.put(FeedEntry.MESSAGEKEYS_COLUMN_VALUE, p.getValue());
+                contentValues.put(FeedEntry.MESSAGEKEYS_COLUMN_ISWHITE, isWhite);
 
 
-            db.insert(FeedEntry.MESSAGEKEYS_TABLE_NAME, null, contentValues);
-            contentValues.clear();
+                db.insert(FeedEntry.MESSAGEKEYS_TABLE_NAME, null, contentValues);
+                contentValues.clear();
+            }
         }
 
     }
@@ -707,7 +709,6 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
                 username
         );
     }
-
 
     public void insertMessageFromServer(Message message) {
 
@@ -771,8 +772,6 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
             throw new MultipleRowsAfectedException();
         }
     }
-
-
 
     public void insertAllMessages(List<Message> messages){
         for (Message message : messages) {
@@ -990,6 +989,13 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
             db.delete(FeedEntry.MESSAGEKEYS_TABLE_NAME, FeedEntry.MESSAGEKEYS_COLUMN_UUID + "= '" + uuid + "'", null);
 
         return db.delete(FeedEntry.MESSAGE_TABLE_NAME, FeedEntry.MESSAGE_COLUMN_UUID + "= '" + uuid + "'", null) > 0;
+    }
+
+    public boolean deleteAllMyMessagesNotNearby(String publisher) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        return db.delete(FeedEntry.MESSAGE_TABLE_NAME, FeedEntry.MESSAGE_COLUMN_UUID + "= '" + publisher + "'" +
+                " and " + FeedEntry.MESSAGE_COLUMN_NEARBY +" false ", null) > 0;
     }
 
     public boolean deleteListMessage(List<String> messages) {

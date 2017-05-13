@@ -240,7 +240,7 @@ public class ServerActions {
         }
     }
 
-    public  void getMyMessages(final OnResponseListener listener){
+    public void getMyMessages(final OnResponseListener listener){
         String url = endpoint+"/message/myMessages";
 
         final List<Message> messages = new ArrayList<>();
@@ -254,12 +254,14 @@ public class ServerActions {
                     try {
                         JSONObject obj = response.getJSONObject(i);
 
-                        Message message = gson.fromJson(obj.toString(),Message.class);
-                        messages.add(message);
+                        MessageServer ms = gson.fromJson(obj.toString(),MessageServer.class);
+                            Message m = new Message(ms.getId(),ms.getCreationTime(),ms.getStartTime(),ms.getEndTime(),ms.getContent(),ms.getPublisher(),ms.getLocation(),true,false,ms.getWhiteList(),ms.getBlackList());
+                        messages.add(m);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                 }
+                listener.onHTTPResponse(messages);
             }
         }, new Response.ErrorListener() {
             @Override
@@ -270,7 +272,6 @@ public class ServerActions {
 
         queue.add(request);
     }
-
 
     public static List<Message> getMessagesFromLocation(Location location, final OnResponseListener listener){
         String url = endpoint+"/message/getMessagesByLocation";

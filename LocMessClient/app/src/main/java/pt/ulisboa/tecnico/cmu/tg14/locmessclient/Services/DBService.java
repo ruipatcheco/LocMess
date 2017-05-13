@@ -163,21 +163,21 @@ public class DBService extends Service implements OnResponseListener<String> {
 
     private void getAndInsertOldMessages() {
         ArrayList<Message> result = new ArrayList<>();
-        /*
-        serverActions.getMyMessages(new OnResponseListener<List<Profile>>() {
+
+        dbHelper.deleteAllMyMessagesNotNearby(dataHolder.getUsername());
+        serverActions.getMyMessages(new OnResponseListener<List<Message>>() {
 
             @Override
-            public void onHTTPResponse(List<Profile> response) {
-                HashMap<String,String> profiles = new HashMap<String, String>();
-                for(Profile p : response){
-                    profiles.put(p.getKey(),p.getValue());
-                }
-                Log.d("DBService", "Adding old profile keys -> "+profiles.size());
+            public void onHTTPResponse(List<Message> response) {
+                Log.d("DBService", "Adding my own old messages -> "+response.size());
 
-                dbHelper.insertAllProfilesFromServer(profiles);
+
+                //boolean isCentralized = true, boolean isNearby = false
+                for(Message m : response){
+                    dbHelper.insertMessage(m);
+                }
             }
         });
-        */
     }
 
 
