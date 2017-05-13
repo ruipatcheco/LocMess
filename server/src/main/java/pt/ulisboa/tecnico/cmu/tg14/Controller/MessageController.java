@@ -8,9 +8,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import pt.ulisboa.tecnico.cmu.tg14.DTO.LocationMover;
+import pt.ulisboa.tecnico.cmu.tg14.DTO.MessageMover;
 import pt.ulisboa.tecnico.cmu.tg14.DTO.OperationStatus;
 import pt.ulisboa.tecnico.cmu.tg14.Implementation.MessageImpl;
+import pt.ulisboa.tecnico.cmu.tg14.Implementation.MessageKeysImpl;
 import pt.ulisboa.tecnico.cmu.tg14.Model.Message;
+import pt.ulisboa.tecnico.cmu.tg14.Model.MessageKeys;
+import pt.ulisboa.tecnico.cmu.tg14.Model.Profile;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -26,25 +30,36 @@ public class MessageController {
     ApplicationContext context =
             new ClassPathXmlApplicationContext("Beans.xml");
 
+    MessageKeysImpl messageKeysImpl =
+            (MessageKeysImpl)context.getBean("messageKeysImpl");
+
     MessageImpl messageImpl =
             (MessageImpl)context.getBean("messageImpl");
 
     @RequestMapping(value = "/create", method = RequestMethod.PUT)
-    public OperationStatus create(@RequestBody Message message){
+    public OperationStatus create(@RequestBody MessageMover messageMover){
         //@RequestParam(value="startTime") Long startTime,@RequestParam(value="endTime") Long endTime,@RequestParam(value="creationTime") Long creationTime,@RequestParam(value="content") String content,@RequestParam(value="publisher") String publisher,@RequestParam(value="location") String location){
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName(); //get logged in username
-        Timestamp endTime  = message.getEndTime();
+        Timestamp endTime  = messageMover.getEndTime();
 
         if(endTime.getTime() <= 0)
-            messageImpl.create(message.getId(),message.getStartTime(),
-                    message.getCreationTime(),message.getContent(),
-                    username,message.getLocation());
+            messageImpl.create(messageMover.getId(),messageMover.getStartTime(),
+                    messageMover.getCreationTime(),messageMover.getContent(),
+                    username,messageMover.getLocation());
         else
-            messageImpl.create(message.getId(),message.getStartTime(),endTime,
-                    message.getCreationTime(),message.getContent(),
-                    message.getPublisher(),message.getLocation());
+            messageImpl.create(messageMover.getId(),messageMover.getStartTime(),endTime,
+                    messageMover.getCreationTime(),messageMover.getContent(),
+                    messageMover.getPublisher(),messageMover.getLocation());
+
+        for(Profile p: messageMover.getBlackList()){
+            messageKeysImpl.create(messageMover.getId(),p.getKey(),p.getValue(),false);
+        }
+
+        for(Profile p: messageMover.getWhiteList()){
+            messageKeysImpl.create(messageMover.getId(),p.getKey(),p.getValue(),true);
+        }
 
         OperationStatus status = new OperationStatus();
         status.setOK();

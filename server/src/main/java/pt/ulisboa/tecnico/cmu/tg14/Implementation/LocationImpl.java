@@ -4,9 +4,11 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import pt.ulisboa.tecnico.cmu.tg14.Mapper.CoordinatesMapper;
 import pt.ulisboa.tecnico.cmu.tg14.Mapper.LocationMapper;
+import pt.ulisboa.tecnico.cmu.tg14.Mapper.MessageMapper;
 import pt.ulisboa.tecnico.cmu.tg14.Mapper.UserMapper;
 import pt.ulisboa.tecnico.cmu.tg14.Model.Coordinates;
 import pt.ulisboa.tecnico.cmu.tg14.Model.Location;
+import pt.ulisboa.tecnico.cmu.tg14.Model.Message;
 import pt.ulisboa.tecnico.cmu.tg14.Model.User;
 import pt.ulisboa.tecnico.cmu.tg14.dao.LocationDao;
 
@@ -34,14 +36,11 @@ public class LocationImpl implements LocationDao {
 
 
     @Override
-    public void create(String name, String ssid, String ble, UUID coord) {
-        String crd = null;
-        if(coord != null){
-            crd=coord.toString();
-        }
-        String SQL = "insert into Location (name, ssid, ble, coordid ) values (?, ?, ?,?)";
+    public void create(String name, String ssid, String ble) {
 
-        jdbcTemplateObject.update( SQL, name, ssid.toLowerCase(), ble.toLowerCase(), crd);
+        String SQL = "insert into Location (name, ssid, ble) values (?, ?, ?)";
+
+        jdbcTemplateObject.update( SQL, name, ssid.toLowerCase(), ble.toLowerCase());
         return;
     }
 
@@ -91,15 +90,11 @@ public class LocationImpl implements LocationDao {
         System.out.println("getLocationByCoord: found locations size -> "+coords.size());
 
         List<Location> loclist = new ArrayList<>();
-        List<Location> result = new ArrayList<>();
         for(Coordinates coord: coords){
-            String SQL = "Select * from Location where coordid=?";
-            loclist = jdbcTemplateObject.query(SQL,new Object[]{coord.getId().toString()},new LocationMapper());
-            for (Location l : loclist){
-                result.add(l);
-            }
+            String SQL = "Select * from Location where name=?";
+            loclist = jdbcTemplateObject.query(SQL,new Object[]{coord.getName()},new LocationMapper());
         }
-        return result;
+        return loclist;
     }
 
     @Override
@@ -112,19 +107,13 @@ public class LocationImpl implements LocationDao {
 
     @Override
     public void delete(String name) {
-        String SQL = "Select * from Location where name = ?";
-        List <Location> loclist = jdbcTemplateObject.query(SQL,new Object[]{name},new LocationMapper());
 
-        SQL = "delete from Location where name = ?";
+        System.out.println("deleting location -> "+name);
+        String SQL = "delete from Location where name = ?";
         jdbcTemplateObject.update(SQL, name);
-
-        for (Location l : loclist){
-
-            System.out.println("deleting location -> "+l.getName());
-            System.out.println("deleting coordinates -> "+l.getCoordinates());
-
-            SQL = "delete from Coordinates where id = ?";
-            jdbcTemplateObject.update(SQL, l.getCoordinates().toString());
-        }
     }
+
+
 }
+
+

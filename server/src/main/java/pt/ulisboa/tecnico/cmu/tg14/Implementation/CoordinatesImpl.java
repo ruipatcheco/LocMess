@@ -23,34 +23,30 @@ public class CoordinatesImpl implements CoordinatesDao {
     }
 
     @Override
-    public UUID create(double latitude, double longitude, int radius) {
-        String SQL = "insert into Coordinates (id, lat, lon,radius) values (?, ?,?, ?)";
-        UUID id = UUID.randomUUID();
-        jdbcTemplateObject.update( SQL,id.toString(), latitude, longitude,radius);
-        return id;
+    public void create(String name, double latitude, double longitude, int radius) {
+        String SQL = "insert into Coordinates (name, lat, lon,radius) values (?, ?,?, ?)";
+        jdbcTemplateObject.update( SQL,name, latitude, longitude,radius);
     }
 
     @Override
-    public Coordinates getCoordinates(UUID id) {
-        String SQL = "select * from Coordinates where id=?";
+    public Coordinates getCoordinates(String name) {
+        String SQL = "select * from Coordinates where name=?";
         Coordinates coord = jdbcTemplateObject.queryForObject(SQL,
-                new Object[]{id.toString()}, new CoordinatesMapper());
+                new Object[]{name}, new CoordinatesMapper());
         return coord;
     }
 
     @Override
-    public void updateCoordinates(UUID id, double latitude, double longitude, int radius) {
-        String SQL = "update Coordinates set lat = ? and lon = ? and radius = ? where id = ?";
-        jdbcTemplateObject.update(SQL, latitude, longitude,radius, id);
-        System.out.println("Updated Location with id = " + id);
-        return;
+    public void updateCoordinates(String name, double latitude, double longitude, int radius) {
+        String SQL = "update Coordinates set lat = ? and lon = ? and radius = ? where name = ?";
+        jdbcTemplateObject.update(SQL, latitude, longitude,radius, name);
+        System.out.println("Updated Location with name = " + name);
     }
 
     @Override
-    public void delete(UUID id) {
-        String SQL = "delete from Coordinates where id = ?";
-        jdbcTemplateObject.update(SQL, id.toString());
-        System.out.println("Deleted Location id = " + id );
-        return;
+    public void delete(String name) {
+        String SQL = "delete from Coordinates where name = ?";
+        jdbcTemplateObject.update(SQL, name);
+        System.out.println("Deleted Coordinates name = " + name );
     }
 }

@@ -8,7 +8,7 @@
     <bean id="dataSource"
           class="org.springframework.jdbc.datasource.DriverManagerDataSource">
         <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
-        <property name="url" value="jdbc:mysql://localhost:3306/LocMess"/>
+        <property name="url" value="jdbc:mysql://localhost:3306/LocMess?useSSL=false"/>
         <property name="username" value="root"/>
         <property name="password" value="toor"/>
     </bean>
@@ -31,6 +31,11 @@
 
     <bean id="messageImpl"
           class="pt.ulisboa.tecnico.cmu.tg14.Implementation.MessageImpl">
+        <property name="dataSource"  ref="dataSource" />
+    </bean>
+
+    <bean id="messageKeysImpl"
+          class="pt.ulisboa.tecnico.cmu.tg14.Implementation.MessageKeysImpl">
         <property name="dataSource"  ref="dataSource" />
     </bean>
 
