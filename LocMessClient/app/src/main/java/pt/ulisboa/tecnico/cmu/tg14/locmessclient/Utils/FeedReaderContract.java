@@ -60,11 +60,18 @@ public final class FeedReaderContract {
         public static final String MESSAGE_COLUMN_NEARBY= "nearby";
 
 
+
         public static final String PROFILE_TABLE_NAME = "PROFILE";
         public static final String PROFILE_COLUMN_KEY = "key";
         public static final String PROFILE_COLUMN_VALUE = "value";
         public static final String PROFILE_COLUMN_ADDEDDECENTRALIZED = "addedDecentralized";
         public static final String PROFILE_COLUMN_DELETEDDECENTRALIZED = "deletedDecentralized";
+
+
+
+        public static final String SERVER_PROFILES_TABLE_NAME = "SERVERPROFILE";
+        public static final String SERVER_PROFILES_COLUMN_KEY = "key";
+        public static final String SERVER_PROFILES_COLUMN_VALUE = "value";
 
 
 

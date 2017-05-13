@@ -2,6 +2,7 @@ package pt.ulisboa.tecnico.cmu.tg14.locmessclient;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,8 +12,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -31,8 +30,9 @@ import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnResponseListener;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderDbHelper;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.Model;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Adapters.ProfileChoiceAdapter;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServerActions;
 
-public class MessagePolicyActivity extends AppCompatActivity implements OnResponseListener<OperationStatus>{
+public class MessagePolicyActivity extends AppCompatActivity {
 
     // === PREV ACTIVITY ===
     private String mMessageContent;
@@ -48,16 +48,16 @@ public class MessagePolicyActivity extends AppCompatActivity implements OnRespon
     private Button mFinish;
     Activity activity;
 
+    public static ServerActions  serverActions;
+
     private FeedReaderDbHelper dbHelper;
 
+    List<Profile> mProfileList;
     ListView mListView;
     ArrayAdapter<Model> adapter;
     List<Profile> whiteList = new ArrayList<>();
     List<Profile> blackList = new ArrayList<>();
     List<Model> list = new ArrayList<Model>();
-
-    private RadioGroup radioCcToGroup;
-    private RadioButton radioTypeButton;
 
 
 
@@ -70,13 +70,14 @@ public class MessagePolicyActivity extends AppCompatActivity implements OnRespon
 
         activity = this;
 
+        dbHelper = new FeedReaderDbHelper(activity);
+
+
         mKey = (EditText) findViewById(R.id.message_profile_key);
         mValue = (EditText) findViewById(R.id.message_profile_value);
         mAdd = (Button) findViewById(R.id.message_profile_button_add);
         mFinish = (Button) findViewById(R.id.message_profile_button_finish);
         mListView = (ListView) findViewById(R.id.message_profiles_list);
-
-        dbHelper = new FeedReaderDbHelper(activity);
 
         adapter = new ProfileChoiceAdapter(this, getModel());
         mListView.setAdapter(adapter);
@@ -97,7 +98,8 @@ public class MessagePolicyActivity extends AppCompatActivity implements OnRespon
 
                 Profile profile = new Profile(mKey.getText().toString(), mValue.getText().toString());
 
-                dbHelper.insertProfile(profile);
+                // This line adds te profile to user's database
+                //dbHelper.insertProfile(profile);
 
                 list.add(0, new Model(profile));
 
@@ -134,7 +136,6 @@ public class MessagePolicyActivity extends AppCompatActivity implements OnRespon
                 message.setWhiteList(whiteList);
                 message.setBlackList(blackList);
 
-                FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(activity);
                 dbHelper.insertMessage(message);
 
 
@@ -169,8 +170,8 @@ public class MessagePolicyActivity extends AppCompatActivity implements OnRespon
     }
 
     private List<Model> getModel() {
-        List<Profile> profileList = dbHelper.getListProfiles();
-        for(Profile profile : profileList ){
+        mProfileList = dbHelper.getListAllServerProfiles();
+        for(Profile profile : mProfileList ){
             list.add(new Model(profile));
         }
         /*
@@ -231,8 +232,4 @@ public class MessagePolicyActivity extends AppCompatActivity implements OnRespon
         return calendar;
     }
 
-    @Override
-    public void onHTTPResponse(OperationStatus response) {
- //TODO
-    }
 }
