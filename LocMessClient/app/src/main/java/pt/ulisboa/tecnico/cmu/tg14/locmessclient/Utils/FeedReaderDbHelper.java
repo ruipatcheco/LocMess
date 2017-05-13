@@ -103,6 +103,15 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
                     FeedEntry.PROFILE_COLUMN_DELETEDDECENTRALIZED +" "+ FeedEntry.TEXT_TYPE +
                 " )";
 
+    private static final String SQL_CREATE_SERVER_PROFILES =
+
+            "CREATE TABLE IF NOT EXISTS " + FeedEntry.SERVER_PROFILES_TABLE_NAME + " ( " +
+                    FeedEntry._ID + " INTEGER PRIMARY KEY," +
+                    FeedEntry.SERVER_PROFILES_COLUMN_KEY +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
+                    FeedEntry.SERVER_PROFILES_COLUMN_VALUE +" "+ FeedEntry.TEXT_TYPE +
+                " )";
+
+
     private static final String SQL_CREATE_MULE_PROFILE =
 
             "CREATE TABLE IF NOT EXISTS " + FeedEntry.MULE_PROFILE_TABLE_NAME + " ( " +
@@ -129,6 +138,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         createMuleTable(db);
         createProfileTable(db);
         createMuleProfileTable(db);
+        createServerProfilesTable(db);
     }
 
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -144,6 +154,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         dropLocation();
         dropMessage();
         dropMule();
+        dropServerProfiles();
 
         onCreate(db);
     }
@@ -859,7 +870,6 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         }
     }
 
-
     public boolean deleteAllMessagesExceptMyOwnAndDecentralized() {
         SQLiteDatabase db = this.getWritableDatabase();
         String username = ServicesDataHolder.getInstance().getUsername();
@@ -884,9 +894,6 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
         return removed > 0;
     }
-
-
-
 
     public boolean deleteMessage(String uuid) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -1246,6 +1253,83 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
                 username
         );
     }
+
+
+    // SERCERPROFILES
+
+    public void createServerProfilesTable(SQLiteDatabase db) {
+
+        db.execSQL(SQL_CREATE_SERVER_PROFILES);
+    }
+
+    public void dropServerProfiles() {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        db.execSQL(SQL_DELETE_ENTRIES + FeedEntry.SERVER_PROFILES_TABLE_NAME);
+    }
+
+    public void insertServerProfiles (String key, String value) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(FeedEntry.SERVER_PROFILES_COLUMN_KEY, key);
+        contentValues.put(FeedEntry.SERVER_PROFILES_COLUMN_VALUE, value);
+
+
+        db.insert(FeedEntry.SERVER_PROFILES_TABLE_NAME, null, contentValues);
+    }
+
+    public void insertAllServerProfiles(List<Profile> profiles){
+        for (Profile profile : profiles) {
+            insertServerProfiles(profile.getKey(), profile.getValue());
+        }
+    }
+
+    public List<Profile> getListAllServerProfiles() {
+        ArrayList<Profile> profiles = new ArrayList<Profile>();
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String[] projection = {
+                FeedEntry._ID,
+                FeedEntry.PROFILE_COLUMN_KEY,
+                FeedEntry.PROFILE_COLUMN_VALUE
+        };
+
+        String sortOrder = FeedEntry.SERVER_PROFILES_COLUMN_KEY + " ASC";
+
+        Cursor cursor = db.query(
+                FeedEntry.SERVER_PROFILES_TABLE_NAME,     // The table to query
+                projection,                               // The columns to return
+                null,                                     // The columns for the WHERE clause
+                null,                                     // The values for the WHERE clause
+                null,                                     // don't group the rows
+                null,                                     // don't filter by row groups
+                sortOrder                                 // The sort order
+        );
+
+        cursor.moveToFirst();
+
+        while(cursor.isAfterLast() == false){
+            profiles.add(associateServerProfiles(cursor));
+            cursor.moveToNext();
+        }
+        return profiles;
+    }
+
+    public void deleteAllServerProfiles() {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        db.execSQL("delete from "+ FeedEntry.SERVER_PROFILES_TABLE_NAME);
+    }
+
+    private Profile associateServerProfiles(Cursor cursor) {
+        return new Profile(
+                cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.PROFILE_COLUMN_KEY)),
+                cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.PROFILE_COLUMN_VALUE))
+        );
+    }
+
 
     // PROFILEMULE
 

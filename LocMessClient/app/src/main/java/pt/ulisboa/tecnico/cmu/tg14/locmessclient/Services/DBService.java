@@ -87,6 +87,9 @@ public class DBService extends Service implements OnResponseListener<String> {
             //OBTAIN OLDER MESSAGES
             getAndInsertOldMessages();
 
+            //OBTAIN ALL PROFILES FROM SERVER
+            getAndInsertAllServerProfiles();
+
         }
 
 
@@ -218,6 +221,23 @@ public class DBService extends Service implements OnResponseListener<String> {
         }
     }
 
+
+    private void getAndInsertAllServerProfiles() {
+        serverActions.getProfileKeys(new OnResponseListener<List<Profile>>() {
+
+            @Override
+            public void onHTTPResponse(List<Profile> response) {
+                List<Profile> profiles = new ArrayList<Profile>();
+                for(Profile p : response){
+                    profiles.add(p);
+                }
+                Log.d("DBService", "Adding old profile keys -> "+profiles.size());
+
+                dbHelper.deleteAllServerProfiles();
+                dbHelper.insertAllServerProfiles(profiles);
+            }
+        });
+    }
 
     private void getAndInsertOldProfileKeys() {
         serverActions.getMyProfileKeys(new OnResponseListener<List<Profile>>() {

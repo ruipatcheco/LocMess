@@ -25,6 +25,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ import java.util.List;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.LocationQuery;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.ServicesDataHolder;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnLocationReceivedListener;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Receivers.BluetoothReceiver;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Receivers.GPSReceiver;
@@ -86,6 +88,7 @@ public class MainActivity extends AppCompatActivity
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
+
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         FragmentManager fm = getFragmentManager();
@@ -93,6 +96,11 @@ public class MainActivity extends AppCompatActivity
         fragmentTransaction.replace(R.id.fragment_place, new ListMessages());
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
+
+        View header = navigationView.getHeaderView(0);
+        TextView name = (TextView) header.findViewById(R.id.nav_bar_username);
+        name.setText(ServicesDataHolder.getInstance().getUsername());
+
 
     }
 

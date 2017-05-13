@@ -73,7 +73,7 @@ public class MessageLocationActivity extends AppCompatActivity {
     private boolean fixIDNull() {
         if (locationListNames.size() < 1) {
             Toast.makeText(activity, "Please provide location", Toast.LENGTH_SHORT).show();
-            return false;
+            return true;
         } else {
             mID = mLocationList.getSelectedItem().toString();
             return true;
