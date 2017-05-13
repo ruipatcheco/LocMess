@@ -119,7 +119,7 @@ public class LocationController {
     private LocationMover convertToLocResult(Location location){
 
         Coordinates coord = coordinatesImpl.getCoordinates(location.getName());
-        if(coord != null){
+        if(coord != null && coord.getLatitude()!=0.0 && coord.getLongitude()!=0.0){
             coord = coordinatesImpl.getCoordinates(location.getName());
             return new LocationMover(location.getName(),location.getSsid()
                     ,location.getBle(),coord.getLatitude()

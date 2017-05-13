@@ -6,6 +6,7 @@ import pt.ulisboa.tecnico.cmu.tg14.Model.Coordinates;
 import pt.ulisboa.tecnico.cmu.tg14.dao.CoordinatesDao;
 
 import javax.sql.DataSource;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -31,10 +32,17 @@ public class CoordinatesImpl implements CoordinatesDao {
     @Override
     public Coordinates getCoordinates(String name) {
         String SQL = "select * from Coordinates where name=?";
-        Coordinates coord = jdbcTemplateObject.queryForObject(SQL,
-                new Object[]{name}, new CoordinatesMapper());
-        return coord;
+        Coordinates result = null;
+
+        //Coordinates coord = jdbcTemplateObject.queryForObject(SQL,new Object[]{name}, new CoordinatesMapper());
+
+        List<Coordinates> coordList = jdbcTemplateObject.query(SQL,new Object[]{name},new CoordinatesMapper());
+        if(coordList.size()!=0){
+            result = coordList.get(0);
+        }
+        return result;
     }
+
 
     @Override
     public void updateCoordinates(String name, double latitude, double longitude, int radius) {
