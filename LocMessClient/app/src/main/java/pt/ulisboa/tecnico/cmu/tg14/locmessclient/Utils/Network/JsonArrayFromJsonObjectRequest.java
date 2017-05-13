@@ -1,6 +1,4 @@
-package pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils;
-
-import android.util.Log;
+package pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.Network;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkResponse;
@@ -17,8 +15,6 @@ import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
-
-import static android.content.ContentValues.TAG;
 
 /**
  * Created by tiago on 22/04/2017.

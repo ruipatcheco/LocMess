@@ -1,19 +1,12 @@
 package pt.ulisboa.tecnico.cmu.tg14.locmessclient;
 
-import android.Manifest;
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.app.Service;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -25,22 +18,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
-import android.widget.Toast;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.LocationQuery;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnLocationReceivedListener;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Receivers.BluetoothReceiver;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Receivers.GPSReceiver;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Receivers.WifiReceiver;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.BluetoothService;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.GPSService;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.MasterService;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.WifiService;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServerActions;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServiceManager;
 
 

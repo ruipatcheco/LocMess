@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.support.annotation.StringDef;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -13,7 +12,6 @@ import com.google.gson.Gson;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -28,7 +26,7 @@ import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.MultipleRowsAfectedE
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.ProfileNotFoundException;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnResponseListener;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderDbHelper;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServerActions;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.Network.ServerActions;
 
 import static android.content.ContentValues.TAG;
 

@@ -1,14 +1,6 @@
 package pt.ulisboa.tecnico.cmu.tg14.locmessclient;
 
-import android.Manifest;
 import android.app.Activity;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.pm.PackageManager;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,26 +17,13 @@ import android.widget.Toast;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.OperationStatus;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.ServicesDataHolder;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnLocationReceivedListener;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnResponseListener;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Receivers.BluetoothReceiver;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Receivers.GPSReceiver;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Receivers.WifiReceiver;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.BluetoothService;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.GPSService;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.WifiService;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderDbHelper;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServerActions;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServiceManager;
 
 public class AddLocationActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener,OnResponseListener<OperationStatus>{
 

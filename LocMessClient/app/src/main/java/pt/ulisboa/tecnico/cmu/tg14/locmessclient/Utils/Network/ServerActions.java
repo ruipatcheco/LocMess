@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils;
+package pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.Network;
 
 import android.content.Context;
 import android.util.Base64;
@@ -10,8 +10,6 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.VolleyLog;
-import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
@@ -36,6 +34,7 @@ import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Profile;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.ServicesDataHolder;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnResponseListener;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.Network.Ssl.HttpsTrustManager;
 
 import static android.content.ContentValues.TAG;
 
@@ -43,9 +42,9 @@ import static android.content.ContentValues.TAG;
  * Created by trosado on 31/03/17.
  */
 public class ServerActions {
-    private final static  String addr = "193.136.167.169";
-    private final static String port = "8080";
-    private final static String endpoint = "http://"+addr+":"+port+"/api";
+    private final static  String addr = "193.136.167.88";
+    private final static String port = "8443";
+    private final static String endpoint = "https://"+addr+":"+port+"/api";
     private static RequestQueue queue;
     //FIXME to remove
     private static String username = "";
@@ -60,7 +59,7 @@ public class ServerActions {
     }
 
     private void makeAuthenticatedRequest(int method, String url, JSONObject jsonObject, final OnResponseListener listener){
-
+        HttpsTrustManager.allowAllSSL();
         JsonObjectAuthenticatedRequest request = new JsonObjectAuthenticatedRequest(method,url,username,password,jsonObject,new Response.Listener<JSONObject>() {            @Override
             public void onResponse(JSONObject response) {
                 Gson gson = new Gson();
@@ -112,6 +111,7 @@ public class ServerActions {
         String url = endpoint + "/profile/listAll";
 
         final List<Profile> profiles = new ArrayList<>();
+        HttpsTrustManager.allowAllSSL();
         JsonArrayAuthenticatedRequest stringRequest = new JsonArrayAuthenticatedRequest(url,username,password, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
@@ -144,6 +144,7 @@ public class ServerActions {
     }
 
     private void makeSimpleRequest(int method, String url, JSONObject jsonObject, final OnResponseListener listener){
+        HttpsTrustManager.allowAllSSL();
         JsonObjectRequest request = new JsonObjectRequest(method,url,jsonObject,new Response.Listener<JSONObject>() {            @Override
         public void onResponse(JSONObject response) {
             Gson gson = new Gson();
@@ -220,7 +221,7 @@ public class ServerActions {
         Gson gson = new Gson();
         try {
             JSONObject jsonObject = new JSONObject(gson.toJson(location));
-
+            HttpsTrustManager.allowAllSSL();
             JsonArrayFromJsonObjectAuthenticatedRequest request = new JsonArrayFromJsonObjectAuthenticatedRequest(Request.Method.POST,url,username,password,jsonObject,null, new Response.Listener<JSONArray>() {
                 @Override
                 public void onResponse(JSONArray response) {
@@ -262,6 +263,7 @@ public class ServerActions {
         String url = endpoint + "/location/list";
 
         final List<Location> locations = new ArrayList<>();
+        HttpsTrustManager.allowAllSSL();
         JsonArrayAuthenticatedRequest stringRequest = new JsonArrayAuthenticatedRequest(url,username,password, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
@@ -295,6 +297,7 @@ public class ServerActions {
 
     public void getListLocationHash(final OnResponseListener<String> listener){
         String url = endpoint + "/location/list/hash";
+        HttpsTrustManager.allowAllSSL();
         JsonObjectAuthenticatedRequest request = new JsonObjectAuthenticatedRequest(Request.Method.GET,url,username,password,null,new Response.Listener<JSONObject>() {
 
 
@@ -323,6 +326,7 @@ public class ServerActions {
 
         final List<Location> locations = new ArrayList<>();
         Log.d(TAG, "request: "+query.toJSON());
+        HttpsTrustManager.allowAllSSL();
         JsonArrayFromJsonObjectAuthenticatedRequest request = new JsonArrayFromJsonObjectAuthenticatedRequest(Request.Method.POST,url,username,password,query.toJSON(),null, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
@@ -382,7 +386,7 @@ public class ServerActions {
         String url = endpoint+"/profile/myList";
 
         final boolean[] loggedin = {false};
-
+        HttpsTrustManager.allowAllSSL();
         StringRequest strReq = new StringRequest(Request.Method.GET,
                url,
                 new Response.Listener<String>() {

@@ -1,12 +1,12 @@
-package pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils;
+package pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.Network;
 
 import android.util.Base64;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Response;
-import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.JsonArrayRequest;
 
-import org.json.JSONObject;
+import org.json.JSONArray;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,17 +15,16 @@ import java.util.Map;
  * Created by trosado on 5/12/17.
  */
 
-public class JsonObjectAuthenticatedRequest extends JsonObjectRequest {
-    String username;
-    String password;
+public class JsonArrayAuthenticatedRequest extends JsonArrayRequest {
+    private String username;
+    private String password;
 
-    public JsonObjectAuthenticatedRequest(int method, String url, String username, String password,JSONObject jsonRequest, Response.Listener<JSONObject> listener, Response.ErrorListener errorListener) {
-        super(method, url, jsonRequest, listener, errorListener);
+
+    public JsonArrayAuthenticatedRequest( String url, String username,String password, Response.Listener<JSONArray> listener, Response.ErrorListener errorListener) {
+        super(url, listener, errorListener);
         this.username = username;
         this.password = password;
-
     }
-
     @Override
     public Map<String, String> getHeaders() throws AuthFailureError {
         Map<String, String> headers = new HashMap<>();

@@ -2,7 +2,6 @@ package pt.ulisboa.tecnico.cmu.tg14.locmessclient;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,10 +23,9 @@ import java.util.regex.Pattern;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.OperationStatus;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.ServicesDataHolder;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnResponseListener;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderDbHelper;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServerActions;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.Network.ServerActions;
 
 public class MessagePolicyActivity extends AppCompatActivity implements OnResponseListener<OperationStatus>{
 
