@@ -994,8 +994,11 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
     public boolean deleteAllMyMessagesNotNearby(String publisher) {
         SQLiteDatabase db = this.getWritableDatabase();
 
-        return db.delete(FeedEntry.MESSAGE_TABLE_NAME, FeedEntry.MESSAGE_COLUMN_UUID + "= '" + publisher + "'" +
-                " and " + FeedEntry.MESSAGE_COLUMN_NEARBY +" false ", null) > 0;
+        String table = FeedEntry.MESSAGE_TABLE_NAME;
+        String whereClause = FeedEntry.MESSAGE_COLUMN_PUBLISHER+ "=? and " + FeedEntry.MESSAGE_COLUMN_NEARBY+ " =? ";
+        String[] whereArgs = new String[] { publisher, "false" };
+
+        return db.delete(table, whereClause, whereArgs) > 0;
     }
 
     public boolean deleteListMessage(List<String> messages) {
