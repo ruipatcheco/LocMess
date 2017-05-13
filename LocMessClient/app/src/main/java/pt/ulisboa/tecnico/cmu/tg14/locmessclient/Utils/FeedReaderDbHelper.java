@@ -93,6 +93,16 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
                 " )";
 
+    private static final String SQL_CREATE_MESSAGEKEYS =
+
+            "CREATE TABLE IF NOT EXISTS " + FeedEntry.MESSAGEKEYS_TABLE_NAME + " ( " +
+                    FeedEntry._ID + " INTEGER PRIMARY KEY," +
+                    FeedEntry.MESSAGEKEYS_COLUMN_UUID +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
+                    FeedEntry.MESSAGEKEYS_COLUMN_KEY +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
+                    FeedEntry.MESSAGEKEYS_COLUMN_VALUE +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
+                    FeedEntry.MESSAGEKEYS_COLUMN_ISWHITE +" "+ FeedEntry.TEXT_TYPE +
+                    " )";
+
     private static final String SQL_CREATE_PROFILE =
 
             "CREATE TABLE IF NOT EXISTS " + FeedEntry.PROFILE_TABLE_NAME + " ( " +
@@ -135,6 +145,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
         createLocationTable(db);
         createMessageTable(db);
+        createMessageKeysTable(db);
         createMuleTable(db);
         createProfileTable(db);
         createMuleProfileTable(db);
@@ -566,6 +577,12 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_CREATE_MESSAGE);
     }
 
+    public void     createMessageKeysTable(SQLiteDatabase db) {
+
+        db.execSQL(SQL_CREATE_MESSAGEKEYS);
+    }
+
+
     public void dropMessage() {
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -582,11 +599,13 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
                 message.getPublisher(),
                 message.getLocation(),
                 message.isCentralized(),
-                message.isNearby()
+                message.isNearby(),
+                message.getWhiteList(),
+                message.getBlackList()
         );
     }
 
-    public void insertMessage (String uuid, long creationTime, long startTime, long endTime, String content, String publisher, String location, boolean isCentralized, boolean isNearby) {
+    public void insertMessage (String uuid, long creationTime, long startTime, long endTime, String content, String publisher, String location, boolean isCentralized, boolean isNearby, List<Profile> whiteList, List<Profile> blackList) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         String centralized = "false";
@@ -615,9 +634,76 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         contentValues.put(FeedEntry.MESSAGE_COLUMN_DELETEDDECENTRALIZED, "false");
         contentValues.put(FeedEntry.MESSAGE_COLUMN_NEARBY, nearby);
 
-
         db.insert(FeedEntry.MESSAGE_TABLE_NAME, null, contentValues);
+
+        insertMessageKeys(whiteList,uuid,"true");
+        insertMessageKeys(blackList,uuid,"false");
     }
+
+    private void insertMessageKeys(List<Profile> profileList, String uuid ,String isWhite) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+
+        for(Profile p : profileList){
+            contentValues.put(FeedEntry.MESSAGEKEYS_COLUMN_UUID, uuid);
+            contentValues.put(FeedEntry.MESSAGEKEYS_COLUMN_KEY, p.getKey());
+            contentValues.put(FeedEntry.MESSAGEKEYS_COLUMN_VALUE, p.getValue());
+            contentValues.put(FeedEntry.MESSAGEKEYS_COLUMN_ISWHITE, isWhite);
+
+            db.insert(FeedEntry.MESSAGEKEYS_TABLE_NAME, null, contentValues);
+            contentValues.clear();
+        }
+
+
+    }
+
+    private ArrayList<Profile> getMessageKeys(String uuid, Boolean getWhitelist) throws MessageKeysNotFoundException {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String isWhite = "false";
+        if(getWhitelist){
+            isWhite = "true";
+        }
+
+        String[] projection = makeDefaultMessageKeysProjection();
+
+        ArrayList<Profile> keys = new ArrayList<>();
+
+        Cursor cursor = db.query(
+                FeedEntry.MESSAGEKEYS_TABLE_NAME,             // The table to query
+                projection,                               // The columns to return
+                FeedEntry.MESSAGEKEYS_COLUMN_UUID + "= ? and " + FeedEntry.MESSAGEKEYS_COLUMN_ISWHITE + " = ?",    // The columns for the WHERE clause
+                new String[]{uuid,isWhite},                       // The values for the WHERE clause
+                null,                                     // don't group the rows
+                null,                                     // don't filter by row groups
+                null                                      // The sort order
+        );
+
+        if (cursor.getCount() == 0) {
+            throw new MessageKeysNotFoundException();
+        }
+
+        cursor.moveToFirst();
+
+        while(cursor.isAfterLast() == false){
+            keys.add(associateMessageKeys(cursor));
+            cursor.moveToNext();
+        }
+
+        return keys;
+
+    }
+
+    private Profile associateMessageKeys(Cursor cursor) {
+
+        String username = ServicesDataHolder.getInstance().getUsername();
+
+        return new Profile(
+                cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGEKEYS_COLUMN_KEY)),
+                cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGEKEYS_COLUMN_VALUE)),
+                username
+        );
+    }
+
 
     public void insertMessageFromServer(Message message) {
 
@@ -898,6 +984,8 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
     public boolean deleteMessage(String uuid) {
         SQLiteDatabase db = this.getWritableDatabase();
 
+        db.delete(FeedEntry.MESSAGEKEYS_TABLE_NAME, FeedEntry.MESSAGEKEYS_COLUMN_UUID + "= '" + uuid + "'", null);
+
         return db.delete(FeedEntry.MESSAGE_TABLE_NAME, FeedEntry.MESSAGE_COLUMN_UUID + "= '" + uuid + "'", null) > 0;
     }
 
@@ -932,6 +1020,16 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
             isNearby = true;
         }
 
+        String uuid = cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_UUID));
+
+        ArrayList<Profile> whiteList = new ArrayList<>();
+        ArrayList<Profile> blackList = new ArrayList<>();
+        try {
+            whiteList = getMessageKeys(uuid, true);
+            blackList = getMessageKeys(uuid, false);
+        } catch (MessageKeysNotFoundException e) {
+            e.printStackTrace();
+        }
 
         return new Message(
                 UUID.fromString(cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_UUID))),
@@ -943,8 +1041,8 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
                 cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_LOCATION)),
                 isCentralized,
                 isNearby,
-                null,
-                null
+                whiteList,
+                blackList
         );
     }
 
@@ -962,6 +1060,16 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
                 FeedEntry.MESSAGE_COLUMN_ADDEDDECENTRALIZED,
                 FeedEntry.MESSAGE_COLUMN_DELETEDDECENTRALIZED,
                 FeedEntry.MESSAGE_COLUMN_NEARBY
+        };
+    }
+
+    private String[] makeDefaultMessageKeysProjection() {
+        return new String[] {
+                FeedEntry._ID,
+                FeedEntry.MESSAGEKEYS_COLUMN_UUID,
+                FeedEntry.MESSAGEKEYS_COLUMN_KEY,
+                FeedEntry.MESSAGEKEYS_COLUMN_VALUE,
+                FeedEntry.MESSAGEKEYS_COLUMN_ISWHITE,
         };
     }
 
@@ -1036,7 +1144,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         Cursor cursor = db.query(
                 FeedEntry.PROFILE_TABLE_NAME,             // The table to query
                 projection,                               // The columns to return
-                FeedEntry.PROFILE_COLUMN_KEY + " = ?" + FeedEntry.PROFILE_COLUMN_DELETEDDECENTRALIZED + " = ? ",            // The columns for the WHERE clause
+                FeedEntry.PROFILE_COLUMN_KEY + " = ? " + FeedEntry.PROFILE_COLUMN_DELETEDDECENTRALIZED + " = ? ",            // The columns for the WHERE clause
                 new String[]{key, "false"},                                     // The values for the WHERE clause
                 null,                                     // don't group the rows
                 null,                                     // don't filter by row groups

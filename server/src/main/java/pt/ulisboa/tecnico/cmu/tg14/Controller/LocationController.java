@@ -97,9 +97,8 @@ public class LocationController {
 
     private LocationMover convertToLocResult(Location location){
 
-        UUID coordID = location.getCoordinates();
-        Coordinates coord = null;
-        if(coordID != null){
+        Coordinates coord = coordinatesImpl.getCoordinates(location.getName());
+        if(coord != null){
             coord = coordinatesImpl.getCoordinates(location.getName());
             return new LocationMover(location.getName(),location.getSsid()
                     ,location.getBle(),coord.getLatitude()

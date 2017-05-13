@@ -33,7 +33,7 @@ public class Location {
     public void setBle(String ble) {
         this.ble = ble;
     }
-    
+
 
     @Override
     public int hashCode() {

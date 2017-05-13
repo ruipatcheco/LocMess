@@ -60,6 +60,12 @@ public final class FeedReaderContract {
         public static final String MESSAGE_COLUMN_NEARBY= "nearby";
 
 
+        public static final String MESSAGEKEYS_TABLE_NAME = "PROFILE";
+        public static final String MESSAGEKEYS_COLUMN_UUID = "UUID";
+        public static final String MESSAGEKEYS_COLUMN_KEY = "key";
+        public static final String MESSAGEKEYS_COLUMN_VALUE = "value";
+        public static final String MESSAGEKEYS_COLUMN_ISWHITE = "iswhite";
+
 
         public static final String PROFILE_TABLE_NAME = "PROFILE";
         public static final String PROFILE_COLUMN_KEY = "key";
