@@ -150,7 +150,7 @@ public class AddMessage extends AppCompatActivity {
         Calendar calendar = Calendar.getInstance();
         DatePickerDialog datePickerDialog = DatePickerDialog.newInstance(dateTimeListener,
                 calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.MONTH) + 1,   // TODO : FIX BUG OF GETTING MONTH 0
                 calendar.get(Calendar.DAY_OF_MONTH));
         datePickerDialog.show(getFragmentManager(),"DateTimePickerDialog");
     }
@@ -159,12 +159,21 @@ public class AddMessage extends AppCompatActivity {
         return startTime <= endTime;
     }
 
+    private void fixTime(TextView time) {
+        String[] parts = time.getText().toString().split("-");
+        if (parts.length == 3) {
+            time.setText(parts[0] + "-" + String.valueOf(Integer.parseInt(parts[1]) + 1) + "-" + parts[2]);
+        } else {
+            time.setText("");
+        }
+    }
+
     public long convertTime(String time) {
         try {
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
             Date date = (Date) formatter.parse(time);
 
-            Log.d("time -> ", date.toString());
+            Log.d("time -> ", String.valueOf(date.getTime()));
 
             return date.getTime();
 
