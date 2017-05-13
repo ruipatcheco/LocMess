@@ -145,11 +145,12 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
         createLocationTable(db);
         createMessageTable(db);
-        createMessageKeysTable(db);
+
         createMuleTable(db);
         createProfileTable(db);
         createMuleProfileTable(db);
         createServerProfilesTable(db);
+        createMessageKeysTable(db);
     }
 
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -577,7 +578,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_CREATE_MESSAGE);
     }
 
-    public void     createMessageKeysTable(SQLiteDatabase db) {
+    public void createMessageKeysTable(SQLiteDatabase db) {
 
         db.execSQL(SQL_CREATE_MESSAGEKEYS);
     }
@@ -641,6 +642,9 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
     }
 
     private void insertMessageKeys(List<Profile> profileList, String uuid ,String isWhite) {
+
+        Log.d("DBHelper: ","insertMessageKeys, isWhite = " +isWhite);
+
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
 
@@ -650,10 +654,10 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
             contentValues.put(FeedEntry.MESSAGEKEYS_COLUMN_VALUE, p.getValue());
             contentValues.put(FeedEntry.MESSAGEKEYS_COLUMN_ISWHITE, isWhite);
 
+
             db.insert(FeedEntry.MESSAGEKEYS_TABLE_NAME, null, contentValues);
             contentValues.clear();
         }
-
 
     }
 
@@ -983,8 +987,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
     public boolean deleteMessage(String uuid) {
         SQLiteDatabase db = this.getWritableDatabase();
-
-        db.delete(FeedEntry.MESSAGEKEYS_TABLE_NAME, FeedEntry.MESSAGEKEYS_COLUMN_UUID + "= '" + uuid + "'", null);
+            db.delete(FeedEntry.MESSAGEKEYS_TABLE_NAME, FeedEntry.MESSAGEKEYS_COLUMN_UUID + "= '" + uuid + "'", null);
 
         return db.delete(FeedEntry.MESSAGE_TABLE_NAME, FeedEntry.MESSAGE_COLUMN_UUID + "= '" + uuid + "'", null) > 0;
     }
@@ -1031,6 +1034,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
             e.printStackTrace();
         }
 
+
         return new Message(
                 UUID.fromString(cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_UUID))),
                 cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_CREATIONTIME)),
@@ -1041,6 +1045,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
                 cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_LOCATION)),
                 isCentralized,
                 isNearby,
+                //null,null
                 whiteList,
                 blackList
         );
