@@ -9,6 +9,12 @@ public class Profile {
     private String key;
     private String value;
 
+    public Profile(String username, String key, String value) {
+        this.username = username;
+        this.key = key;
+        this.value = value;
+    }
+
     public String getUsername() {
         return username;
     }

@@ -13,10 +13,11 @@ import java.sql.SQLException;
 public class ProfileMapper implements RowMapper<Profile> {
     @Override
     public Profile mapRow(ResultSet resultSet, int i) throws SQLException {
-        Profile p = new Profile();
-        p.setUsername(resultSet.getString("username"));
-        p.setKey(resultSet.getString("name"));
-        p.setValue(resultSet.getString("value"));
+        Profile p = new Profile(
+                resultSet.getString("username"),
+                resultSet.getString("name"),
+                resultSet.getString("value")
+        );
         return p;
     }
 }

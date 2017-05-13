@@ -151,6 +151,7 @@ public class DBService extends Service implements OnResponseListener<String> {
                         getAndInsertOldMessages();
                     }
 
+                    ////////////////---------------MESSAGES----------------------/////////////
 
                     updateMessages();
                 }

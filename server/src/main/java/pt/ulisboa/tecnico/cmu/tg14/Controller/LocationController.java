@@ -13,6 +13,7 @@ import pt.ulisboa.tecnico.cmu.tg14.Implementation.CoordinatesImpl;
 import pt.ulisboa.tecnico.cmu.tg14.Implementation.LocationImpl;
 import pt.ulisboa.tecnico.cmu.tg14.Model.Coordinates;
 import pt.ulisboa.tecnico.cmu.tg14.Model.Location;
+import pt.ulisboa.tecnico.cmu.tg14.Model.Message;
 import sun.rmi.runtime.Log;
 
 
@@ -91,29 +92,12 @@ public class LocationController {
             locations.addAll(loc);
         }
 
-        //List<Location> allowedLocations = isAllowed(locations);
-
-        //List<LocationMover> result = allowedLocations.stream().map(this::convertToLocResult).collect(Collectors.toList());
-
         List<LocationMover> result = locations.stream().map(this::convertToLocResult).collect(Collectors.toList());
 
 
         return result;
     }
 
-    private List<Location> isAllowed(List<Location> locations) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String username = auth.getName(); //get logged in username
-        ArrayList<Location> result = new ArrayList<>();
-
-        for(Location l : locations){
-            //check timeframe
-            //check se tem chave/key na blacklist -> se sim discart
-            //check se tem chave/key na blacklist -> se nao discart
-        }
-
-        return result;
-    }
 
 
     private LocationMover convertToLocResult(Location location){

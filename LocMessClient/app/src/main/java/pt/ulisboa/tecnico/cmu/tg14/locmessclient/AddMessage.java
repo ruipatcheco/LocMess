@@ -103,8 +103,8 @@ public class AddMessage extends AppCompatActivity {
                 i.putExtra("mMessageContent",mMessageContent.getText().toString());
                 i.putExtra("mStartTime",""+start);
                 i.putExtra("mEndTime",""+end);
+
                 Log.d(TAG, "onClick: "+mStartTime);
-                //TODO add message arguments to activity or save to disk
                 startActivity(i);
                 finish();
             }
@@ -163,7 +163,12 @@ public class AddMessage extends AppCompatActivity {
         try {
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
             Date date = (Date) formatter.parse(time);
+
+            Log.d("time -> ", date.toString());
+
             return date.getTime();
+
+
         } catch (ParseException p1) {
             try {
                 SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");

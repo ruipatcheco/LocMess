@@ -287,7 +287,6 @@ public class ListMessages extends Fragment {
 
             for(Message m: dbMessages){
                 auxList.add(m);
-                Log.d("MessageLocationActivity","added message from db-> " + m.getUUID());
             }
             return null;
         }

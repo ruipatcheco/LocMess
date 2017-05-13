@@ -12,11 +12,13 @@ import pt.ulisboa.tecnico.cmu.tg14.DTO.MessageMover;
 import pt.ulisboa.tecnico.cmu.tg14.DTO.OperationStatus;
 import pt.ulisboa.tecnico.cmu.tg14.Implementation.MessageImpl;
 import pt.ulisboa.tecnico.cmu.tg14.Implementation.MessageKeysImpl;
+import pt.ulisboa.tecnico.cmu.tg14.Implementation.ProfileImpl;
 import pt.ulisboa.tecnico.cmu.tg14.Model.Message;
 import pt.ulisboa.tecnico.cmu.tg14.Model.MessageKeys;
 import pt.ulisboa.tecnico.cmu.tg14.Model.Profile;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -94,7 +96,78 @@ public class MessageController {
     @RequestMapping(value = "/getMessagesByLocation", method = RequestMethod.POST)
     public List<Message> getMessagesByLocation(@RequestBody LocationMover locationMover){
         List<Message> messageList = messageImpl.getMessagesByLocation(locationMover.getName());
-        return messageList;
+
+        return isAllowed(messageList);
+    }
+
+
+    private List<Message> isAllowed(List<Message> messages) {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName(); //get logged in username
+        ArrayList<Message> result = new ArrayList<>();
+
+        ProfileImpl profileImpl =
+                (ProfileImpl)context.getBean("profileImpl");
+
+        MessageKeysImpl messageKeysImpl =
+                (MessageKeysImpl)context.getBean("messageKeysImpl");
+
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+
+        for(Message m : messages){
+            System.out.println("isAllowed a verificar mensagem -> " + m.getContent());
+
+            System.out.println("startTime -> " + m.getStartTime());
+            System.out.println("now -> " + now);
+            System.out.println("endTime -> " + m.getEndTime());
+
+
+            //check timeframe
+            if(m.getStartTime().before(now) && (m.getEndTime()!=null? m.getEndTime().after(now):true)){
+                System.out.println("isAllowed mensagem na timeframe");
+
+                List<Profile> userKeys = profileImpl.list(username);
+                List<MessageKeys> messageKeys = messageKeysImpl.getMessageKeys(m.getId());
+                List<Profile> blackList = new ArrayList<>();
+                List<Profile> whiteList = new ArrayList<>();
+
+                if(messageKeys.isEmpty()){
+                    System.out.println("isAllowed mensagekeys empty, aceite");
+                    result.add(m);
+                    continue;
+                }
+
+                //Fill whitelist and blacklist
+                for (MessageKeys mKey:messageKeys){
+                    if(mKey.getWhite()){
+                        Profile p = new Profile(username,mKey.getKey(),mKey.getValue());
+                        whiteList.add(p);
+                    }
+
+                    else{
+                        Profile p = new Profile(username,mKey.getKey(),mKey.getValue());
+                        blackList.add(p);
+                    }
+                }
+
+                //Check whitelist and blacklist & pray
+                for(Profile p: userKeys){
+                    if(!blackList.contains(p)||blackList.isEmpty()){
+                        System.out.println("isAllowed mensagem passou blacklist");
+                        if(whiteList.contains(p)||whiteList.isEmpty()){
+                            System.out.println("isAllowed mensagem passou whitelist");
+                            System.out.println("isAllowed mensagem aceite");
+                            result.add(m);
+                            continue;
+                        }
+                    }
+                }
+
+            }
+        }
+
+        return result;
     }
 
     @RequestMapping(value = "/myMessages")
