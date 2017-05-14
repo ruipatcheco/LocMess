@@ -98,7 +98,7 @@ public class MessagePolicyActivity extends AppCompatActivity {
 
                 Profile profile = new Profile(mKey.getText().toString(), mValue.getText().toString());
 
-                // This line adds te profile to user's database
+                // This line adds the profile to user's database
                 //dbHelper.insertProfile(profile);
 
                 list.add(0, new Model(profile));

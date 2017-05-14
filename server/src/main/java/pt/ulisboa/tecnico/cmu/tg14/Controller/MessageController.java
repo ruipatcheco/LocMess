@@ -124,6 +124,7 @@ public class MessageController {
 
 
             //check timeframe
+            //FIXME -> entime = 0 , mensagem disponivel para sempre
             if(m.getStartTime().before(now) && (m.getEndTime()!=null? m.getEndTime().after(now):true)){
                 System.out.println("isAllowed mensagem na timeframe");
 
