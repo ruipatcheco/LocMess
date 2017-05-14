@@ -104,7 +104,7 @@ public class AddMessage extends AppCompatActivity {
                 i.putExtra("mStartTime",""+start);
                 i.putExtra("mEndTime",""+end);
 
-                //Log.d(TAG, "onClick: "+mStartTime);
+                Log.d(TAG, "endTIME do chines: "+end);
                 startActivity(i);
                 finish();
             }

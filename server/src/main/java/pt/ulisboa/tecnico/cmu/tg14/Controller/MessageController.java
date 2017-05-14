@@ -46,14 +46,11 @@ public class MessageController {
         String username = auth.getName(); //get logged in username
         Timestamp endTime  = messageMover.getEndTime();
 
-        if(endTime.getTime() <= 0)
-            messageImpl.create(messageMover.getId(),messageMover.getStartTime(),
-                    messageMover.getCreationTime(),messageMover.getContent(),
-                    username,messageMover.getLocation());
-        else
-            messageImpl.create(messageMover.getId(),messageMover.getStartTime(),endTime,
-                    messageMover.getCreationTime(),messageMover.getContent(),
-                    messageMover.getPublisher(),messageMover.getLocation());
+        System.out.println("create message endtime ->" + endTime);
+
+        messageImpl.create(messageMover.getId(),messageMover.getStartTime(),endTime,
+                messageMover.getCreationTime(),messageMover.getContent(),
+                messageMover.getPublisher(),messageMover.getLocation());
 
         for(Profile p: messageMover.getBlackList()){
             messageKeysImpl.create(messageMover.getId(),p.getKey(),p.getValue(),false);
@@ -138,13 +135,13 @@ public class MessageController {
                 for (MessageKeys mKey:messageKeys){
                     if(mKey.getWhite()){
                         Profile p = new Profile(username,mKey.getKey(),mKey.getValue());
-                        System.out.println("isAllowed mensagekeys white -> " + p.getKey() + p.getValue() + p.getUsername());
+                        //System.out.println("isAllowed mensagekeys white -> " + p.getKey() + p.getValue() + p.getUsername());
                         whiteList.add(p);
                     }
 
                     else{
                         Profile p = new Profile(username,mKey.getKey(),mKey.getValue());
-                        System.out.println("isAllowed mensagekeys black -> " + p.getKey() + p.getValue() + p.getUsername());
+                        //System.out.println("isAllowed mensagekeys black -> " + p.getKey() + p.getValue() + p.getUsername());
                         blackList.add(p);
                     }
                 }
@@ -153,14 +150,14 @@ public class MessageController {
                 //Check whitelist and blacklist & pray
                 boolean passou = true;
                 if (!containsAllMinado(userKeys, whiteList)){
-                    System.out.println("isAllowed mensagem nao passou whitelist");
+                    //System.out.println("isAllowed mensagem nao passou whitelist");
                     passou=false;
                 }
 
                 for (Profile b : blackList){
                     System.out.println("isAllowed blacklist da mensagem -> " +b.getKey());
                     if(containsMinado(userKeys,b)){
-                        System.out.println("isAllowed mensagem nao passou blacklist");
+                        //System.out.println("isAllowed mensagem nao passou blacklist");
                         passou = false;
                         break;
                     }
@@ -171,30 +168,6 @@ public class MessageController {
                     result.add(m);
                 }
 
-
-               /*
-                for(Profile p: userKeys){
-                    if(!passou){
-                        break;
-                    }
-                    System.out.println("isAllowed userkeys -> " + p.getKey() + p.getValue() + p.getUsername());
-
-                    if(containsMinado(blackList,p)){
-                        System.out.println("isAllowed mensagem nao passou blacklist");
-                        passou = false;
-                        continue;
-                    }
-                    if(!containsMinado(whiteList,p)&&!whiteList.isEmpty()){
-                        System.out.println("isAllowed mensagem nao passou whitelist");
-                        passou = false;
-                        continue;
-                    }
-                }
-                if(passou){
-                    System.out.println("isAllowed mensagem aceite");
-                    result.add(m);
-                }
-                */
             }
         }
 

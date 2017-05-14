@@ -12,6 +12,10 @@ import pt.ulisboa.tecnico.cmu.tg14.dao.MessageDao;
 import javax.sql.DataSource;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -44,15 +48,13 @@ public class MessageImpl implements MessageDao {
     @Override
     public void create(UUID id,Timestamp startTime, Timestamp endTime, Timestamp creationTime, String content, String publisher, String location) {
         String SQL = "insert into Message (id, location, content, creationtime, starttime, endtime, publisher) values (?,?,?,?,?,?,?)";
+
+        Timestamp infinite = new Timestamp(0);
+        if(endTime.equals(infinite)){
+            endTime = java.sql.Timestamp.valueOf("2020-09-23 10:10:10.0");
+        }
+
         jdbcTemplateObject.update( SQL,id.toString(),location,content,creationTime,startTime,endTime,publisher);
-        return;
-
-    }
-
-    @Override
-    public void create(UUID id,Timestamp startTime, Timestamp creationTime, String content, String publisher, String location) {
-        String SQL = "insert into Message (id, location, content, creationtime, endtime, publisher) values (?,?,?,?,?,?)";
-        jdbcTemplateObject.update( SQL,id.toString(),location,content,creationTime,startTime,publisher);
         return;
 
     }

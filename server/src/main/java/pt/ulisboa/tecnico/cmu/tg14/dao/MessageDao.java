@@ -20,8 +20,6 @@ public interface MessageDao {
 
    void create(UUID id, Timestamp startTime, Timestamp endTime, Timestamp creationTime, String content, String publisher, String location);
 
-   void create(UUID id, Timestamp startTime, Timestamp creationTime, String content, String publisher, String location);
-
    void delete(UUID id);
 
    Message getMessage(UUID id);

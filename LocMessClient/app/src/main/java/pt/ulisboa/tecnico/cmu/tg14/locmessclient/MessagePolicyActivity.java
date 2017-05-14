@@ -123,12 +123,11 @@ public class MessagePolicyActivity extends AppCompatActivity {
                 Message message = new Message();
                 message.setContent(mMessageContent);
                 Calendar c = Calendar.getInstance();
-                String TAG ="";
                 message.setCreationTime(Calendar.getInstance().getTime().getTime());
-                //Log.d(TAG, "onClick: "+mStartTime);
                 message.setUUID(UUID.randomUUID());
                 message.setStartTime(Long.valueOf(mStartTime));
                 message.setEndTime(Long.valueOf(mEndTime));
+                Log.d("MessagePolicyActivity ", "endTIME do chines2"+mEndTime);
                 message.setPublisher(ServicesDataHolder.getInstance().getUsername());
                 message.setLocation(mID);
                 message.setCentralized(!mIsDecentralized);
