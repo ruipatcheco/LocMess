@@ -45,7 +45,6 @@ public class MessageImpl implements MessageDao {
     public void create(UUID id,Timestamp startTime, Timestamp endTime, Timestamp creationTime, String content, String publisher, String location) {
         String SQL = "insert into Message (id, location, content, creationtime, starttime, endtime, publisher) values (?,?,?,?,?,?,?)";
         jdbcTemplateObject.update( SQL,id.toString(),location,content,creationTime,startTime,endTime,publisher);
-
         return;
 
     }

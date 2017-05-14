@@ -50,7 +50,7 @@ public class Location {
     }
 
     public void setBle(String ble) {
-        Log.d(TAG, "setBle: was called");
+        //Log.d(TAG, "setBle: was called");
         setDataNull(true);
         this.ble = ble;
     }

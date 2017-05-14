@@ -104,7 +104,7 @@ public class AddMessage extends AppCompatActivity {
                 i.putExtra("mStartTime",""+start);
                 i.putExtra("mEndTime",""+end);
 
-                Log.d(TAG, "onClick: "+mStartTime);
+                //Log.d(TAG, "onClick: "+mStartTime);
                 startActivity(i);
                 finish();
             }
@@ -173,7 +173,7 @@ public class AddMessage extends AppCompatActivity {
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
             Date date = (Date) formatter.parse(time);
 
-            Log.d("time -> ", String.valueOf(date.getTime()));
+            //Log.d("time -> ", String.valueOf(date.getTime()));
 
             return date.getTime();
 

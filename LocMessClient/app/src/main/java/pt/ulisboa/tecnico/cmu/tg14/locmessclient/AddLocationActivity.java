@@ -150,19 +150,19 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
                 //FIXME set first element of list if nothing is set
                 switch (mType){
                     case BLE:
-                        Log.d(TAG, "onItemSelected: BT Name : "+name);
-                        Log.d(TAG, "onItemSelected: BT Selected : "+nameBLEMAP.get(name));
+                        //Log.d(TAG, "onItemSelected: BT Name : "+name);
+                        //Log.d(TAG, "onItemSelected: BT Selected : "+nameBLEMAP.get(name));
                         mLocation.setBle(name);
                         break;
                     case WIFI:
-                        Log.d(TAG, "onItemSelected: WIFI Name : "+name);
-                        Log.d(TAG, "onItemSelected: WIFI Selected : "+nameWifiMap.get(name));
+                        //Log.d(TAG, "onItemSelected: WIFI Name : "+name);
+                        //Log.d(TAG, "onItemSelected: WIFI Selected : "+nameWifiMap.get(name));
                         mLocation.setSsid(name);
                         break;
 
                 }
 
-                Log.d(TAG, "onItemSelected: "+name);
+                //Log.d(TAG, "onItemSelected: "+name);
             }
 
             @Override
@@ -268,7 +268,7 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
         if(! ((Math.abs(lat-0) < delta) && (Math.abs(lon-0) < delta)) ){
             //Checks if lat = 0 and lon = 0
             validLocation = true;
-            Log.d("Addlocationactivity: ", " lat-> " + lat + " lon-> " + lon);
+            //Log.d("Addlocationactivity: ", " lat-> " + lat + " lon-> " + lon);
 
             mLocation.setLatitude(lat);
             mLocation.setLongitude(lon);
@@ -279,7 +279,7 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
         nameWifiMap = dataHolder.getSsidContent();
         for (String name: nameWifiMap.keySet()){
             namesWifi.add(name);
-            Log.d("AddLocationActivity","Wifi: "+name);
+            //Log.d("AddLocationActivity","Wifi: "+name);
         }
         mAdapterWIFI.notifyDataSetChanged();
 
@@ -289,7 +289,7 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
         nameBLEMAP = dataHolder.getBleContent();
         for (String name: nameBLEMAP.keySet()){
             namesBLE.add(name);
-            Log.d("AddLocationActivity","BLE: "+name);
+            //Log.d("AddLocationActivity","BLE: "+name);
         }
         mAdapterBLE.notifyDataSetChanged();
     }

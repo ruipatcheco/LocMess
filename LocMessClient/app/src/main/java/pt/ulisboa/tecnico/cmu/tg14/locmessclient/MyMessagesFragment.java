@@ -101,7 +101,7 @@ public class MyMessagesFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        Log.d("MyMessages: ", "on resume" );
+        //Log.d("MyMessages: ", "on resume" );
 
         new GetMessagesFromDatabaseTask().execute();
     }
@@ -241,7 +241,7 @@ public class MyMessagesFragment extends Fragment {
 
             arrayAdapter = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1, messagesList);
             listView.setAdapter(arrayAdapter);
-            Log.d("MyMessages: ", "onPreExecute");
+            //Log.d("MyMessages: ", "onPreExecute");
 
         }
 
@@ -255,7 +255,7 @@ public class MyMessagesFragment extends Fragment {
                 messagesList.add(s);
             }
             arrayAdapter.notifyDataSetChanged();
-            Log.d("MyMessages: ", "onPostExecute");
+            //Log.d("MyMessages: ", "onPostExecute");
         }
 
         @Override
@@ -272,10 +272,10 @@ public class MyMessagesFragment extends Fragment {
                 for(Message m: messagesDB){
                     list2update.add(m.getContent());
                     hashAux.put(m.getContent(),m.getUUID().toString());
-                    Log.d("MyMessages: ", "received message ->" + m.getUUID());
+                    //Log.d("MyMessages: ", "received message ->" + m.getUUID());
                 }
 
-                Log.d("MyMessages: ", "received messages ->" +list2update.size() );
+                //Log.d("MyMessages: ", "received messages ->" +list2update.size() );
             } catch (PublisherNotFoundException e) {
                 e.printStackTrace();
             }

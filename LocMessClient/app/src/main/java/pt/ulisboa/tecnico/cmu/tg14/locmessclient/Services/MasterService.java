@@ -40,7 +40,7 @@ public class MasterService extends Service  implements OnLocationReceivedListene
 
     @Override
     public void onCreate() {
-        Log.d(TAG, "onCreate: Started Master Service");
+        //Log.d(TAG, "onCreate: Started Master Service");
         serviceManager = ServiceManager.getInstance();
         dataHolder = ServicesDataHolder.getInstance();
         serviceManager.initReceivers(this);
@@ -85,9 +85,9 @@ public class MasterService extends Service  implements OnLocationReceivedListene
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d("MasterService: ", "onDestroy -> unregistering receivers");
+        //Log.d("MasterService: ", "onDestroy -> unregistering receivers");
         serviceManager.unRegisterReceivers();
-        Log.d("MasterService: ", "onDestroy -> stopping services");
+        //Log.d("MasterService: ", "onDestroy -> stopping services");
         serviceManager.stopServices();
     }
 

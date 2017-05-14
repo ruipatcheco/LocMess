@@ -242,7 +242,7 @@ public class ListLocations extends Fragment {
             mDataHolder.setKillThread(false);
             t = new Thread(new UpdateLocationsTask());
             t.start();
-            Log.d("ListLocations:", "new thread updating locations listview starting...");
+            //Log.d("ListLocations:", "new thread updating locations listview starting...");
         }
 
 
@@ -263,19 +263,19 @@ public class ListLocations extends Fragment {
     }
 
     private void updateLocationsList(){
-        Log.d("ListLocations:", "thread updating locations listview ");
+        //Log.d("ListLocations:", "thread updating locations listview ");
 
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 // This code will always run on the UI thread, therefore is safe to modify UI elements.
 
-                Log.d("ListLocations:", "inside UI thread");
+                //Log.d("ListLocations:", "inside UI thread");
 
                 nearLocations = mDataHolder.getNearLocations();
                 locationListNames.clear();
                 for (Location location : nearLocations) {
-                    Log.d("ListLocations:", "thread added location to UI ->" + location.getName());
+                    //Log.d("ListLocations:", "thread added location to UI ->" + location.getName());
                     locationListNames.add(location.getName());
                 }
 

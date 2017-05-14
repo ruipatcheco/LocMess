@@ -86,7 +86,7 @@ public class MessagePolicyActivity extends AppCompatActivity {
         mAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("TAG","Click");
+                //Log.d("TAG","Click");
 
                 hideKeyboard();
 
@@ -105,7 +105,7 @@ public class MessagePolicyActivity extends AppCompatActivity {
 
                 adapter.notifyDataSetChanged();
 
-                Log.d("TAG", message);
+                //Log.d("TAG", message);
 
                 mKey.setText("");
                 mValue.setText("");
@@ -125,7 +125,7 @@ public class MessagePolicyActivity extends AppCompatActivity {
                 Calendar c = Calendar.getInstance();
                 String TAG ="";
                 message.setCreationTime(Calendar.getInstance().getTime().getTime());
-                Log.d(TAG, "onClick: "+mStartTime);
+                //Log.d(TAG, "onClick: "+mStartTime);
                 message.setUUID(UUID.randomUUID());
                 message.setStartTime(Long.valueOf(mStartTime));
                 message.setEndTime(Long.valueOf(mEndTime));

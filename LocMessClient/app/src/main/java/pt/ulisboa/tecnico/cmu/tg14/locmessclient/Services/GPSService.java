@@ -33,7 +33,7 @@ public class GPSService extends Service {
 
     @Override
     public void onCreate() {
-        Log.d("GPSService","GPS Started");
+        //Log.d("GPSService","GPS Started");
 
 
         listener = new LocationListener() {

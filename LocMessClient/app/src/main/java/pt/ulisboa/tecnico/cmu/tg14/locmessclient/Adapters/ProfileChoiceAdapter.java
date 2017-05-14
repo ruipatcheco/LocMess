@@ -76,7 +76,7 @@ public class ProfileChoiceAdapter extends ArrayAdapter<Model> {
                 list.get(getPosition).setSelected(checkbox.isChecked());
                 finalViewHolder.radioGroup.getChildAt(0).setEnabled(checkbox.isChecked());
                 finalViewHolder.radioGroup.getChildAt(1).setEnabled(checkbox.isChecked());
-                Log.d("SIZE", String.valueOf(finalViewHolder.radioGroup.getChildCount()));
+                //Log.d("SIZE", String.valueOf(finalViewHolder.radioGroup.getChildCount()));
 
             }
         });

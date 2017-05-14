@@ -134,12 +134,12 @@ public class ListMessages extends Fragment {
         if (doesDatabaseExist(context, dbHelper.getDatabaseName()) && deleteDatabase){
             //context.deleteDatabase(FeedReaderDbHelper.DATABASE_NAME);
             //dbHelper.onDrop(dbHelper.getWritableDatabase());
-            Log.d("createDatabase","old database detected and deleted");
+            //Log.d("createDatabase","old database detected and deleted");
         }
 
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         dbHelper.onCreate(db);
-        Log.d("createDatabase","database created");
+        //Log.d("createDatabase","database created");
 
 /*
         //FIXME TESTING
@@ -151,51 +151,51 @@ public class ListMessages extends Fragment {
         ArrayList<Message> messages = dbHelper.getAllMessages();
 
         for(Message m:messages){
-            Log.d("message", m.getUUID().toString());
-            Log.d("createDatabase", "creationtime: "+m.getCreationTime());
-            Log.d("createDatabase", "content: "+m.getContent());
+            //Log.d("message", m.getUUID().toString());
+            //Log.d("createDatabase", "creationtime: "+m.getCreationTime());
+            //Log.d("createDatabase", "content: "+m.getContent());
         }
 
-        Log.d("message0", "uuid: " + messages.get(0).getUUID().toString());
-        Log.d("message0", "creationtime: "+messages.get(0).getCreationTime());
-        Log.d("message0", "content: "+messages.get(0).getContent());
-        Log.d("message0", "publisher: "+messages.get(0).getPublisher());
+        //Log.d("message0", "uuid: " + messages.get(0).getUUID().toString());
+        //Log.d("message0", "creationtime: "+messages.get(0).getCreationTime());
+        //Log.d("message0", "content: "+messages.get(0).getContent());
+        //Log.d("message0", "publisher: "+messages.get(0).getPublisher());
 
         try {
             Message m0 = dbHelper.getMessage(messages.get(0).getUUID().toString());
-            Log.d("message0BD", "uuid: " + m0.getUUID().toString());
-            Log.d("message0DB", "creationtime: "+m0.getCreationTime());
-            Log.d("message0DB", "content: "+m0.getContent());
-            Log.d("message0DB", "publisher: "+m0.getPublisher());
+            //Log.d("message0BD", "uuid: " + m0.getUUID().toString());
+            //Log.d("message0DB", "creationtime: "+m0.getCreationTime());
+            //Log.d("message0DB", "content: "+m0.getContent());
+            //Log.d("message0DB", "publisher: "+m0.getPublisher());
         } catch (MessageNotFoundException e) {
-            Log.d("message0BD", "MESSAGE NOT FOUND");
+            //Log.d("message0BD", "MESSAGE NOT FOUND");
             e.printStackTrace();
         }
 
         try {
             for (Message m0 : dbHelper.getMessagesFromUser("publisher")) {
-                Log.d("message0BD", "uuid: " + m0.getUUID().toString());
-                Log.d("message0DB", "creationtime: "+m0.getCreationTime());
-                Log.d("message0DB", "content: "+m0.getContent());
-                Log.d("message0DB", "publisher: "+m0.getPublisher());
+                //Log.d("message0BD", "uuid: " + m0.getUUID().toString());
+                //Log.d("message0DB", "creationtime: "+m0.getCreationTime());
+                //Log.d("message0DB", "content: "+m0.getContent());
+                //Log.d("message0DB", "publisher: "+m0.getPublisher());
             }
         } catch (PublisherNotFoundException e) {
-            Log.d("messagePUBLISHER", "publisher not found");
+            //Log.d("messagePUBLISHER", "publisher not found");
         }
 
         dbHelper.insertMessageMule(UUID.randomUUID().toString(), c.getTimeInMillis(),c.getTimeInMillis(),c.getTimeInMillis(),"olateste","publisher","tenicno");
         ArrayList<Message> messagesMule = dbHelper.getAllMuleMessages();
         for(Message m:messagesMule){
-            Log.d("createDatabase", "mulecreationtime: "+m.getCreationTime());
-            Log.d("createDatabase", "mulecontent: "+m.getContent());
+            //Log.d("createDatabase", "mulecreationtime: "+m.getCreationTime());
+            //Log.d("createDatabase", "mulecontent: "+m.getContent());
         }
 
         ArrayList<Location> locations = dbHelper.getAllLocations();
         for(Location l:locations){
-            Log.d("createDatabase", "name of location: "+l.getName());
-            Log.d("createDatabase", "lat of location: "+l.getLatitude());
+            //Log.d("createDatabase", "name of location: "+l.getName());
+            //Log.d("createDatabase", "lat of location: "+l.getLatitude());
         }
-        Log.d("createDatabase","location size: "+locations.size());
+        //Log.d("createDatabase","location size: "+locations.size());
 
 */
 
@@ -276,7 +276,7 @@ public class ListMessages extends Fragment {
                 messageContentList.add(m.getContent());
             }
             arrayAdapter.notifyDataSetChanged();
-            Log.d("MessageLocationActivity","notify dataset changed");
+            //Log.d("MessageLocationActivity","notify dataset changed");
 
         }
 

@@ -102,7 +102,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
         });
 
-        Log.d("Here","Here");
+        //Log.d("Here","Here");
         mRegisterButton = (Button) findViewById(R.id.login_register_button);
         mRegisterButton.setOnClickListener(new OnClickListener() {
             @Override

@@ -206,7 +206,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         contentValues.put(FeedEntry.LOCATION_COLUMN_RAD, radius);
         contentValues.put(FeedEntry.LOCATION_COLUMN_CENTRALIZED, centralized);
         db.insert(FeedEntry.LOCATION_TABLE_NAME, null, contentValues);
-        Log.d("insertAllLocations: ","added to DB location " + name + ssid + ble + lat + lon + radius);
+        //Log.d("insertAllLocations: ","added to DB location " + name + ssid + ble + lat + lon + radius);
     }
 
     public void insertAllLocations(List<Location> locations){
@@ -386,14 +386,14 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
         while(cursor.isAfterLast() == false){
             String name = cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.LOCATION_COLUMN_NAME));
-            Log.d("Hash loc name -> ", name);
+            //Log.d("Hash loc name -> ", name);
             bOutput.write(digest.digest(name.getBytes("UTF-8")));
             cursor.moveToNext();
         }
 
         byte[] locationsNameHash = digest.digest(bOutput.toByteArray());
 
-        Log.d("Hash ->" , new String(Base64.encode(locationsNameHash, Base64.DEFAULT)));
+        //Log.d("Hash ->" , new String(Base64.encode(locationsNameHash, Base64.DEFAULT)));
         return new String(Base64.encode(locationsNameHash, Base64.DEFAULT));
     }
 
@@ -643,21 +643,22 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
     private void insertMessageKeys(List<Profile> profileList, String uuid ,String isWhite) {
 
-        Log.d("DBHelper: ","insertMessageKeys, isWhite = " +isWhite);
+        //Log.d("DBHelper: ","insertMessageKeys, isWhite = " +isWhite);
 
         SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
 
         if(profileList != null){
             for(Profile p : profileList){
+                ContentValues contentValues = new ContentValues();
+
                 contentValues.put(FeedEntry.MESSAGEKEYS_COLUMN_UUID, uuid);
                 contentValues.put(FeedEntry.MESSAGEKEYS_COLUMN_KEY, p.getKey());
                 contentValues.put(FeedEntry.MESSAGEKEYS_COLUMN_VALUE, p.getValue());
                 contentValues.put(FeedEntry.MESSAGEKEYS_COLUMN_ISWHITE, isWhite);
 
+                //Log.d("DBHelper: ","insertMessageKeys inserting key/value/uuid = " +p.getKey() + p.getValue()+uuid);
 
                 db.insert(FeedEntry.MESSAGEKEYS_TABLE_NAME, null, contentValues);
-                contentValues.clear();
             }
         }
 
@@ -669,6 +670,9 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         if(getWhitelist){
             isWhite = "true";
         }
+
+        Log.d("DBHelper: ", "getMessageKeys obtaining keys for message id -> " + uuid);
+        Log.d("DBHelper: ", "getMessageKeys obtaining isWhite?" + isWhite);
 
         String[] projection = makeDefaultMessageKeysProjection();
 
@@ -719,7 +723,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        Log.d("DBHelper: ", "inserting message from server -> "+jsonObject.toString());
+        //Log.d("DBHelper: ", "inserting message from server -> "+jsonObject.toString());
 
 
 
@@ -776,7 +780,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
     public void insertAllMessages(List<Message> messages){
         for (Message message : messages) {
             Gson gson = new Gson();
-            Log.d(TAG, "insertAllMessages: "+gson.toJson(message));
+            //Log.d(TAG, "insertAllMessages: "+gson.toJson(message));
             insertMessage(message);
         }
     }
@@ -806,7 +810,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
     }
 
     public List<Message> getMessagesFromUser(String publisher) throws PublisherNotFoundException {
-        Log.d("DBHelper: ", "obtaining messages from username = " +publisher);
+        //Log.d("DBHelper: ", "obtaining messages from username = " +publisher);
 
         ArrayList<Message> messages = new ArrayList<Message>();
 
@@ -979,7 +983,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
         int removed = db.delete(table, whereClause, whereArgs);
 
-        Log.d("DBService", "deleteAllNearbyMessages -> " + removed);
+        //Log.d("DBService", "deleteAllNearbyMessages -> " + removed);
 
         return removed > 0;
     }
@@ -1038,9 +1042,22 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         ArrayList<Profile> blackList = new ArrayList<>();
         try {
             whiteList = getMessageKeys(uuid, true);
+        } catch (MessageKeysNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        try {
             blackList = getMessageKeys(uuid, false);
         } catch (MessageKeysNotFoundException e) {
             e.printStackTrace();
+        }
+
+        for(Profile p : whiteList){
+            Log.d("AssociateMessage: ","whitelist -> " + p.getKey());
+        }
+
+        for(Profile p : blackList){
+            Log.d("AssociateMessage: ","blacklist -> " + p.getKey());
         }
 
 
@@ -1054,7 +1071,6 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
                 cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_LOCATION)),
                 isCentralized,
                 isNearby,
-                //null,null
                 whiteList,
                 blackList
         );

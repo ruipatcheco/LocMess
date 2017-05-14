@@ -149,30 +149,30 @@ public class MainActivity extends AppCompatActivity
             fragmentTransaction.replace(R.id.fragment_place, new ListMessages());
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
-            Log.d("Menu","msg");
+            //Log.d("Menu","msg");
 
         } else if (id == R.id.nav_my_messages) {
             FragmentTransaction fragmentTransaction = fm.beginTransaction();
             fragmentTransaction.replace(R.id.fragment_place, new MyMessagesFragment());
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
-            Log.d("Menu","Mymsg");
+            //Log.d("Menu","Mymsg");
 
         } else if (id == R.id.nav_location) {
             FragmentTransaction fragmentTransaction = fm.beginTransaction();
             fragmentTransaction.replace(R.id.fragment_place, new ListLocations());
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
-            Log.d("Menu","location");
+            //Log.d("Menu","location");
         } else if (id == R.id.nav_profile) {
             FragmentTransaction fragmentTransaction = fm.beginTransaction();
             fragmentTransaction.replace(R.id.fragment_place, new ProfileFragment());
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
-            Log.d("Menu","profile");
+            //Log.d("Menu","profile");
 
         } else if (id == R.id.nav_log_out) {
-            Log.d("Menu","Log");
+            //Log.d("Menu","Log");
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -182,7 +182,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onFragmentInteraction(Uri uri) {
-        Log.d("URI",uri.toString());
+        //Log.d("URI",uri.toString());
     }
 
 }

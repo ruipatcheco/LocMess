@@ -63,7 +63,7 @@ public class AddProfileKey extends AppCompatActivity {
         mAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("TAG","Click");
+                //Log.d("TAG","Click");
 
                 hideKeyboard();
 
@@ -84,7 +84,7 @@ public class AddProfileKey extends AppCompatActivity {
                 mKey.setText("");
                 mValue.setText("");
 
-                Log.d("AddProfile :", "map size-> " + keyValueMap.size());
+                //Log.d("AddProfile :", "map size-> " + keyValueMap.size());
 
                 addNotification();
             }
@@ -100,7 +100,7 @@ public class AddProfileKey extends AppCompatActivity {
 
                     HashMap<String,String> map = dbHelper.getAllProfiles();
                     for (String k: map.keySet()){
-                        Log.d("AddProfile :", "All keysets key -> " + k + " value -> " +map.get(k));
+                        //Log.d("AddProfile :", "All keysets key -> " + k + " value -> " +map.get(k));
                     }
                 }
                 finish();

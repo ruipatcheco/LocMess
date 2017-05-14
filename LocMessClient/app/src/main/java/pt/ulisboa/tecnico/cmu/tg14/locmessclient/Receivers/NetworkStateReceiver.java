@@ -17,7 +17,7 @@ import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.ServicesDataHolder;
 public class NetworkStateReceiver extends BroadcastReceiver{
 
     public void onReceive(Context context, Intent intent) {
-        Log.d("app", "Network connectivity change");
+        //Log.d("app", "Network connectivity change");
         if (intent.getExtras() != null) {
             ServicesDataHolder sdh = ServicesDataHolder.getInstance();
             NetworkInfo ni = (NetworkInfo) intent.getExtras().get(ConnectivityManager.EXTRA_NETWORK_INFO);
@@ -26,7 +26,7 @@ public class NetworkStateReceiver extends BroadcastReceiver{
                 sdh.setCentralizedMode(true);
 
             } else if (intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, Boolean.FALSE)) {
-                Log.d("app", "There's no network connectivity");
+                //Log.d("app", "There's no network connectivity");
                 sdh.setCentralizedMode(false);
             }
         }

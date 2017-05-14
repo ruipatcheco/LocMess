@@ -126,7 +126,7 @@ public class MessageLocationActivity extends AppCompatActivity {
 
             for(String s: dbLocationNames){
                 auxList.add(s);
-                Log.d("MessageLocationActivity","added location from db-> " + s);
+                //Log.d("MessageLocationActivity","added location from db-> " + s);
             }
             return null;
         }

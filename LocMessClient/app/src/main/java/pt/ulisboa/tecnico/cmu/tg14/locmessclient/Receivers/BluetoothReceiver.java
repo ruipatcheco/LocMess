@@ -32,7 +32,7 @@ public class BluetoothReceiver extends BroadcastReceiver {
         String action = intent.getAction();
         if(BluetoothDevice.ACTION_FOUND.equals(action)){
             BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-            Log.d(TAG, "onReceive: addr:"+device.getAddress());
+            //Log.d(TAG, "onReceive: addr:"+device.getAddress());
             mService.onBleReceived(device.getName() ,device.getAddress());
         }else if(BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)){
             mService.clearBluetoothList();

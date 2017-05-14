@@ -88,7 +88,7 @@ public class LocationImpl implements LocationDao {
         List<Coordinates> coords = jdbcTemplateObject.query(CoordSQL,new Object[]{lat,lon},new CoordinatesMapper());
 
 
-        System.out.println("getLocationByCoord: found locations size -> "+coords.size());
+        System.out.println("getLocationByCoord: found locations by coord size -> "+coords.size());
         List<Location> loclist = new ArrayList<>();
         List<Location> result = new ArrayList<>();
         for(Coordinates coord: coords){
