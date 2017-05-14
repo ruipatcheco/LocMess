@@ -295,7 +295,7 @@ public class DBService extends Service implements OnResponseListener<String> {
         dbHelper.deleteAllNearbyMessages();
 
         for(Location location: locations){
-            //Log.d("DBService", "searching for messages on location -> " + location.getName());
+            Log.d("DBService", "searching for messages on location -> " + location.getName());
 
             serverActions.getMessagesFromLocation(location, new OnResponseListener<List<Message>>() {
                 @Override
@@ -303,7 +303,7 @@ public class DBService extends Service implements OnResponseListener<String> {
 
                     Gson gson = new Gson();
                     for(Message m : response){
-                        //Log.d("DBService", "added nearby message " + gson.toJson(m));
+                        Log.d("DBService", "added nearby message " + gson.toJson(m));
                         dbHelper.insertMessageFromServer(m);
                     }
                 }

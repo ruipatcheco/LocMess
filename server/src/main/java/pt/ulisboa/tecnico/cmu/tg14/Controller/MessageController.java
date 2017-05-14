@@ -118,11 +118,6 @@ public class MessageController {
         for(Message m : messages){
             System.out.println("isAllowed a verificar mensagem -> " + m.getContent());
 
-            System.out.println("startTime -> " + m.getStartTime());
-            System.out.println("now -> " + now);
-            System.out.println("endTime -> " + m.getEndTime());
-
-
             //check timeframe
             //FIXME -> entime = 0 , mensagem disponivel para sempre
             if(m.getStartTime().before(now) && (m.getEndTime()!=null? m.getEndTime().after(now):true)){
@@ -143,32 +138,87 @@ public class MessageController {
                 for (MessageKeys mKey:messageKeys){
                     if(mKey.getWhite()){
                         Profile p = new Profile(username,mKey.getKey(),mKey.getValue());
+                        System.out.println("isAllowed mensagekeys white -> " + p.getKey() + p.getValue() + p.getUsername());
                         whiteList.add(p);
                     }
 
                     else{
                         Profile p = new Profile(username,mKey.getKey(),mKey.getValue());
+                        System.out.println("isAllowed mensagekeys black -> " + p.getKey() + p.getValue() + p.getUsername());
                         blackList.add(p);
                     }
                 }
 
+
                 //Check whitelist and blacklist & pray
-                for(Profile p: userKeys){
-                    if(!blackList.contains(p)||blackList.isEmpty()){
-                        System.out.println("isAllowed mensagem passou blacklist");
-                        if(whiteList.contains(p)||whiteList.isEmpty()){
-                            System.out.println("isAllowed mensagem passou whitelist");
-                            System.out.println("isAllowed mensagem aceite");
-                            result.add(m);
-                            continue;
-                        }
+                boolean passou = true;
+                if (!containsAllMinado(userKeys, whiteList)){
+                    System.out.println("isAllowed mensagem nao passou whitelist");
+                    passou=false;
+                }
+
+                for (Profile b : blackList){
+                    System.out.println("isAllowed blacklist da mensagem -> " +b.getKey());
+                    if(containsMinado(userKeys,b)){
+                        System.out.println("isAllowed mensagem nao passou blacklist");
+                        passou = false;
+                        break;
                     }
                 }
 
+                if(passou){
+                    System.out.println("isAllowed mensagem aceite");
+                    result.add(m);
+                }
+
+
+               /*
+                for(Profile p: userKeys){
+                    if(!passou){
+                        break;
+                    }
+                    System.out.println("isAllowed userkeys -> " + p.getKey() + p.getValue() + p.getUsername());
+
+                    if(containsMinado(blackList,p)){
+                        System.out.println("isAllowed mensagem nao passou blacklist");
+                        passou = false;
+                        continue;
+                    }
+                    if(!containsMinado(whiteList,p)&&!whiteList.isEmpty()){
+                        System.out.println("isAllowed mensagem nao passou whitelist");
+                        passou = false;
+                        continue;
+                    }
+                }
+                if(passou){
+                    System.out.println("isAllowed mensagem aceite");
+                    result.add(m);
+                }
+                */
             }
         }
 
         return result;
+    }
+
+    private boolean containsMinado(List<Profile> a,Profile pb){
+        //a.contains(b)
+        for(Profile p: a){
+            if(p.getKey().equals(pb.getKey())&&p.getValue().equals(pb.getValue())){
+             return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean containsAllMinado(List<Profile> a, List<Profile> b){
+        //a.containsAll(b)
+        for(Profile pb : b){
+            if(!containsMinado(a,pb)){
+                return false;
+            }
+        }
+        return true;
     }
 
     @RequestMapping(value = "/myMessages")
