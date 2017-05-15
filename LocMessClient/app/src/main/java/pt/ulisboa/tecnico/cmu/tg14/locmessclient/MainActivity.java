@@ -19,6 +19,25 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
 
+import android.widget.TextView;
+import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.LocationQuery;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.ServicesDataHolder;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnLocationReceivedListener;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Receivers.BluetoothReceiver;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Receivers.GPSReceiver;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Receivers.WifiReceiver;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.BluetoothService;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.GPSService;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.MasterService;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.WifiService;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.Network.ServerActions;
+
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServiceManager;
 
 
@@ -64,6 +83,7 @@ public class MainActivity extends AppCompatActivity
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
+
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         FragmentManager fm = getFragmentManager();
@@ -71,6 +91,11 @@ public class MainActivity extends AppCompatActivity
         fragmentTransaction.replace(R.id.fragment_place, new ListMessages());
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
+
+        View header = navigationView.getHeaderView(0);
+        TextView name = (TextView) header.findViewById(R.id.nav_bar_username);
+        name.setText(ServicesDataHolder.getInstance().getUsername());
+
 
     }
 
@@ -119,30 +144,30 @@ public class MainActivity extends AppCompatActivity
             fragmentTransaction.replace(R.id.fragment_place, new ListMessages());
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
-            Log.d("Menu","msg");
+            //Log.d("Menu","msg");
 
         } else if (id == R.id.nav_my_messages) {
             FragmentTransaction fragmentTransaction = fm.beginTransaction();
             fragmentTransaction.replace(R.id.fragment_place, new MyMessagesFragment());
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
-            Log.d("Menu","Mymsg");
+            //Log.d("Menu","Mymsg");
 
         } else if (id == R.id.nav_location) {
             FragmentTransaction fragmentTransaction = fm.beginTransaction();
             fragmentTransaction.replace(R.id.fragment_place, new ListLocations());
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
-            Log.d("Menu","location");
+            //Log.d("Menu","location");
         } else if (id == R.id.nav_profile) {
             FragmentTransaction fragmentTransaction = fm.beginTransaction();
             fragmentTransaction.replace(R.id.fragment_place, new ProfileFragment());
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
-            Log.d("Menu","profile");
+            //Log.d("Menu","profile");
 
         } else if (id == R.id.nav_log_out) {
-            Log.d("Menu","Log");
+            //Log.d("Menu","Log");
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -152,7 +177,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onFragmentInteraction(Uri uri) {
-        Log.d("URI",uri.toString());
+        //Log.d("URI",uri.toString());
     }
 
 }

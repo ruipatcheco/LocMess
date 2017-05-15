@@ -9,7 +9,6 @@ public class Location {
     private String name;
     private String ssid;
     private String ble;
-    private UUID coordinates;
 
     public String getName() {
         return name;
@@ -35,13 +34,6 @@ public class Location {
         this.ble = ble;
     }
 
-    public UUID getCoordinates() {
-        return coordinates;
-    }
-
-    public void setCoordinates(UUID coordinates) {
-        this.coordinates = coordinates;
-    }
 
     @Override
     public int hashCode() {

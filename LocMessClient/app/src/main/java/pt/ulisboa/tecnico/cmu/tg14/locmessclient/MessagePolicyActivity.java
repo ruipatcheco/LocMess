@@ -2,6 +2,8 @@ package pt.ulisboa.tecnico.cmu.tg14.locmessclient;
 
 import android.app.Activity;
 import android.content.Intent;
+
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,11 +13,11 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.Switch;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -26,8 +28,15 @@ import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnResponseListener;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderDbHelper;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.Network.ServerActions;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Profile;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.ServicesDataHolder;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnResponseListener;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderDbHelper;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.Model;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Adapters.ProfileChoiceAdapter;
 
-public class MessagePolicyActivity extends AppCompatActivity implements OnResponseListener<OperationStatus>{
+
+public class MessagePolicyActivity extends AppCompatActivity {
 
     // === PREV ACTIVITY ===
     private String mMessageContent;
@@ -39,12 +48,22 @@ public class MessagePolicyActivity extends AppCompatActivity implements OnRespon
 
     private EditText mKey;
     private EditText mValue;
-    private Switch mSwitch;
     private Button mAdd;
-    private ListView mWhite;
-    private ListView mBlack;
     private Button mFinish;
     Activity activity;
+
+    public static ServerActions  serverActions;
+
+    private FeedReaderDbHelper dbHelper;
+
+    List<Profile> mProfileList;
+    ListView mListView;
+    ArrayAdapter<Model> adapter;
+    List<Profile> whiteList = new ArrayList<>();
+    List<Profile> blackList = new ArrayList<>();
+    List<Model> list = new ArrayList<Model>();
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,27 +74,23 @@ public class MessagePolicyActivity extends AppCompatActivity implements OnRespon
 
         activity = this;
 
+        dbHelper = new FeedReaderDbHelper(activity);
+
+
         mKey = (EditText) findViewById(R.id.message_profile_key);
         mValue = (EditText) findViewById(R.id.message_profile_value);
-        mSwitch = (Switch) findViewById(R.id.message_profile_toggle);
         mAdd = (Button) findViewById(R.id.message_profile_button_add);
-        mWhite = (ListView) findViewById(R.id.message_profile_white_list);
-        mBlack = (ListView) findViewById(R.id.message_profile_black_list);
         mFinish = (Button) findViewById(R.id.message_profile_button_finish);
+        mListView = (ListView) findViewById(R.id.message_profiles_list);
 
-        final List<String> whiteList = new ArrayList<>();
-        final List<String> blackList = new ArrayList<>();
+        adapter = new ProfileChoiceAdapter(this, getModel());
+        mListView.setAdapter(adapter);
 
-        final ArrayAdapter<String> adapterWhite = new ArrayAdapter<String>(activity,android.R.layout.simple_dropdown_item_1line,whiteList);
-        final ArrayAdapter<String> adapterBlack = new ArrayAdapter<String>(activity,android.R.layout.simple_dropdown_item_1line,blackList);
-
-        mBlack.setAdapter(adapterBlack);
-        mWhite.setAdapter(adapterWhite);
 
         mAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("TAG","Click");
+                //Log.d("TAG","Click");
 
                 hideKeyboard();
 
@@ -85,15 +100,16 @@ public class MessagePolicyActivity extends AppCompatActivity implements OnRespon
 
                 String message = mKey.getText().toString() + " -> " + mValue.getText().toString();
 
-                if(mSwitch.isChecked()){
-                    blackList.add(message);
-                    adapterBlack.notifyDataSetChanged();
-                }else {
-                    whiteList.add(message);
-                    adapterWhite.notifyDataSetChanged();
-                }
+                Profile profile = new Profile(mKey.getText().toString(), mValue.getText().toString());
 
-                Log.d("TAG", message);
+                // This line adds the profile to user's database
+                //dbHelper.insertProfile(profile);
+
+                list.add(0, new Model(profile));
+
+                adapter.notifyDataSetChanged();
+
+                //Log.d("TAG", message);
 
                 mKey.setText("");
                 mValue.setText("");
@@ -103,28 +119,77 @@ public class MessagePolicyActivity extends AppCompatActivity implements OnRespon
         mFinish.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+
+                fillBlackAndWhiteLists();
+
+
                 Message message = new Message();
                 message.setContent(mMessageContent);
                 Calendar c = Calendar.getInstance();
-                String TAG ="";
-                //FIXME tratar disto
                 message.setCreationTime(Calendar.getInstance().getTime().getTime());
-                Log.d(TAG, "onClick: "+mStartTime);
                 message.setUUID(UUID.randomUUID());
                 message.setStartTime(Long.valueOf(mStartTime));
                 message.setEndTime(Long.valueOf(mEndTime));
-                message.setPublisher("tiago"); //TODO to remove
+                Log.d("MessagePolicyActivity ", "endTIME do chines2"+mEndTime);
+                message.setPublisher(ServicesDataHolder.getInstance().getUsername());
                 message.setLocation(mID);
+                message.setCentralized(!mIsDecentralized);
+                message.setNearby(false);
+                message.setWhiteList(whiteList);
+                message.setBlackList(blackList);
 
-                ServerActions actions = new ServerActions(activity);
-                actions.createMessage(message,(OnResponseListener) activity);
-
-                FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(activity);
                 dbHelper.insertMessage(message);
+
 
                 finish();
             }
         });
+    }
+
+    private void fillBlackAndWhiteLists() {
+        whiteList.clear();
+        blackList.clear();
+
+        for (int i = 0; i < list.size(); i++) {
+            if (adapter.getItem(i).isSelected()) {
+                if (list.get(i).isWhite()) {
+                    whiteList.add(list.get(i).getProfile());
+                } else {
+                    blackList.add(list.get(i).getProfile());
+                }
+            }
+        }
+
+        Log.i("IMPRIMIR", "IMPRIMIR WHITE");
+        for (Profile s : whiteList) {
+            Log.i("IMPRIMIR", s.getKey());
+        }
+
+        Log.i("IMPRIMIR", "IMPRIMIR BLACK");
+        for (Profile s : blackList) {
+            Log.i("IMPRIMIR", s.getKey());
+        }
+    }
+
+    private List<Model> getModel() {
+        mProfileList = dbHelper.getListAllServerProfiles();
+        for(Profile profile : mProfileList ){
+            list.add(new Model(profile));
+        }
+        /*FIXME
+        list.add(new Model(new Profile("Windows7", "value", "tiago")));
+        list.add(new Model(new Profile("Suse", "value", "tiago")));
+        list.add(new Model(new Profile("Eclipse", "value", "tiago")));
+        list.add(new Model(new Profile("Ubuntu", "value", "tiago")));
+        list.add(new Model(new Profile("Solaris", "value", "tiago")));
+        list.add(new Model(new Profile("Android", "value", "tiago")));
+        list.add(new Model(new Profile("iPhone", "value", "tiago")));
+        list.add(new Model(new Profile("Java", "value", "tiago")));
+        list.add(new Model(new Profile(".Net", "value", "tiago")));
+        list.add(new Model(new Profile("PHP", "value", "tiago")));
+        */
+        return list;
     }
 
 
@@ -170,8 +235,4 @@ public class MessagePolicyActivity extends AppCompatActivity implements OnRespon
         return calendar;
     }
 
-    @Override
-    public void onHTTPResponse(OperationStatus response) {
- //TODO
-    }
 }

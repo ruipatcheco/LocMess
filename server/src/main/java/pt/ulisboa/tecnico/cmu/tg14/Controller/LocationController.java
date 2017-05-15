@@ -2,6 +2,8 @@ package pt.ulisboa.tecnico.cmu.tg14.Controller;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import pt.ulisboa.tecnico.cmu.tg14.DTO.HashResult;
 import pt.ulisboa.tecnico.cmu.tg14.DTO.LocationQuery;
@@ -11,6 +13,7 @@ import pt.ulisboa.tecnico.cmu.tg14.Implementation.CoordinatesImpl;
 import pt.ulisboa.tecnico.cmu.tg14.Implementation.LocationImpl;
 import pt.ulisboa.tecnico.cmu.tg14.Model.Coordinates;
 import pt.ulisboa.tecnico.cmu.tg14.Model.Location;
+import pt.ulisboa.tecnico.cmu.tg14.Model.Message;
 import sun.rmi.runtime.Log;
 
 
@@ -42,15 +45,16 @@ public class LocationController {
     @ResponseBody
     public OperationStatus createLocation(@RequestBody LocationMover locationMover){
             //@RequestParam(value="name") String name,@RequestParam(value="ssid",required = false) String ssid,@RequestParam(value="ble",required = false) String ble,@RequestParam(value="lat",required = false) Float lat,@RequestParam(value="lon",required = false) Float lon,@RequestParam(value="radius",required = false) Integer radius){
-        UUID cid = null;
         Double lat = locationMover.getLatitude();
         Double lon = locationMover.getLongitude();
         Integer radius = locationMover.getRadius();
+
+        locationImpl.create(locationMover.getName(),locationMover.getSsid(),locationMover.getBle());
+
         if(lat!=0&&lon!=0&&radius!=0){
             CoordinatesImpl coord = (CoordinatesImpl) context.getBean("coordinatesImpl");
-            cid = coord.create(lat,lon,radius);
+            coord.create(locationMover.getName(),lat,lon,radius);
         }
-        locationImpl.create(locationMover.getName(),locationMover.getSsid(),locationMover.getBle(),cid);
         OperationStatus status = new OperationStatus();
         status.setOK();
         return status;
@@ -73,7 +77,7 @@ public class LocationController {
     @RequestMapping(value = "/nearbyLocations", method = RequestMethod.POST)
     public List<LocationMover> getNearByLocations(@RequestBody LocationQuery queryString){
         List<Location> locations = new ArrayList<>();
-        locations.addAll(locationImpl.getLocationByBle(queryString.getBleList()));
+//        locations.addAll(locationImpl.getLocationByBle(queryString.getBleList()));
         locations.addAll(locationImpl.getLocationBySSID(queryString.getSsidList()));
         locations.removeAll(Collections.singleton(null)); // remove null results
 
@@ -86,20 +90,21 @@ public class LocationController {
         if(lat != 0 && lon!=0) {
             List<Location> loc = locationImpl.getLocationByCoord(lat, lon);
             locations.addAll(loc);
-
         }
+
         List<LocationMover> result = locations.stream().map(this::convertToLocResult).collect(Collectors.toList());
 
 
         return result;
     }
 
+
+
     private LocationMover convertToLocResult(Location location){
 
-        UUID coordID = location.getCoordinates();
-        Coordinates coord = null;
-        if(coordID != null){
-            coord = coordinatesImpl.getCoordinates(coordID);
+        Coordinates coord = coordinatesImpl.getCoordinates(location.getName());
+        if(coord != null && coord.getLatitude()!=0.0 && coord.getLongitude()!=0.0){
+            coord = coordinatesImpl.getCoordinates(location.getName());
             return new LocationMover(location.getName(),location.getSsid()
                     ,location.getBle(),coord.getLatitude()
                     ,coord.getLongitude(),coord.getRadius());

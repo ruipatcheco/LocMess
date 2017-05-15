@@ -6,17 +6,18 @@ import java.util.UUID;
  * Created by trosado on 20/03/17.
  */
 public class Coordinates {
-    private UUID id;
+    private String name;
     private float latitude;
     private float longitude;
     private int radius;
 
-    public UUID getId() {
-        return id;
+
+    public String getName() {
+        return name;
     }
 
-    public void setId(UUID id) {
-        this.id = id;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public float getLatitude() {

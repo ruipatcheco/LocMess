@@ -16,13 +16,15 @@ public class Message {
     private String content;
     private String publisher;
     private String location;
+    private boolean isCentralized;
+    private boolean isNearby;
     List<Profile> whiteList;
     List<Profile> blackList;
 
 
     public Message(){}
 
-    public Message(UUID id, long creationTime, long startTime, long endTime, String content, String publisher, String location) {
+    public Message(UUID id, long creationTime, long startTime, long endTime, String content, String publisher, String location, boolean isCentralized, boolean isNearby, List<Profile> whiteList, List<Profile> blackList) {
         this.id = id;
         this.creationTime = creationTime;
         this.startTime = startTime;
@@ -30,6 +32,42 @@ public class Message {
         this.content = content;
         this.publisher = publisher;
         this.location = location;
+        this.isCentralized = isCentralized;
+        this.isNearby = isNearby;
+        this.whiteList = whiteList;
+        this.blackList = blackList;
+    }
+
+    public List<Profile> getWhiteList() {
+        return whiteList;
+    }
+
+    public void setWhiteList(List<Profile> whiteList) {
+        this.whiteList = whiteList;
+    }
+
+    public List<Profile> getBlackList() {
+        return blackList;
+    }
+
+    public void setBlackList(List<Profile> blackList) {
+        this.blackList = blackList;
+    }
+
+    public boolean isNearby() {
+        return isNearby;
+    }
+
+    public void setNearby(boolean nearby) {
+        isNearby = nearby;
+    }
+
+    public boolean isCentralized() {
+        return isCentralized;
+    }
+
+    public void setCentralized(boolean centralized) {
+        isCentralized = centralized;
     }
 
     public UUID getUUID() {

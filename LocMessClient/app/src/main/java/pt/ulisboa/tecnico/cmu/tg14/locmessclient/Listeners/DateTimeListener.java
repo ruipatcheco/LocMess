@@ -35,7 +35,7 @@ public class DateTimeListener implements DatePickerDialog.OnDateSetListener,Time
                 calendar.get(Calendar.MINUTE),true);
         timePickerDialog.show(mfragmentManager,"TimePickerDialog");
         mEditText.setText(str);
-        Log.d(TAG,str);
+        //Log.d(TAG,str);
     }
 
     @Override
@@ -43,7 +43,7 @@ public class DateTimeListener implements DatePickerDialog.OnDateSetListener,Time
         String str = hourOfDay+":"+minute;
         String date = mEditText.getText().toString();
         mEditText.setText(date+" "+str);
-        Log.d(TAG,str);
+        //Log.d(TAG,str);
 
     }
 }

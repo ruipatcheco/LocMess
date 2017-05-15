@@ -33,7 +33,7 @@ public class MessageView extends AppCompatActivity {
 
         messageID = receiveIntent.getExtras().getString("MessageID");
 
-        Log.d("MessageView: ", "message id-> " + messageID);
+        //Log.d("MessageView: ", "message id-> " + messageID);
 
         new getMessageFromDBTask().execute();
 

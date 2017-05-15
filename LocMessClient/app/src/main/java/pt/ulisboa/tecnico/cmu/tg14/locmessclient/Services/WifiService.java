@@ -35,7 +35,7 @@ public class WifiService extends Service {
     @Override
     public void onCreate() {
 
-        Log.d("WifiService","Wifi Started");
+        //Log.d("WifiService","Wifi Started");
         wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         wifiManager.setWifiEnabled(true);
 
@@ -43,7 +43,7 @@ public class WifiService extends Service {
         runnable = new Runnable() {
             public void run() {
 
-                Log.d("WifiService","Wifi still running");
+                //Log.d("WifiService","Wifi still running");
 
                 List<ScanResult> results = wifiManager.getScanResults();
                 Intent i = new Intent(WIFI);

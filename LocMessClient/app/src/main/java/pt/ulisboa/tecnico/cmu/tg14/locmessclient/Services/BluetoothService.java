@@ -29,14 +29,14 @@ public class BluetoothService extends Service {
     @Override
     public void onCreate() {
 
-        Log.d("BluetoothReceiver","Bluetooth Started");
+        //Log.d("BluetoothReceiver","Bluetooth Started");
 
         mBTAdapter = BluetoothAdapter.getDefaultAdapter();
 
         handler = new Handler();
         runnable = new Runnable() {
             public void run() {
-                Log.d("BluetoothReceiver","Bluetooth still running");
+                //Log.d("BluetoothReceiver","Bluetooth still running");
                 if(mBTAdapter == null){
                     //FIXME Bluetooth not supported
                     return;

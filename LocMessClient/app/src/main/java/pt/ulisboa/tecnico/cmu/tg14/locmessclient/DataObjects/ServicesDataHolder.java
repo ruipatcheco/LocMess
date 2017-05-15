@@ -18,9 +18,9 @@ public class ServicesDataHolder {
     private Float longitude;
     private Float latitude;
 
-    //FIXME -> retirar e fazer como deve ser
     private String username;
     private String password;
+
 
     private AbstractMap<UUID,Message> messageMap; //FIXME may not be needed
     private List<Location> nearLocations;

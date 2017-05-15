@@ -30,7 +30,7 @@ public class WifiReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
 
         ArrayList<ScanResult> results = intent.getParcelableArrayListExtra(WifiService.SERVICE_RESULT);
-        Log.d(TAG, "onReceive: called");
+        //Log.d(TAG, "onReceive: called");
         mService.clearWifiList();
         for(ScanResult scanResult: results)
             mService.onWifiReceived(scanResult.SSID,scanResult.BSSID);

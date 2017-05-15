@@ -14,6 +14,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -28,6 +29,7 @@ import java.util.Map;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.HashResult;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.LocationQuery;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.MessageServer;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.OperationStatus;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
@@ -42,7 +44,8 @@ import static android.content.ContentValues.TAG;
  * Created by trosado on 31/03/17.
  */
 public class ServerActions {
-    private final static  String addr = "193.136.167.88";
+
+    private final static  String addr = "194.210.223.59";
     private final static String port = "8443";
     private final static String endpoint = "https://"+addr+":"+port+"/api";
     private static RequestQueue queue;
@@ -62,7 +65,7 @@ public class ServerActions {
         JsonObjectAuthenticatedRequest request = new JsonObjectAuthenticatedRequest(method,url,username,password,jsonObject,new Response.Listener<JSONObject>() {            @Override
             public void onResponse(JSONObject response) {
                 Gson gson = new Gson();
-                Log.d(TAG, "onResponse: " + response.toString());
+                //Log.d(TAG, "onResponse: " + response.toString());
                 OperationStatus statusResponse = gson.fromJson(response.toString(), OperationStatus.class);
                 listener.onHTTPResponse(statusResponse);
             }
@@ -83,7 +86,7 @@ public class ServerActions {
         try{
             Gson gson = new Gson();
             JSONObject jsonObject = new JSONObject(gson.toJson(p));
-            Log.d(TAG, "createProfile:"+jsonObject.toString());
+            //Log.d(TAG, "createProfile:"+jsonObject.toString());
             makeAuthenticatedRequest(Request.Method.PUT,url,jsonObject,listener);
 
         }catch (JSONException e){
@@ -98,12 +101,50 @@ public class ServerActions {
         try{
             Gson gson = new Gson();
             JSONObject jsonObject = new JSONObject(gson.toJson(p));
-            Log.d(TAG, "removeProfile:"+jsonObject.toString());
+            //Log.d(TAG, "removeProfile:"+jsonObject.toString());
             makeAuthenticatedRequest(Request.Method.PUT,url,jsonObject,listener);
 
         }catch (JSONException e){
             e.printStackTrace();
         }
+    }
+
+    public List<Profile> getMyProfileKeys(final OnResponseListener listener) {
+        String url = endpoint + "/profile/myList";
+
+        final List<Profile> profiles = new ArrayList<>();
+        JsonArrayAuthenticatedRequest stringRequest = new JsonArrayAuthenticatedRequest(url,username,password, new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
+                for(int i = 0;i<response.length();i++){
+                    try {
+                        JSONObject obj = response.getJSONObject(i);
+                        Gson gson = new Gson();
+                        Profile p = gson.fromJson(obj.toString(),Profile.class);
+                        profiles.add(p);
+                        //Log.d("ServerActions: ", "received my own profile ->"+ p.getKey());
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                //Log.d("ServerActions: ", "received my own profile size ->"+ profiles.size());
+
+                listener.onHTTPResponse(profiles);
+
+                //Log.d(TAG, "onResponse: "+response);
+            }}, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                //mTextView.setText("That didn't work!");
+                System.out.print("error: " + error);
+            }
+        });
+
+        // Add the request to the RequestQueue.
+        queue.add(stringRequest);
+
+        return profiles;
     }
 
     public List<Profile> getProfileKeys(final OnResponseListener listener) {
@@ -127,7 +168,7 @@ public class ServerActions {
 
                 listener.onHTTPResponse(profiles);
 
-                Log.d(TAG, "onResponse: "+response);
+                //Log.d(TAG, "onResponse: "+response);
             }}, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
@@ -147,7 +188,7 @@ public class ServerActions {
         JsonObjectRequest request = new JsonObjectRequest(method,url,jsonObject,new Response.Listener<JSONObject>() {            @Override
         public void onResponse(JSONObject response) {
             Gson gson = new Gson();
-            Log.d(TAG, "onResponse: " + response.toString());
+            //Log.d(TAG, "onResponse: " + response.toString());
             OperationStatus statusResponse = gson.fromJson(response.toString(), OperationStatus.class);
             listener.onHTTPResponse(statusResponse);
         }
@@ -203,7 +244,7 @@ public class ServerActions {
             Gson gson = new Gson();
             JSONObject jsonObject = new JSONObject(gson.toJson(location));
 
-            Log.d(TAG, "createLocation:"+jsonObject.toString());
+            //Log.d(TAG, "createLocation:"+jsonObject.toString());
 
             makeAuthenticatedRequest(Request.Method.PUT,url,jsonObject,listener);
 
@@ -211,6 +252,39 @@ public class ServerActions {
         }catch (JSONException e){
             e.printStackTrace();
         }
+    }
+
+    public void getMyMessages(final OnResponseListener listener){
+        String url = endpoint+"/message/myMessages";
+
+        final List<Message> messages = new ArrayList<>();
+        final Gson gson = new Gson();
+
+        JsonArrayAuthenticatedRequest request = new JsonArrayAuthenticatedRequest(url, username, password
+                , new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
+                for(int i = 0;i<response.length();i++){
+                    try {
+                        JSONObject obj = response.getJSONObject(i);
+
+                        MessageServer ms = gson.fromJson(obj.toString(),MessageServer.class);
+                            Message m = new Message(ms.getId(),ms.getCreationTime(),ms.getStartTime(),ms.getEndTime(),ms.getContent(),ms.getPublisher(),ms.getLocation(),true,false,ms.getWhiteList(),ms.getBlackList());
+                        messages.add(m);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+                listener.onHTTPResponse(messages);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e(TAG, "onErrorResponse: ", error);
+            }
+        });
+
+        queue.add(request);
     }
 
     public static List<Message> getMessagesFromLocation(Location location, final OnResponseListener listener){
@@ -228,9 +302,11 @@ public class ServerActions {
                         try {
                             JSONObject obj = response.getJSONObject(i);
                             Gson gson = new Gson();
-                            Log.d(TAG, "onResponse: "+obj.toString());
-                            Message msg = gson.fromJson(obj.toString(),Message.class);
-                            messages.add(msg);
+                            //Log.d(TAG, "onResponse: "+obj.toString());
+                            MessageServer msg = gson.fromJson(obj.toString(),MessageServer.class);
+
+                            Message m = new Message(msg.getId(),msg.getCreationTime(), msg.getStartTime(),msg.getEndTime(),msg.getContent(),msg.getPublisher(),msg.getLocation(),true,true,null,null);
+                            messages.add(m);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -239,7 +315,7 @@ public class ServerActions {
                     listener.onHTTPResponse(messages);
 
 
-                    Log.d(TAG, "onResponse: "+response);
+                    //Log.d(TAG, "onResponse: "+response);
                 }
 
             }, new Response.ErrorListener() {
@@ -279,7 +355,7 @@ public class ServerActions {
 
                 listener.onHTTPResponse(locations);
 
-                Log.d(TAG, "onResponse: "+response);
+                //Log.d(TAG, "onResponse: "+response);
             }}, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
@@ -303,7 +379,7 @@ public class ServerActions {
             @Override
             public void onResponse(JSONObject response) {
                 Gson gson = new Gson();
-                Log.d(TAG, "onResponse: " + response.toString());
+                //Log.d(TAG, "onResponse: " + response.toString());
                 HashResult hashResult= gson.fromJson(response.toString(), HashResult.class);
                 listener.onHTTPResponse(hashResult.getHash());
             }
@@ -320,11 +396,11 @@ public class ServerActions {
     }
 
 
-    public static List<Location> getNearLocations(LocationQuery query, final OnResponseListener listener){
+    public List<Location> getNearLocations(LocationQuery query, final OnResponseListener listener){
         String url = endpoint+"/location/nearbyLocations";
 
         final List<Location> locations = new ArrayList<>();
-        Log.d(TAG, "request: "+query.toJSON());
+        //Log.d(TAG, "request: "+query.toJSON());
         HttpsTrustManager.allowAllSSL();
         JsonArrayFromJsonObjectAuthenticatedRequest request = new JsonArrayFromJsonObjectAuthenticatedRequest(Request.Method.POST,url,username,password,query.toJSON(),null, new Response.Listener<JSONArray>() {
             @Override
@@ -343,7 +419,7 @@ public class ServerActions {
                 listener.onHTTPResponse(locations);
 
 
-                Log.d(TAG, "onResponse: "+response);
+                //Log.d(TAG, "onResponse: "+response);
             }
 
         }, new Response.ErrorListener() {
@@ -359,7 +435,7 @@ public class ServerActions {
     }
 
 
-    public void createMessage(Message message,final OnResponseListener listener) {
+    public void createMessage(MessageServer message,final OnResponseListener listener) {
         String url = endpoint+"/message/create";
         try {
             Gson  gson = new Gson();
@@ -369,6 +445,19 @@ public class ServerActions {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    public void removeMessage( MessageServer m,OnResponseListener listener){
+        String url = endpoint+"/message/delete";
+        try {
+            url += "?id="+URLEncoder.encode(m.getId().toString(),"UTF-8");
+            //Log.d(TAG, "removeMessage:"+m.getId());
+            makeAuthenticatedRequest(Request.Method.PUT,url,null,listener);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+
     }
 
     public void removeLocation(String name,OnResponseListener listener){
@@ -424,5 +513,4 @@ public class ServerActions {
     }
 
 }
-
 

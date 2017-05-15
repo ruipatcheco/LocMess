@@ -7,15 +7,15 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Base64;
 import android.util.Log;
-import android.widget.ArrayAdapter;
 
 
 import com.google.gson.Gson;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -35,6 +35,7 @@ import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.ProfileNotFoundExcep
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.PublisherNotFoundException;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderContract.FeedEntry;
 
+import static android.R.attr.key;
 import static android.content.ContentValues.TAG;
 
 /**
@@ -62,15 +63,15 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
     private static final String SQL_CREATE_MULE =
 
-            "CREATE TABLE IF NOT EXISTS " + FeedEntry.MULE_TABLE_NAME + " ( " +
+            "CREATE TABLE IF NOT EXISTS " + FeedEntry.MULE_MESSAGE_TABLE_NAME + " ( " +
                     FeedEntry._ID + " INTEGER PRIMARY KEY," +
-                    FeedEntry.MULE_COLUMN_UUID +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
-                    FeedEntry.MULE_COLUMN_CREATIONTIME +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
-                    FeedEntry.MULE_COLUMN_STARTTIME +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
-                    FeedEntry.MULE_COLUMN_ENDTIME +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
-                    FeedEntry.MULE_COLUMN_CONTENT +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
-                    FeedEntry.MULE_COLUMN_PUBLISHER +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
-                    FeedEntry.MULE_COLUMN_LOCATION +" "+ FeedEntry.TEXT_TYPE +
+                    FeedEntry.MULE_MESSAGE_COLUMN_UUID +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
+                    FeedEntry.MULE_MESSAGE_COLUMN_CREATIONTIME +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
+                    FeedEntry.MULE_MESSAGE_COLUMN_STARTTIME +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
+                    FeedEntry.MULE_MESSAGE_COLUMN_ENDTIME +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
+                    FeedEntry.MULE_MESSAGE_COLUMN_CONTENT +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
+                    FeedEntry.MULE_MESSAGE_COLUMN_PUBLISHER +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
+                    FeedEntry.MULE_MESSAGE_COLUMN_LOCATION +" "+ FeedEntry.TEXT_TYPE +
                     " )";
 
     private static final String SQL_CREATE_MESSAGE =
@@ -83,8 +84,24 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
                     FeedEntry.MESSAGE_COLUMN_ENDTIME +" "+ FeedEntry.LONG_TYPE + FeedEntry.COMMA_SEP +
                     FeedEntry.MESSAGE_COLUMN_CONTENT +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
                     FeedEntry.MESSAGE_COLUMN_PUBLISHER +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
-                    FeedEntry.MESSAGE_COLUMN_LOCATION +" "+ FeedEntry.TEXT_TYPE +
+                    FeedEntry.MESSAGE_COLUMN_LOCATION +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
+
+                    FeedEntry.MESSAGE_COLUMN_CENTRALIZED +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
+                    FeedEntry.MESSAGE_COLUMN_ADDEDDECENTRALIZED +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
+                    FeedEntry.MESSAGE_COLUMN_DELETEDDECENTRALIZED +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
+                    FeedEntry.MESSAGE_COLUMN_NEARBY +" "+ FeedEntry.TEXT_TYPE +
+
                 " )";
+
+    private static final String SQL_CREATE_MESSAGEKEYS =
+
+            "CREATE TABLE IF NOT EXISTS " + FeedEntry.MESSAGEKEYS_TABLE_NAME + " ( " +
+                    FeedEntry._ID + " INTEGER PRIMARY KEY," +
+                    FeedEntry.MESSAGEKEYS_COLUMN_UUID +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
+                    FeedEntry.MESSAGEKEYS_COLUMN_KEY +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
+                    FeedEntry.MESSAGEKEYS_COLUMN_VALUE +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
+                    FeedEntry.MESSAGEKEYS_COLUMN_ISWHITE +" "+ FeedEntry.TEXT_TYPE +
+                    " )";
 
     private static final String SQL_CREATE_PROFILE =
 
@@ -95,6 +112,15 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
                     FeedEntry.PROFILE_COLUMN_ADDEDDECENTRALIZED +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
                     FeedEntry.PROFILE_COLUMN_DELETEDDECENTRALIZED +" "+ FeedEntry.TEXT_TYPE +
                 " )";
+
+    private static final String SQL_CREATE_SERVER_PROFILES =
+
+            "CREATE TABLE IF NOT EXISTS " + FeedEntry.SERVER_PROFILES_TABLE_NAME + " ( " +
+                    FeedEntry._ID + " INTEGER PRIMARY KEY," +
+                    FeedEntry.SERVER_PROFILES_COLUMN_KEY +" "+ FeedEntry.TEXT_TYPE + FeedEntry.COMMA_SEP +
+                    FeedEntry.SERVER_PROFILES_COLUMN_VALUE +" "+ FeedEntry.TEXT_TYPE +
+                " )";
+
 
     private static final String SQL_CREATE_MULE_PROFILE =
 
@@ -119,9 +145,12 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
         createLocationTable(db);
         createMessageTable(db);
+
         createMuleTable(db);
         createProfileTable(db);
         createMuleProfileTable(db);
+        createServerProfilesTable(db);
+        createMessageKeysTable(db);
     }
 
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -137,6 +166,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         dropLocation();
         dropMessage();
         dropMule();
+        dropServerProfiles();
 
         onCreate(db);
     }
@@ -176,7 +206,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         contentValues.put(FeedEntry.LOCATION_COLUMN_RAD, radius);
         contentValues.put(FeedEntry.LOCATION_COLUMN_CENTRALIZED, centralized);
         db.insert(FeedEntry.LOCATION_TABLE_NAME, null, contentValues);
-        Log.d("insertAllLocations: ","added to DB location " + name + ssid + ble + lat + lon + radius);
+        //Log.d("insertAllLocations: ","added to DB location " + name + ssid + ble + lat + lon + radius);
     }
 
     public void insertAllLocations(List<Location> locations){
@@ -356,14 +386,14 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
         while(cursor.isAfterLast() == false){
             String name = cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.LOCATION_COLUMN_NAME));
-            Log.d("Hash loc name -> ", name);
+            //Log.d("Hash loc name -> ", name);
             bOutput.write(digest.digest(name.getBytes("UTF-8")));
             cursor.moveToNext();
         }
 
         byte[] locationsNameHash = digest.digest(bOutput.toByteArray());
 
-        Log.d("Hash ->" , new String(Base64.encode(locationsNameHash, Base64.DEFAULT)));
+        //Log.d("Hash ->" , new String(Base64.encode(locationsNameHash, Base64.DEFAULT)));
         return new String(Base64.encode(locationsNameHash, Base64.DEFAULT));
     }
 
@@ -403,21 +433,21 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
     public void dropMule() {
         SQLiteDatabase db = this.getWritableDatabase();
 
-        db.execSQL(SQL_DELETE_ENTRIES + FeedEntry.MULE_TABLE_NAME);
+        db.execSQL(SQL_DELETE_ENTRIES + FeedEntry.MULE_MESSAGE_TABLE_NAME);
     }
 
     public void insertMessageMule (String uuid, long creationTime, long startTime, long endTime, String content, String publisher, String location) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put(FeedEntry.MULE_COLUMN_UUID, uuid);
-        contentValues.put(FeedEntry.MULE_COLUMN_CREATIONTIME, creationTime);
-        contentValues.put(FeedEntry.MULE_COLUMN_STARTTIME, startTime);
-        contentValues.put(FeedEntry.MULE_COLUMN_ENDTIME, endTime);
-        contentValues.put(FeedEntry.MULE_COLUMN_CONTENT, content);
-        contentValues.put(FeedEntry.MULE_COLUMN_PUBLISHER, publisher);
-        contentValues.put(FeedEntry.MULE_COLUMN_LOCATION, location);
+        contentValues.put(FeedEntry.MULE_MESSAGE_COLUMN_UUID, uuid);
+        contentValues.put(FeedEntry.MULE_MESSAGE_COLUMN_CREATIONTIME, creationTime);
+        contentValues.put(FeedEntry.MULE_MESSAGE_COLUMN_STARTTIME, startTime);
+        contentValues.put(FeedEntry.MULE_MESSAGE_COLUMN_ENDTIME, endTime);
+        contentValues.put(FeedEntry.MULE_MESSAGE_COLUMN_CONTENT, content);
+        contentValues.put(FeedEntry.MULE_MESSAGE_COLUMN_PUBLISHER, publisher);
+        contentValues.put(FeedEntry.MULE_MESSAGE_COLUMN_LOCATION, location);
 
-        db.insert(FeedEntry.MULE_TABLE_NAME, null, contentValues);
+        db.insert(FeedEntry.MULE_MESSAGE_TABLE_NAME, null, contentValues);
     }
 
     public void insertAllMessageMule (List<Message> muleMessages) {
@@ -431,19 +461,19 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
         String[] projection = {
                 FeedEntry._ID,
-                FeedEntry.MULE_COLUMN_UUID,
-                FeedEntry.MULE_COLUMN_CREATIONTIME,
-                FeedEntry.MULE_COLUMN_STARTTIME,
-                FeedEntry.MULE_COLUMN_ENDTIME,
-                FeedEntry.MULE_COLUMN_CONTENT,
-                FeedEntry.MULE_COLUMN_PUBLISHER,
-                FeedEntry.MULE_COLUMN_LOCATION
+                FeedEntry.MULE_MESSAGE_COLUMN_UUID,
+                FeedEntry.MULE_MESSAGE_COLUMN_CREATIONTIME,
+                FeedEntry.MULE_MESSAGE_COLUMN_STARTTIME,
+                FeedEntry.MULE_MESSAGE_COLUMN_ENDTIME,
+                FeedEntry.MULE_MESSAGE_COLUMN_CONTENT,
+                FeedEntry.MULE_MESSAGE_COLUMN_PUBLISHER,
+                FeedEntry.MULE_MESSAGE_COLUMN_LOCATION
         };
 
         Cursor cursor = db.query(
-                FeedEntry.MULE_TABLE_NAME,             // The table to query
+                FeedEntry.MULE_MESSAGE_TABLE_NAME,             // The table to query
                 projection,                               // The columns to return
-                FeedEntry.MULE_COLUMN_UUID + " = ?",            // The columns for the WHERE clause
+                FeedEntry.MULE_MESSAGE_COLUMN_UUID + " = ?",            // The columns for the WHERE clause
                 new String[]{uuid},                                     // The values for the WHERE clause
                 null,                                     // don't group the rows
                 null,                                     // don't filter by row groups
@@ -465,17 +495,17 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
         String[] projection = {
                 FeedEntry._ID,
-                FeedEntry.MULE_COLUMN_UUID,
-                FeedEntry.MULE_COLUMN_CREATIONTIME,
-                FeedEntry.MULE_COLUMN_STARTTIME,
-                FeedEntry.MULE_COLUMN_ENDTIME,
-                FeedEntry.MULE_COLUMN_CONTENT,
-                FeedEntry.MULE_COLUMN_PUBLISHER,
-                FeedEntry.MULE_COLUMN_LOCATION
+                FeedEntry.MULE_MESSAGE_COLUMN_UUID,
+                FeedEntry.MULE_MESSAGE_COLUMN_CREATIONTIME,
+                FeedEntry.MULE_MESSAGE_COLUMN_STARTTIME,
+                FeedEntry.MULE_MESSAGE_COLUMN_ENDTIME,
+                FeedEntry.MULE_MESSAGE_COLUMN_CONTENT,
+                FeedEntry.MULE_MESSAGE_COLUMN_PUBLISHER,
+                FeedEntry.MULE_MESSAGE_COLUMN_LOCATION
         };
 
         Cursor cursor = db.query(
-                FeedEntry.MULE_TABLE_NAME,            // The table to query
+                FeedEntry.MULE_MESSAGE_TABLE_NAME,            // The table to query
                 projection,                               // The columns to return
                 null,                                     // The columns for the WHERE clause
                 null,                                     // The values for the WHERE clause
@@ -497,7 +527,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
     public boolean deleteMessageMule(String uuid) {
         SQLiteDatabase db = this.getWritableDatabase();
 
-        return db.delete(FeedEntry.MULE_TABLE_NAME, FeedEntry.MULE_COLUMN_UUID + "=" + uuid, null) > 0;
+        return db.delete(FeedEntry.MULE_MESSAGE_TABLE_NAME, FeedEntry.MULE_MESSAGE_COLUMN_UUID + "=" + uuid, null) > 0;
     }
 
     public boolean deleteListMessageMules(List<String> messagesMules) {
@@ -515,18 +545,29 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
     public void deleteAllMessageMules() {
         SQLiteDatabase db = this.getWritableDatabase();
 
-        db.execSQL("delete from "+ FeedEntry.MULE_TABLE_NAME);
+        db.execSQL("delete from "+ FeedEntry.MULE_MESSAGE_TABLE_NAME);
     }
 
     private Message associateMessageMule(Cursor cursor) {
+        Boolean isCentralized = true;
+        String isCentralizedAux = cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_CENTRALIZED));
+        if(isCentralizedAux.equals("false")){
+            isCentralized = false;
+        }
+
+
         return new Message(
-                UUID.fromString(cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MULE_COLUMN_UUID))),
-                cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry.MULE_COLUMN_CREATIONTIME)),
-                cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry.MULE_COLUMN_STARTTIME)),
-                cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry.MULE_COLUMN_ENDTIME)),
-                cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MULE_COLUMN_CONTENT)),
-                cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MULE_COLUMN_PUBLISHER)),
-                cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MULE_COLUMN_LOCATION))
+                UUID.fromString(cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MULE_MESSAGE_COLUMN_UUID))),
+                cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry.MULE_MESSAGE_COLUMN_CREATIONTIME)),
+                cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry.MULE_MESSAGE_COLUMN_STARTTIME)),
+                cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry.MULE_MESSAGE_COLUMN_ENDTIME)),
+                cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MULE_MESSAGE_COLUMN_CONTENT)),
+                cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MULE_MESSAGE_COLUMN_PUBLISHER)),
+                cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MULE_MESSAGE_COLUMN_LOCATION)),
+                isCentralized,
+                false,
+                null,
+                null
         );
     }
 
@@ -536,6 +577,12 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
         db.execSQL(SQL_CREATE_MESSAGE);
     }
+
+    public void createMessageKeysTable(SQLiteDatabase db) {
+
+        db.execSQL(SQL_CREATE_MESSAGEKEYS);
+    }
+
 
     public void dropMessage() {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -551,10 +598,149 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
                 message.getEndTime(),
                 message.getContent(),
                 message.getPublisher(),
-                message.getLocation());
+                message.getLocation(),
+                message.isCentralized(),
+                message.isNearby(),
+                message.getWhiteList(),
+                message.getBlackList()
+        );
     }
 
-    public void insertMessage (String uuid, long creationTime, long startTime, long endTime, String content, String publisher, String location) {
+    public void insertMessage (String uuid, long creationTime, long startTime, long endTime, String content, String publisher, String location, boolean isCentralized, boolean isNearby, List<Profile> whiteList, List<Profile> blackList) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        String centralized = "false";
+        if(isCentralized){
+            centralized = "true";
+        }
+
+
+        String nearby = "false";
+        if(isNearby){
+            nearby = "true";
+        }
+
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(FeedEntry.MESSAGE_COLUMN_UUID, uuid);
+        contentValues.put(FeedEntry.MESSAGE_COLUMN_CREATIONTIME, creationTime);
+        contentValues.put(FeedEntry.MESSAGE_COLUMN_STARTTIME, startTime);
+        contentValues.put(FeedEntry.MESSAGE_COLUMN_ENDTIME, endTime);
+        contentValues.put(FeedEntry.MESSAGE_COLUMN_CONTENT, content);
+        contentValues.put(FeedEntry.MESSAGE_COLUMN_PUBLISHER, publisher);
+        contentValues.put(FeedEntry.MESSAGE_COLUMN_LOCATION, location);
+        contentValues.put(FeedEntry.MESSAGE_COLUMN_CENTRALIZED, centralized);
+
+        contentValues.put(FeedEntry.MESSAGE_COLUMN_ADDEDDECENTRALIZED, "true");
+        contentValues.put(FeedEntry.MESSAGE_COLUMN_DELETEDDECENTRALIZED, "false");
+        contentValues.put(FeedEntry.MESSAGE_COLUMN_NEARBY, nearby);
+
+        db.insert(FeedEntry.MESSAGE_TABLE_NAME, null, contentValues);
+
+        insertMessageKeys(whiteList,uuid,"true");
+        insertMessageKeys(blackList,uuid,"false");
+    }
+
+    private void insertMessageKeys(List<Profile> profileList, String uuid ,String isWhite) {
+
+        //Log.d("DBHelper: ","insertMessageKeys, isWhite = " +isWhite);
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        if(profileList != null){
+            for(Profile p : profileList){
+                ContentValues contentValues = new ContentValues();
+
+                contentValues.put(FeedEntry.MESSAGEKEYS_COLUMN_UUID, uuid);
+                contentValues.put(FeedEntry.MESSAGEKEYS_COLUMN_KEY, p.getKey());
+                contentValues.put(FeedEntry.MESSAGEKEYS_COLUMN_VALUE, p.getValue());
+                contentValues.put(FeedEntry.MESSAGEKEYS_COLUMN_ISWHITE, isWhite);
+
+                //Log.d("DBHelper: ","insertMessageKeys inserting key/value/uuid = " +p.getKey() + p.getValue()+uuid);
+
+                db.insert(FeedEntry.MESSAGEKEYS_TABLE_NAME, null, contentValues);
+            }
+        }
+
+    }
+
+    private ArrayList<Profile> getMessageKeys(String uuid, Boolean getWhitelist) throws MessageKeysNotFoundException {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String isWhite = "false";
+        if(getWhitelist){
+            isWhite = "true";
+        }
+
+        Log.d("DBHelper: ", "getMessageKeys obtaining keys for message id -> " + uuid);
+        Log.d("DBHelper: ", "getMessageKeys obtaining isWhite?" + isWhite);
+
+        String[] projection = makeDefaultMessageKeysProjection();
+
+        ArrayList<Profile> keys = new ArrayList<>();
+
+        Cursor cursor = db.query(
+                FeedEntry.MESSAGEKEYS_TABLE_NAME,             // The table to query
+                projection,                               // The columns to return
+                FeedEntry.MESSAGEKEYS_COLUMN_UUID + "= ? and " + FeedEntry.MESSAGEKEYS_COLUMN_ISWHITE + " = ?",    // The columns for the WHERE clause
+                new String[]{uuid,isWhite},                       // The values for the WHERE clause
+                null,                                     // don't group the rows
+                null,                                     // don't filter by row groups
+                null                                      // The sort order
+        );
+
+        if (cursor.getCount() == 0) {
+            throw new MessageKeysNotFoundException();
+        }
+
+        cursor.moveToFirst();
+
+        while(cursor.isAfterLast() == false){
+            keys.add(associateMessageKeys(cursor));
+            cursor.moveToNext();
+        }
+
+        return keys;
+
+    }
+
+    private Profile associateMessageKeys(Cursor cursor) {
+
+        String username = ServicesDataHolder.getInstance().getUsername();
+
+        return new Profile(
+                cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGEKEYS_COLUMN_KEY)),
+                cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGEKEYS_COLUMN_VALUE)),
+                username
+        );
+    }
+
+    public void insertMessageFromServer(Message message) {
+
+        Gson gson = new Gson();
+        JSONObject jsonObject = null;
+        try {
+            jsonObject = new JSONObject(gson.toJson(message));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        //Log.d("DBHelper: ", "inserting message from server -> "+jsonObject.toString());
+
+
+
+        insertMessageFromServer(
+                message.getUUID().toString(),
+                message.getCreationTime(),
+                message.getStartTime(),
+                message.getEndTime(),
+                message.getContent(),
+                message.getPublisher(),
+                message.getLocation(),
+                message.isCentralized(),
+                message.isNearby()
+        );
+    }
+
+    public void insertMessageFromServer (String uuid, long creationTime, long startTime, long endTime, String content, String publisher, String location, boolean isCentralized, boolean isNearby) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues contentValues = new ContentValues();
@@ -565,15 +751,37 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         contentValues.put(FeedEntry.MESSAGE_COLUMN_CONTENT, content);
         contentValues.put(FeedEntry.MESSAGE_COLUMN_PUBLISHER, publisher);
         contentValues.put(FeedEntry.MESSAGE_COLUMN_LOCATION, location);
+        contentValues.put(FeedEntry.MESSAGE_COLUMN_CENTRALIZED, "true");
+
+        contentValues.put(FeedEntry.MESSAGE_COLUMN_ADDEDDECENTRALIZED, "false");
+        contentValues.put(FeedEntry.MESSAGE_COLUMN_DELETEDDECENTRALIZED, "false");
+        contentValues.put(FeedEntry.MESSAGE_COLUMN_NEARBY, "true");
+
 
         db.insert(FeedEntry.MESSAGE_TABLE_NAME, null, contentValues);
+    }
+
+    public void updateMessageInsertedToServer(String uuid) throws MultipleRowsAfectedException, MessageNotFoundException {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        ContentValues cv = new ContentValues();
+
+        cv.put(FeedEntry.MESSAGE_COLUMN_ADDEDDECENTRALIZED, "false");
+
+        int result = db.update(FeedEntry.MESSAGE_TABLE_NAME, cv, FeedEntry.MESSAGE_COLUMN_UUID+ " = ?", new String[] {uuid});
+
+        if (result == 0) {
+            throw new MessageNotFoundException();
+        } else if (result > 1) {
+            throw new MultipleRowsAfectedException();
+        }
     }
 
     public void insertAllMessages(List<Message> messages){
         for (Message message : messages) {
             Gson gson = new Gson();
-            Log.d(TAG, "insertAllMessages: "+gson.toJson(message));
-            insertMessage(message.getUUID().toString(), message.getCreationTime(), message.getStartTime(), message.getEndTime(), message.getContent(), message.getPublisher(), message.getLocation());
+            //Log.d(TAG, "insertAllMessages: "+gson.toJson(message));
+            insertMessage(message);
         }
     }
 
@@ -602,6 +810,8 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
     }
 
     public List<Message> getMessagesFromUser(String publisher) throws PublisherNotFoundException {
+        //Log.d("DBHelper: ", "obtaining messages from username = " +publisher);
+
         ArrayList<Message> messages = new ArrayList<Message>();
 
         SQLiteDatabase db = this.getReadableDatabase();
@@ -611,8 +821,8 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         Cursor cursor = db.query(
                 FeedEntry.MESSAGE_TABLE_NAME,                        // The table to query
                 projection,                                         // The columns to return
-                FeedEntry.MESSAGE_COLUMN_PUBLISHER + " = ?",       // The columns for the WHERE clause
-                new String[]{publisher},                          // The values for the WHERE clause
+                FeedEntry.MESSAGE_COLUMN_PUBLISHER + " = ? and "+FeedEntry.MESSAGE_COLUMN_NEARBY +" =?",       // The columns for the WHERE clause
+                new String[]{publisher, "false"},                          // The values for the WHERE clause
                 null,                                            // don't group the rows
                 null,                                           // don't filter by row groups
                 null                                           // The sort order
@@ -660,10 +870,139 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         return messages;
     }
 
-    public boolean deleteMessage(String uuid) {
+    public ArrayList<Message> getAllNearbyMessages() {
+        ArrayList<Message> messages = new ArrayList<Message>();
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String[] projection = makeDefaultMessageProjection();
+
+        Cursor cursor = db.query(
+                FeedEntry.MESSAGE_TABLE_NAME,            // The table to query
+                projection,                               // The columns to return
+                FeedEntry.MESSAGE_COLUMN_NEARBY+ " = ? ",                                     // The columns for the WHERE clause
+                new String[]{"true"},                                     // The values for the WHERE clause
+                null,                                     // don't group the rows
+                null,                                     // don't filter by row groups
+                null                                   // The sort order
+        );
+
+        cursor.moveToFirst();
+
+        while(cursor.isAfterLast() == false){
+            messages.add(associateMessage(cursor));
+            cursor.moveToNext();
+        }
+        return messages;
+    }
+
+    public ArrayList<Message> getAllMessagesDeletedWhileDecentralized() {
+        ArrayList<Message> messages = new ArrayList<Message>();
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String[] projection = makeDefaultMessageProjection();
+
+        Cursor cursor = db.query(
+                FeedEntry.MESSAGE_TABLE_NAME,            // The table to query
+                projection,                               // The columns to return
+                FeedEntry.MESSAGE_COLUMN_DELETEDDECENTRALIZED + " = ? ",                                     // The columns for the WHERE clause
+                new String[]{"true"},                                     // The values for the WHERE clause
+                null,                                     // don't group the rows
+                null,                                     // don't filter by row groups
+                null                                   // The sort order
+        );
+
+        cursor.moveToFirst();
+
+        while(cursor.isAfterLast() == false){
+            messages.add(associateMessage(cursor));
+            cursor.moveToNext();
+        }
+        return messages;
+    }
+
+    public ArrayList<Message> getAllMessagesAddedWhileDecentralized() {
+        ArrayList<Message> messages = new ArrayList<Message>();
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String[] projection = makeDefaultMessageProjection();
+
+        Cursor cursor = db.query(
+                FeedEntry.MESSAGE_TABLE_NAME,            // The table to query
+                projection,                               // The columns to return
+                FeedEntry.MESSAGE_COLUMN_ADDEDDECENTRALIZED + " = ? ",                                     // The columns for the WHERE clause
+                new String[]{"true"},                                     // The values for the WHERE clause
+                null,                                     // don't group the rows
+                null,                                     // don't filter by row groups
+                null                                   // The sort order
+        );
+
+        cursor.moveToFirst();
+
+        while(cursor.isAfterLast() == false){
+            messages.add(associateMessage(cursor));
+            cursor.moveToNext();
+        }
+        return messages;
+    }
+
+    public void deleteMessageInTheFuture(String uuid) throws MessageNotFoundException, MultipleRowsAfectedException {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        ContentValues cv = new ContentValues();
+        cv.put(FeedEntry.MESSAGE_COLUMN_DELETEDDECENTRALIZED, "true");
+
+        int result = db.update(FeedEntry.MESSAGE_TABLE_NAME, cv, FeedEntry.MESSAGE_COLUMN_UUID + " = ?", new String[] {uuid});
+
+        if (result == 0) {
+            throw new MessageNotFoundException();
+        } else if (result > 1) {
+            throw new MultipleRowsAfectedException();
+        }
+    }
+
+    public boolean deleteAllMessagesExceptMyOwnAndDecentralized() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String username = ServicesDataHolder.getInstance().getUsername();
+
+        String table = FeedEntry.MESSAGE_TABLE_NAME;
+        String whereClause = FeedEntry.MESSAGE_COLUMN_PUBLISHER + " != ?" +" and "+ FeedEntry.MESSAGE_COLUMN_CENTRALIZED +" = ?";
+        String[] whereArgs = new String[] { username, "false" };
+
+        return db.delete(table, whereClause, whereArgs) > 0;
+    }
+
+    public boolean deleteAllNearbyMessages() {
         SQLiteDatabase db = this.getWritableDatabase();
 
-        return db.delete(FeedEntry.MESSAGE_TABLE_NAME, FeedEntry.MESSAGE_COLUMN_UUID + "=" + uuid, null) > 0;
+        String table = FeedEntry.MESSAGE_TABLE_NAME;
+        String whereClause = FeedEntry.MESSAGE_COLUMN_NEARBY + " = ?";
+        String[] whereArgs = new String[] { "true" };
+
+        int removed = db.delete(table, whereClause, whereArgs);
+
+        //Log.d("DBService", "deleteAllNearbyMessages -> " + removed);
+
+        return removed > 0;
+    }
+
+    public boolean deleteMessage(String uuid) {
+        SQLiteDatabase db = this.getWritableDatabase();
+            db.delete(FeedEntry.MESSAGEKEYS_TABLE_NAME, FeedEntry.MESSAGEKEYS_COLUMN_UUID + "= '" + uuid + "'", null);
+
+        return db.delete(FeedEntry.MESSAGE_TABLE_NAME, FeedEntry.MESSAGE_COLUMN_UUID + "= '" + uuid + "'", null) > 0;
+    }
+
+    public boolean deleteAllMyMessagesNotNearby(String publisher) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        String table = FeedEntry.MESSAGE_TABLE_NAME;
+        String whereClause = FeedEntry.MESSAGE_COLUMN_PUBLISHER+ "=? and " + FeedEntry.MESSAGE_COLUMN_NEARBY+ " =? ";
+        String[] whereArgs = new String[] { publisher, "false" };
+
+        return db.delete(table, whereClause, whereArgs) > 0;
     }
 
     public boolean deleteListMessage(List<String> messages) {
@@ -685,6 +1024,43 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
     }
 
     private Message associateMessage(Cursor cursor) {
+        Boolean isCentralized = true;
+        String isCentralizedAux = cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_CENTRALIZED));
+        if(isCentralizedAux.equals("false")){
+            isCentralized = false;
+        }
+
+        Boolean isNearby = false;
+        String isNearbyAux = cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_NEARBY));
+        if(isNearbyAux.equals("true")){
+            isNearby = true;
+        }
+
+        String uuid = cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_UUID));
+
+        ArrayList<Profile> whiteList = new ArrayList<>();
+        ArrayList<Profile> blackList = new ArrayList<>();
+        try {
+            whiteList = getMessageKeys(uuid, true);
+        } catch (MessageKeysNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            blackList = getMessageKeys(uuid, false);
+        } catch (MessageKeysNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        for(Profile p : whiteList){
+            Log.d("AssociateMessage: ","whitelist -> " + p.getKey());
+        }
+
+        for(Profile p : blackList){
+            Log.d("AssociateMessage: ","blacklist -> " + p.getKey());
+        }
+
+
         return new Message(
                 UUID.fromString(cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_UUID))),
                 cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_CREATIONTIME)),
@@ -692,7 +1068,11 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
                 cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_ENDTIME)),
                 cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_CONTENT)),
                 cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_PUBLISHER)),
-                cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_LOCATION))
+                cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.MESSAGE_COLUMN_LOCATION)),
+                isCentralized,
+                isNearby,
+                whiteList,
+                blackList
         );
     }
 
@@ -705,7 +1085,21 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
                 FeedEntry.MESSAGE_COLUMN_ENDTIME,
                 FeedEntry.MESSAGE_COLUMN_CONTENT,
                 FeedEntry.MESSAGE_COLUMN_PUBLISHER,
-                FeedEntry.MESSAGE_COLUMN_LOCATION
+                FeedEntry.MESSAGE_COLUMN_LOCATION,
+                FeedEntry.MESSAGE_COLUMN_CENTRALIZED,
+                FeedEntry.MESSAGE_COLUMN_ADDEDDECENTRALIZED,
+                FeedEntry.MESSAGE_COLUMN_DELETEDDECENTRALIZED,
+                FeedEntry.MESSAGE_COLUMN_NEARBY
+        };
+    }
+
+    private String[] makeDefaultMessageKeysProjection() {
+        return new String[] {
+                FeedEntry._ID,
+                FeedEntry.MESSAGEKEYS_COLUMN_UUID,
+                FeedEntry.MESSAGEKEYS_COLUMN_KEY,
+                FeedEntry.MESSAGEKEYS_COLUMN_VALUE,
+                FeedEntry.MESSAGEKEYS_COLUMN_ISWHITE,
         };
     }
 
@@ -735,6 +1129,10 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         db.insert(FeedEntry.PROFILE_TABLE_NAME, null, contentValues);
     }
 
+    public void insertProfile(Profile profile) {
+        insertProfile(profile.getKey(), profile.getValue());
+    }
+
     public void insertProfileFromServer (String key, String value) {
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -754,9 +1152,9 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         }
     }
 
-    public void insertAllProfilesFromServer(HashMap<String, String> profiles){
-        for (String key : profiles.keySet()) {
-            insertProfileFromServer(key, profiles.get(key));
+    public void insertAllProfilesFromServer(List<Profile> profiles){
+        for (Profile p : profiles) {
+            insertProfileFromServer(p.getKey(), p.getValue());
         }
     }
 
@@ -776,7 +1174,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         Cursor cursor = db.query(
                 FeedEntry.PROFILE_TABLE_NAME,             // The table to query
                 projection,                               // The columns to return
-                FeedEntry.PROFILE_COLUMN_KEY + " = ?" + FeedEntry.PROFILE_COLUMN_DELETEDDECENTRALIZED + " = ? ",            // The columns for the WHERE clause
+                FeedEntry.PROFILE_COLUMN_KEY + " = ? " + FeedEntry.PROFILE_COLUMN_DELETEDDECENTRALIZED + " = ? ",            // The columns for the WHERE clause
                 new String[]{key, "false"},                                     // The values for the WHERE clause
                 null,                                     // don't group the rows
                 null,                                     // don't filter by row groups
@@ -825,7 +1223,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         return profiles;
     }
 
-    public List<Profile> getListProfiles() {
+    public List<Profile> getMyProfiles() {
         ArrayList<Profile> profiles = new ArrayList<Profile>();
 
         SQLiteDatabase db = this.getReadableDatabase();
@@ -884,13 +1282,17 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         }
     }
 
-    public void updateProfileInsertedToServer(String key) throws ProfileNotFoundException, MultipleRowsAfectedException {
+    public void updateProfileInsertedToServer(String key, String value) throws ProfileNotFoundException, MultipleRowsAfectedException {
         SQLiteDatabase db = this.getReadableDatabase();
 
         ContentValues cv = new ContentValues();
         cv.put(FeedEntry.PROFILE_COLUMN_ADDEDDECENTRALIZED, "false");
 
-        int result = db.update(FeedEntry.PROFILE_TABLE_NAME, cv, FeedEntry.PROFILE_COLUMN_KEY + " = ?", new String[] {key});
+        String table = FeedEntry.PROFILE_TABLE_NAME;
+        String whereClause = FeedEntry.PROFILE_COLUMN_KEY + " = ?" +" and "+ FeedEntry.PROFILE_COLUMN_VALUE +" = ?";
+        String[] whereArgs = new String[] { key, value };
+
+        int result = db.update(table,cv, whereClause, whereArgs);
 
         if (result == 0) {
             throw new ProfileNotFoundException();
@@ -993,6 +1395,83 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
                 username
         );
     }
+
+
+    // SERVERPROFILES
+
+    public void createServerProfilesTable(SQLiteDatabase db) {
+
+        db.execSQL(SQL_CREATE_SERVER_PROFILES);
+    }
+
+    public void dropServerProfiles() {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        db.execSQL(SQL_DELETE_ENTRIES + FeedEntry.SERVER_PROFILES_TABLE_NAME);
+    }
+
+    public void insertServerProfiles (String key, String value) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(FeedEntry.SERVER_PROFILES_COLUMN_KEY, key);
+        contentValues.put(FeedEntry.SERVER_PROFILES_COLUMN_VALUE, value);
+
+
+        db.insert(FeedEntry.SERVER_PROFILES_TABLE_NAME, null, contentValues);
+    }
+
+    public void insertAllServerProfiles(List<Profile> profiles){
+        for (Profile profile : profiles) {
+            insertServerProfiles(profile.getKey(), profile.getValue());
+        }
+    }
+
+    public List<Profile> getListAllServerProfiles() {
+        ArrayList<Profile> profiles = new ArrayList<Profile>();
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String[] projection = {
+                FeedEntry._ID,
+                FeedEntry.PROFILE_COLUMN_KEY,
+                FeedEntry.PROFILE_COLUMN_VALUE
+        };
+
+        String sortOrder = FeedEntry.SERVER_PROFILES_COLUMN_KEY + " ASC";
+
+        Cursor cursor = db.query(
+                FeedEntry.SERVER_PROFILES_TABLE_NAME,     // The table to query
+                projection,                               // The columns to return
+                null,                                     // The columns for the WHERE clause
+                null,                                     // The values for the WHERE clause
+                null,                                     // don't group the rows
+                null,                                     // don't filter by row groups
+                sortOrder                                 // The sort order
+        );
+
+        cursor.moveToFirst();
+
+        while(cursor.isAfterLast() == false){
+            profiles.add(associateServerProfiles(cursor));
+            cursor.moveToNext();
+        }
+        return profiles;
+    }
+
+    public void deleteAllServerProfiles() {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        db.execSQL("delete from "+ FeedEntry.SERVER_PROFILES_TABLE_NAME);
+    }
+
+    private Profile associateServerProfiles(Cursor cursor) {
+        return new Profile(
+                cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.PROFILE_COLUMN_KEY)),
+                cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.PROFILE_COLUMN_VALUE))
+        );
+    }
+
 
     // PROFILEMULE
 

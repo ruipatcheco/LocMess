@@ -87,7 +87,7 @@ public class ServiceManager {
             ActivityCompat.requestPermissions( mActivity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},code);
 
         }else{
-            Log.d("MainActivity","Started Services");
+            //Log.d("MainActivity","Started Services");
             mActivity.startService(new Intent(mActivity,WifiService.class));
             mActivity.startService(new Intent(mActivity, BluetoothService.class));
             mActivity.startService(new Intent(mActivity,GPSService.class));

@@ -9,6 +9,9 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -16,12 +19,14 @@ import java.util.HashMap;
 import java.util.List;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.LocationQuery;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.MessageServer;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.OperationStatus;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Profile;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.ServicesDataHolder;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.LocationNotFoundException;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.MessageNotFoundException;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.MultipleRowsAfectedException;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.ProfileNotFoundException;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnResponseListener;
@@ -42,6 +47,9 @@ public class DBService extends Service implements OnResponseListener<String> {
     private ServicesDataHolder dataHolder = ServicesDataHolder.getInstance();
     private FeedReaderDbHelper dbHelper;
     private String latestServerHash;
+    private boolean updateProfiles = true;
+    private boolean updateOldProfileKeys = true;
+    private boolean updateOldMessages = true;
 
     @Nullable
     @Override
@@ -52,32 +60,13 @@ public class DBService extends Service implements OnResponseListener<String> {
     @Override
     public void onCreate() {
 
-        Log.d("DBUpdater","DB Updater Started");
+        //Log.d("DBUpdater","DB Updater Started");
         serverActions = new ServerActions(this);
         dbHelper = new FeedReaderDbHelper(getApplicationContext());
 
         //Do once
         if(dataHolder.isCentralizedMode()) {
             //FIXME -> quando o login estiver a bombar
-
-            //CHECK AND DELETE OFFLINE DELETED PROFILES
-            ArrayList<Profile> offlineDeletedProfiles = dbHelper.getAllProfilesToRemoveFromServer();
-            Log.d("DBService", "offline deleted profiles -> "+offlineDeletedProfiles.size());
-            if(offlineDeletedProfiles.size()!=0){
-                removeProfilesFromServer(offlineDeletedProfiles);
-            }
-
-            //CHECK AND INSERT OFFLINE INSERTED PROFILES
-            ArrayList<Profile> offlineInsertedProfiles = dbHelper.getAllProfilesAddedWhileDecentralized();
-            Log.d("DBService", "offline inserted profiles -> "+offlineInsertedProfiles.size());
-            if(offlineInsertedProfiles.size()!=0){
-                insertProfilesToServer(offlineInsertedProfiles);
-            }
-
-            dbHelper.deleteAllProfiles();
-
-            //OBTAIN OLDER PROFILES
-            getAndInsertAllProfileKeys();
 
         }
 
@@ -89,39 +78,55 @@ public class DBService extends Service implements OnResponseListener<String> {
 
                 if(dataHolder.isCentralizedMode()){
 
-                    Log.d("DBService", "entered DBService");
+                    //Log.d("DBService", "entered DBService");
 
 
                     ////////////////---------------PROFILES----------------------/////////////
 
+                    //OBTAIN OLDER PROFILES
+                    if(updateOldProfileKeys){
+                        updateOldProfileKeys = false;
+                        getAndInsertOldProfileKeys();
+                    }
+
+
                     //CHECK AND DELETE OFFLINE DELETED PROFILES
                     ArrayList<Profile> offlineDeletedProfiles = dbHelper.getAllProfilesToRemoveFromServer();
-                    Log.d("DBService", "offline deleted profiles -> "+offlineDeletedProfiles.size());
+                    //Log.d("DBService", "offline deleted profiles -> "+offlineDeletedProfiles.size());
                     if(offlineDeletedProfiles.size()!=0){
                         removeProfilesFromServer(offlineDeletedProfiles);
+                        updateProfiles =true;
                     }
 
 
                     //CHECK AND INSERT OFFLINE INSERTED PROFILES
                     ArrayList<Profile> offlineInsertedProfiles = dbHelper.getAllProfilesAddedWhileDecentralized();
-                    Log.d("DBService", "offline inserted profiles -> "+offlineInsertedProfiles.size());
+                    //Log.d("DBService", "offline inserted profiles -> "+offlineInsertedProfiles.size());
                     if(offlineInsertedProfiles.size()!=0){
                         insertProfilesToServer(offlineInsertedProfiles);
+                        updateProfiles = true;
                     }
+
+                    if(updateProfiles){
+                        //CLEAR SERVER PROFILE LIST AND OBTAIN ALL PROFILES FROM SERVER
+                        getAndInsertAllServerProfiles();
+                    }
+
+
 
 
                     ////////////////---------------LOCATIONS----------------------/////////////
 
                     //CHECK AND DELETE OFFLINE DELETED LOCATIONS
                     ArrayList<String> offlineDeletedLocationNames = dataHolder.getRemovedLocations();
-                    Log.d("DBService", "offline deleted locations -> "+offlineDeletedLocationNames.size());
+                    //Log.d("DBService", "offline deleted locations -> "+offlineDeletedLocationNames.size());
                     if(offlineDeletedLocationNames.size()!=0){
                         removeLocationsFromServer(offlineDeletedLocationNames);
                     }
 
                     //CHECK AND INSERT OFFLINE INSERTED LOCATIONS
                     ArrayList<Location> offlineAddedLocations = checkOfflineAddedLocations();
-                    Log.d("DBService", "offline added locations -> "+offlineAddedLocations.size());
+                    //Log.d("DBService", "offline added locations -> "+offlineAddedLocations.size());
                     if(offlineAddedLocations.size()!=0){
                         //SEND LOCATIONS TO SERVER
                         sendLocationsToServer(offlineAddedLocations);
@@ -133,11 +138,20 @@ public class DBService extends Service implements OnResponseListener<String> {
                     boolean isUpdated = checkDBEqualToServerDB();
 
                     if(!isUpdated){
-                        Log.d("DBService", "Localmessages DB differs from server's, clearing local DB");
+                        //Log.d("DBService", "Local Locations DB differs from server's, clearing local DB");
 
                         dbHelper.deleteAllLocations();
                         getAndInsertAllLocations();
                     }
+
+                    ////////////////---------------LOCATIONS----------------------/////////////
+
+                    if(updateOldMessages){
+                        //OBTAIN OLDER MESSAGES
+                        getAndInsertOldMessages();
+                    }
+
+                    ////////////////---------------MESSAGES----------------------/////////////
 
                     updateMessages();
                 }
@@ -150,11 +164,31 @@ public class DBService extends Service implements OnResponseListener<String> {
 
     }
 
+    private void getAndInsertOldMessages() {
+        ArrayList<Message> result = new ArrayList<>();
+
+        dbHelper.deleteAllMyMessagesNotNearby(dataHolder.getUsername());
+        serverActions.getMyMessages(new OnResponseListener<List<Message>>() {
+
+            @Override
+            public void onHTTPResponse(List<Message> response) {
+                updateOldMessages = false;
+                //Log.d("DBService", "Adding my own old messages -> "+response.size());
+
+
+                //boolean isCentralized = true, boolean isNearby = false
+                for(Message m : response){
+                    dbHelper.insertMessage(m);
+                }
+            }
+        });
+    }
+
 
     private void insertProfilesToServer(ArrayList<Profile> offlineInsertedProfiles) {
         for(Profile p : offlineInsertedProfiles){
 
-            Log.d("DBService", "inserting to server profile key -> "+p.getKey());
+            //Log.d("DBService", "inserting to server profile key -> "+p.getKey());
 
             serverActions.insertProfile(p, new OnResponseListener<OperationStatus>() {
                 @Override
@@ -165,7 +199,7 @@ public class DBService extends Service implements OnResponseListener<String> {
                 }
             });
             try {
-                dbHelper.updateProfileInsertedToServer(p.getKey());
+                dbHelper.updateProfileInsertedToServer(p.getKey(),p.getValue());
             } catch (ProfileNotFoundException e) {
                 e.printStackTrace();
             } catch (MultipleRowsAfectedException e) {
@@ -177,7 +211,7 @@ public class DBService extends Service implements OnResponseListener<String> {
     private void removeProfilesFromServer(ArrayList<Profile> offlineDeletedProfiles) {
         for(Profile p : offlineDeletedProfiles){
 
-            Log.d("DBService", "removing from server profile key -> "+p.getKey());
+            //Log.d("DBService", "removing from server profile key -> "+p.getKey());
 
             serverActions.removeProfile(p, new OnResponseListener<OperationStatus>() {
                 @Override
@@ -192,17 +226,31 @@ public class DBService extends Service implements OnResponseListener<String> {
     }
 
 
-    private void getAndInsertAllProfileKeys() {
+    private void getAndInsertAllServerProfiles() {
         serverActions.getProfileKeys(new OnResponseListener<List<Profile>>() {
 
             @Override
             public void onHTTPResponse(List<Profile> response) {
-                HashMap<String,String> profiles = new HashMap<String, String>();
+                updateProfiles = false;
+                List<Profile> profiles = new ArrayList<Profile>();
                 for(Profile p : response){
-                    profiles.put(p.getKey(),p.getValue());
+                    profiles.add(p);
                 }
-                Log.d("DBService", "Adding old profile keys -> "+profiles.size());
+                //Log.d("DBService", "Adding server profile keys -> "+profiles.size());
 
+                dbHelper.deleteAllServerProfiles();
+                dbHelper.insertAllServerProfiles(profiles);
+            }
+        });
+    }
+
+    private void getAndInsertOldProfileKeys() {
+        serverActions.getMyProfileKeys(new OnResponseListener<List<Profile>>() {
+
+            @Override
+            public void onHTTPResponse(List<Profile> profiles) {
+                //Log.d("DBService", "Adding my own old profile keys -> "+profiles.size());
+                dbHelper.deleteAllProfiles();
                 dbHelper.insertAllProfilesFromServer(profiles);
             }
         });
@@ -210,7 +258,7 @@ public class DBService extends Service implements OnResponseListener<String> {
 
     private void removeLocationsFromServer(ArrayList<String> offlineDeletedLocationNames) {
         for (String name : offlineDeletedLocationNames){
-            Log.d("DBService", "Removing offline deleted location from server -> "+name);
+            //Log.d("DBService", "Removing offline deleted location from server -> "+name);
 
             serverActions.removeLocation(name, new OnResponseListener<OperationStatus>() {
                 @Override
@@ -224,25 +272,96 @@ public class DBService extends Service implements OnResponseListener<String> {
         dataHolder.clearRemovedLocations();
     }
 
+
     private void updateMessages() {
         List<Location>  locations = dataHolder.getNearLocations();
 
+        ArrayList<Message> offlineInsertedMessages = dbHelper.getAllMessagesAddedWhileDecentralized();
+        Log.d("DBService", "offline inserted messages -> " + offlineInsertedMessages.size());
+
+
+        if(offlineInsertedMessages.size()!=0){
+            insertMessagesToServer(offlineInsertedMessages);
+        }
+
+        ArrayList<Message> offlineDeletedMessages = dbHelper.getAllMessagesDeletedWhileDecentralized();
+
+        if(offlineDeletedMessages.size()!=0){
+            deleteMessagesFromServer(offlineDeletedMessages);
+        }
+        //Log.d("DBService", "offline deleted messages -> " + offlineDeletedMessages.size());
+
+
+        dbHelper.deleteAllNearbyMessages();
+
         for(Location location: locations){
+            Log.d("DBService", "searching for messages on location -> " + location.getName());
+
             serverActions.getMessagesFromLocation(location, new OnResponseListener<List<Message>>() {
                 @Override
                 public void onHTTPResponse(List<Message> response) {
 
-                    dbHelper.deleteAllMessages();
-                    dbHelper.insertAllMessages(response);
-
+                    Gson gson = new Gson();
                     for(Message m : response){
-                        Log.d("DBService", "added nearby ");
+                        Log.d("DBService", "added nearby message " + gson.toJson(m));
+                        dbHelper.insertMessageFromServer(m);
                     }
-
                 }
             });
         }
+
+
+
     }
+
+
+    private void deleteMessagesFromServer(ArrayList<Message> offlineDeletedMessages) {
+        for(Message m : offlineDeletedMessages){
+
+            MessageServer ms = new MessageServer(m.getUUID(),m.getCreationTime(),m.getStartTime(),m.getEndTime(),m.getContent(),m.getPublisher(),m.getLocation(),m.getWhiteList(),m.getBlackList());
+
+            //Log.d("DBService", "deleting message from server -> "+m.getUUID());
+
+            serverActions.removeMessage(ms, new OnResponseListener<OperationStatus>() {
+                @Override
+                public void onHTTPResponse(OperationStatus response) {
+                    if(response.isERROR()){
+                        //FIXME -> deu asneira
+                    }
+                }
+            });
+
+            dbHelper.deleteMessage(m.getUUID().toString());
+        }
+    }
+
+    private void insertMessagesToServer(ArrayList<Message> offlineInsertedMessages) {
+        for(Message m : offlineInsertedMessages){
+
+            Log.d("DBService", "inserting to server message -> "+m.getUUID());
+            MessageServer ms = new MessageServer(m.getUUID(),m.getCreationTime(),m.getStartTime(),m.getEndTime(),m.getContent(),m.getPublisher(),m.getLocation(),m.getWhiteList(),m.getBlackList());
+
+            serverActions.createMessage(ms, new OnResponseListener<OperationStatus>() {
+                @Override
+                public void onHTTPResponse(OperationStatus response) {
+                    if(response.isERROR()){
+                        //FIXME -> deu asneira
+                    }
+                }
+            });
+
+            try {
+                dbHelper.updateMessageInsertedToServer(m.getUUID().toString());
+            } catch (MultipleRowsAfectedException e) {
+                e.printStackTrace();
+            } catch (MessageNotFoundException e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
+
 
     private void getAndInsertAllLocations() {
         List<Location> locations = null;
@@ -250,7 +369,7 @@ public class DBService extends Service implements OnResponseListener<String> {
             @Override
             public void onHTTPResponse(List<Location> response) {
                 for(Location l : response){
-                    Log.d("DBService", "Re-Filling DB with location -> "+l.getName());
+                    //Log.d("DBService", "Re-Filling DB with location -> "+l.getName());
                 }
                 dbHelper.insertAllLocations(response);
             }
@@ -271,7 +390,7 @@ public class DBService extends Service implements OnResponseListener<String> {
             e.printStackTrace();
         }
 
-        Log.d("DBService", "CheckDBEquals local -> " + localHash + " server -> "+latestServerHash);
+        //Log.d("DBService", "CheckDBEquals local -> " + localHash + " server -> "+latestServerHash);
 
         if(latestServerHash == null || localHash == null){
             return false;
@@ -285,7 +404,7 @@ public class DBService extends Service implements OnResponseListener<String> {
 
         for(Location l: offlineLocations){
 
-            Log.d("DBService", "Sending offline added locations to server ->"+l.getName());
+            //Log.d("DBService", "Sending offline added locations to server ->"+l.getName());
 
             try {
                 dbHelper.setCentralized(l.getName());
@@ -311,14 +430,14 @@ public class DBService extends Service implements OnResponseListener<String> {
         LocationQuery query = new LocationQuery(dataHolder.getLatitude(),dataHolder.getLongitude(),
                 dataHolder.getSsidNames(),dataHolder.getBleNames());
         Gson gson = new Gson();
-        Log.d(TAG,"DB service query "+gson.toJson(query));
+        //Log.d(TAG,"DB service query "+gson.toJson(query));
         serverActions.getNearLocations(query, new OnResponseListener<List<Location>>() {
             @Override
             public void onHTTPResponse(List<Location> response) {
-                dataHolder.setNearLocations(response);
 
                 for(Location l : response){
-                    Log.d("DBService", "updated near location with name ->"+l.getName());
+                    dataHolder.setNearLocations(response);
+                    //Log.d("DBService", "received near location ->"+l.getName());
                 }
 
             }
