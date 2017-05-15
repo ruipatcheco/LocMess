@@ -2,6 +2,8 @@ package pt.ulisboa.tecnico.cmu.tg14.Controller;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +16,7 @@ import pt.ulisboa.tecnico.cmu.tg14.Implementation.LocationImpl;
 import pt.ulisboa.tecnico.cmu.tg14.Model.Coordinates;
 import pt.ulisboa.tecnico.cmu.tg14.Model.Location;
 import pt.ulisboa.tecnico.cmu.tg14.Model.Message;
+import pt.ulisboa.tecnico.cmu.tg14.Security.SessionVerifier;
 import sun.rmi.runtime.Log;
 
 
@@ -43,11 +46,15 @@ public class LocationController {
 
     @RequestMapping(value = "/create", method = RequestMethod.PUT)
     @ResponseBody
-    public OperationStatus createLocation(@RequestBody LocationMover locationMover){
+    public ResponseEntity<OperationStatus> createLocation(String sessionID,@RequestBody LocationMover locationMover){
             //@RequestParam(value="name") String name,@RequestParam(value="ssid",required = false) String ssid,@RequestParam(value="ble",required = false) String ble,@RequestParam(value="lat",required = false) Float lat,@RequestParam(value="lon",required = false) Float lon,@RequestParam(value="radius",required = false) Integer radius){
         Double lat = locationMover.getLatitude();
         Double lon = locationMover.getLongitude();
         Integer radius = locationMover.getRadius();
+
+        if(!SessionVerifier.isValid(sessionID)){
+            return new ResponseEntity(HttpStatus.UNAUTHORIZED);
+        }
 
         locationImpl.create(locationMover.getName(),locationMover.getSsid(),locationMover.getBle());
 
@@ -57,15 +64,20 @@ public class LocationController {
         }
         OperationStatus status = new OperationStatus();
         status.setOK();
-        return status;
+        return new ResponseEntity<OperationStatus>(status,HttpStatus.OK);
     }
 
     @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
-    public OperationStatus deleteLocation(@RequestParam String name){
+    public ResponseEntity<OperationStatus> deleteLocation(String sessionID,@RequestParam String name){
+
+        if(!SessionVerifier.isValid(sessionID)){
+            return new ResponseEntity(HttpStatus.UNAUTHORIZED);
+        }
+
         locationImpl.delete(name);
         OperationStatus status = new OperationStatus();
         status.setOK();
-        return status;
+        return new ResponseEntity<OperationStatus>(status,HttpStatus.OK);
     }
 /*
     @RequestMapping("/listByCoord")
@@ -75,7 +87,7 @@ public class LocationController {
 */
 
     @RequestMapping(value = "/nearbyLocations", method = RequestMethod.POST)
-    public List<LocationMover> getNearByLocations(@RequestBody LocationQuery queryString){
+    public ResponseEntity<List<Location>> getNearByLocations(String sessionID,@RequestBody LocationQuery queryString){
         List<Location> locations = new ArrayList<>();
 //        locations.addAll(locationImpl.getLocationByBle(queryString.getBleList()));
         locations.addAll(locationImpl.getLocationBySSID(queryString.getSsidList()));
@@ -87,6 +99,12 @@ public class LocationController {
         System.out.println("/nearbylocations: lat -> " + lat);
         System.out.println("/nearbylocations: lon -> " + lat);
 
+
+        if(!SessionVerifier.isValid(sessionID)){
+            return new ResponseEntity(HttpStatus.UNAUTHORIZED);
+        }
+
+
         if(lat != 0 && lon!=0) {
             List<Location> loc = locationImpl.getLocationByCoord(lat, lon);
             locations.addAll(loc);
@@ -95,7 +113,8 @@ public class LocationController {
         List<LocationMover> result = locations.stream().map(this::convertToLocResult).collect(Collectors.toList());
 
 
-        return result;
+
+        return new ResponseEntity(result,HttpStatus.OK);
     }
 
 
@@ -116,15 +135,22 @@ public class LocationController {
 
 
     @RequestMapping("/list")
-    public List<LocationMover> getLocationList(){
+    public ResponseEntity<List<LocationMover>> getLocationList(String sessionID){
+        if(!SessionVerifier.isValid(sessionID)){
+            return new ResponseEntity(HttpStatus.UNAUTHORIZED);
+        }
+
         List<LocationMover> result  = locationImpl.getLocationList().stream().map(this::convertToLocResult).collect(Collectors.toList());
-        return result;
+        return new ResponseEntity(result,HttpStatus.OK);
     }
 
     @RequestMapping("/list/hash")
-    public HashResult getLocationListHash(){
+    public ResponseEntity<HashResult> getLocationListHash(String sessionID){
         List<Location> result  = locationImpl.getLocationList();
 
+        if(!SessionVerifier.isValid(sessionID)){
+            return new ResponseEntity(HttpStatus.UNAUTHORIZED);
+        }
 
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -137,13 +163,14 @@ public class LocationController {
             }
             byte[] listHash  = digest.digest(out.toByteArray());
 
-            return new HashResult(listHash);
+            return new ResponseEntity(new HashResult(listHash),HttpStatus.OK);
+
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return new HashResult(new byte[0]);
+        return  new ResponseEntity(new HashResult(new byte[0]),HttpStatus.OK);
     }
 
 }

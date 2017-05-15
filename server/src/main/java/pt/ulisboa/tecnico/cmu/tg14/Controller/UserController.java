@@ -2,6 +2,8 @@ package pt.ulisboa.tecnico.cmu.tg14.Controller;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -11,6 +13,7 @@ import pt.ulisboa.tecnico.cmu.tg14.DTO.OperationStatus;
 import pt.ulisboa.tecnico.cmu.tg14.Implementation.SessionImpl;
 import pt.ulisboa.tecnico.cmu.tg14.Implementation.UserImpl;
 import pt.ulisboa.tecnico.cmu.tg14.Model.User;
+import pt.ulisboa.tecnico.cmu.tg14.Security.SessionVerifier;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -48,10 +51,20 @@ public class UserController {
 
     //FIXME change to request body
    @RequestMapping("/updatePassword")
-   public void updatePassword(@RequestParam(value="password") String password){
+   public ResponseEntity<OperationStatus> updatePassword(String sessionID, @RequestParam(value="password") String password){
        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
        String username = auth.getName(); //get logged in username
-        userImpl.update(username,password);
+
+       if(!SessionVerifier.isValid(sessionID)){
+           return new ResponseEntity(HttpStatus.UNAUTHORIZED);
+       }
+
+
+       userImpl.update(username,password);
+       OperationStatus status = new OperationStatus();
+       status.setOK();
+       return new ResponseEntity<OperationStatus>(status,HttpStatus.OK);
+
    }
 
    public PasswordEncoder passwordEncoder(){
@@ -82,13 +95,16 @@ public class UserController {
    }
 
    @RequestMapping("/logout")
-    public OperationStatus logout(String sessionID){
+    public ResponseEntity<OperationStatus> logout(String sessionID){
        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
        String username = auth.getName(); //get logged in username
+       if(!SessionVerifier.isValid(sessionID)){
+           return new ResponseEntity(HttpStatus.UNAUTHORIZED);
+       }
        sessionImpl.disableSession(username,sessionID);
        OperationStatus operationStatus = new OperationStatus();
        operationStatus.setOK();
-       return operationStatus;
+       return new ResponseEntity(operationStatus,HttpStatus.OK);
    }
 
 }
