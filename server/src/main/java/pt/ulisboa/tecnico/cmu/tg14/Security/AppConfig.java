@@ -55,4 +55,9 @@ public class AppConfig {
         return new MessageKeysImpl();
     }
 
+    @Bean
+    public SessionImpl sessionImpl() {
+        return new SessionImpl();
+    }
+
 }

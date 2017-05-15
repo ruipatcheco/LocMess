@@ -8,9 +8,14 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import pt.ulisboa.tecnico.cmu.tg14.DTO.OperationStatus;
+import pt.ulisboa.tecnico.cmu.tg14.Implementation.SessionImpl;
 import pt.ulisboa.tecnico.cmu.tg14.Implementation.UserImpl;
 import pt.ulisboa.tecnico.cmu.tg14.Model.User;
 
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Base64;
 import java.util.List;
@@ -27,6 +32,8 @@ public class UserController {
     UserImpl userImpl =
             (UserImpl)context.getBean("userImpl");
 
+    SessionImpl sessionImpl = (SessionImpl) context.getBean("sessionImpl");
+
     @RequestMapping(value = "/create", method = RequestMethod.PUT)
     public OperationStatus createUser(@RequestBody User user){
         OperationStatus status = new OperationStatus();
@@ -37,12 +44,6 @@ public class UserController {
             status.setOK();
         }
         return status;
-    }
-
-    //FIXME to remove
-    @RequestMapping("/list")
-    public List<User> listUser(){
-        return userImpl.listUser();
     }
 
     //FIXME change to request body
@@ -58,4 +59,36 @@ public class UserController {
        return encoder;
    }
 
-    }
+   @RequestMapping("/login")
+   public String login(){
+
+       Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+       String username = auth.getName(); //get logged in username
+
+       sessionImpl.disableAllSessions(username);
+
+       BigInteger randomID = new BigInteger(64, new SecureRandom());
+       MessageDigest md = null;
+       try {
+           md = MessageDigest.getInstance("SHA-256");
+           byte[] result = md.digest(randomID.toByteArray());
+           String sessionID = new String(Base64.getEncoder().encode(result));
+           sessionImpl.create(username,sessionID,true);
+           return sessionID;
+       } catch (NoSuchAlgorithmException e) {
+           e.printStackTrace();
+       }
+       return "error";
+   }
+
+   @RequestMapping("/logout")
+    public OperationStatus logout(String sessionID){
+       Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+       String username = auth.getName(); //get logged in username
+       sessionImpl.disableSession(username,sessionID);
+       OperationStatus operationStatus = new OperationStatus();
+       operationStatus.setOK();
+       return operationStatus;
+   }
+
+}
