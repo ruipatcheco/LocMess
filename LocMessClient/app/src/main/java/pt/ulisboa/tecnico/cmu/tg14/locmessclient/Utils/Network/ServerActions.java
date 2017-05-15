@@ -46,10 +46,9 @@ public class ServerActions {
     private final static String port = "8443";
     private final static String endpoint = "https://"+addr+":"+port+"/api";
     private static RequestQueue queue;
-    //FIXME to remove
     private static String username = "";
     private static String password = "";
-    //FIXME to remove
+
 
     public ServerActions(Context context) {
         queue = Volley.newRequestQueue(context);
