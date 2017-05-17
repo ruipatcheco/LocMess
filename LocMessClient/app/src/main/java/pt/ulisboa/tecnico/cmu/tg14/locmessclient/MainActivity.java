@@ -27,6 +27,7 @@ import android.widget.TextView;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.ServicesDataHolder;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderDbHelper;
 
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.Network.ServerActions;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServiceManager;
 
 
@@ -177,9 +178,8 @@ public class MainActivity extends AppCompatActivity
                     .setCancelable(false)
                     .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog,int id) {
-                            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                            Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                            intent.putExtra("EXIT", true);
                             logout();
                             startActivity(intent);
                         }
@@ -215,8 +215,9 @@ public class MainActivity extends AppCompatActivity
     private void logout() {
         // delete all sensitive data from database
         // TODO : do I need to stop services?
-        FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(getApplicationContext());
-        dbHelper.dropDatabase(activity);
+        // TODO : >>>>> PUT THIS ON ASSYNCTASK <<<<<
+        new FeedReaderDbHelper(getApplicationContext()).dropDatabase(activity);
+        new ServerActions(activity).logout();
     }
 
 }
