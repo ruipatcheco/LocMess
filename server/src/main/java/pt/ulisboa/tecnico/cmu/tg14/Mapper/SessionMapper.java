@@ -1,6 +1,5 @@
 package pt.ulisboa.tecnico.cmu.tg14.Mapper;
 
-import jdk.internal.util.xml.impl.Input;
 import org.springframework.jdbc.core.RowMapper;
 import pt.ulisboa.tecnico.cmu.tg14.Model.Session;
 

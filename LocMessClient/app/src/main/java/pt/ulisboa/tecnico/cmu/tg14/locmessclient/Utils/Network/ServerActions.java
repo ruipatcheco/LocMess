@@ -14,7 +14,6 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -44,10 +43,11 @@ import static android.content.ContentValues.TAG;
  * Created by trosado on 31/03/17.
  */
 public class ServerActions {
-    private final static  String addr = "194.210.220.237";
+    private final static  String addr = "194.210.220.63";
     private final static String port = "8443";
     private final static String endpoint = "https://"+addr+":"+port+"/api";
     private static RequestQueue queue;
+    private Context mContext;
 
     private static String username = "";
     private static String password = "";
@@ -58,13 +58,14 @@ public class ServerActions {
 
     public ServerActions(Context context) {
         queue = Volley.newRequestQueue(context);
+        mContext = context;
         ServicesDataHolder dataHolder = ServicesDataHolder.getInstance();
         username = dataHolder.getUsername();
         password = dataHolder.getPassword();
     }
 
     private void makeAuthenticatedRequest(int method, String url, JSONObject jsonObject, final OnResponseListener listener){
-        HttpsTrustManager.allowAllSSL();
+        new HttpsTrustManager(mContext).allowServerCertificate();
         JsonObjectAuthenticatedRequest request = new JsonObjectAuthenticatedRequest(method,url,username,password,jsonObject,new Response.Listener<JSONObject>() {            @Override
             public void onResponse(JSONObject response) {
                 Gson gson = new Gson();
@@ -155,7 +156,7 @@ public class ServerActions {
         String url = generateURL("/profile/listAll");
 
         final List<Profile> profiles = new ArrayList<>();
-        HttpsTrustManager.allowAllSSL();
+        new HttpsTrustManager(mContext).allowServerCertificate();
         JsonArrayAuthenticatedRequest stringRequest = new JsonArrayAuthenticatedRequest(url,username,password, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
@@ -188,7 +189,7 @@ public class ServerActions {
     }
 
     private void makeSimpleRequest(int method, String url, JSONObject jsonObject, final OnResponseListener listener){
-        HttpsTrustManager.allowAllSSL();
+        new HttpsTrustManager(mContext).allowServerCertificate();
         JsonObjectRequest request = new JsonObjectRequest(method,url,jsonObject,new Response.Listener<JSONObject>() {            @Override
         public void onResponse(JSONObject response) {
             Gson gson = new Gson();
@@ -298,7 +299,7 @@ public class ServerActions {
         Gson gson = new Gson();
         try {
             JSONObject jsonObject = new JSONObject(gson.toJson(location));
-            HttpsTrustManager.allowAllSSL();
+            HttpsTrustManager.allowServerCertificate();
             JsonArrayFromJsonObjectAuthenticatedRequest request = new JsonArrayFromJsonObjectAuthenticatedRequest(Request.Method.POST,url,username,password,jsonObject,null, new Response.Listener<JSONArray>() {
                 @Override
                 public void onResponse(JSONArray response) {
@@ -342,7 +343,7 @@ public class ServerActions {
         String url = generateURL("/location/list");
 
         final List<Location> locations = new ArrayList<>();
-        HttpsTrustManager.allowAllSSL();
+        new HttpsTrustManager(mContext).allowServerCertificate();
         JsonArrayAuthenticatedRequest stringRequest = new JsonArrayAuthenticatedRequest(url,username,password, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
@@ -376,7 +377,7 @@ public class ServerActions {
 
     public void getListLocationHash(final OnResponseListener<String> listener){
         String url = generateURL("/location/list/hash");
-        HttpsTrustManager.allowAllSSL();
+        new HttpsTrustManager(mContext).allowServerCertificate();
         JsonObjectAuthenticatedRequest request = new JsonObjectAuthenticatedRequest(Request.Method.GET,url,username,password,null,new Response.Listener<JSONObject>() {
 
 
@@ -405,7 +406,7 @@ public class ServerActions {
 
         final List<Location> locations = new ArrayList<>();
         //Log.d(TAG, "request: "+query.toJSON());
-        HttpsTrustManager.allowAllSSL();
+        new HttpsTrustManager(mContext).allowServerCertificate();
         JsonArrayFromJsonObjectAuthenticatedRequest request = new JsonArrayFromJsonObjectAuthenticatedRequest(Request.Method.POST,url,username,password,query.toJSON(),null, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
@@ -477,7 +478,7 @@ public class ServerActions {
     public void login(final String username, final String password, final OnResponseListener<Boolean> listener){
         String url = endpoint+"/user/login";
         final boolean[] loggedin = {false};
-        HttpsTrustManager.allowAllSSL();
+        new HttpsTrustManager(mContext).allowServerCertificate();
         StringRequest strReq = new StringRequest(Request.Method.GET,
                url,
                 new Response.Listener<String>() {
