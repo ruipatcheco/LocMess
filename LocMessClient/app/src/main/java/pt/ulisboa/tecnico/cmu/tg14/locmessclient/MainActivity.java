@@ -164,7 +164,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_log_out) {
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
 
-            String aux = getResources().getString(R.string.prompt_delete_key);
+            String aux = getResources().getString(R.string.prompt_logout_action);
 
             alertDialogBuilder.setTitle(aux);
 
@@ -213,10 +213,7 @@ public class MainActivity extends AppCompatActivity
         // delete all sensitive data from database
         // TODO : do I need to stop services?
         FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(getApplicationContext());
-        dbHelper.deleteAllProfiles();
-        dbHelper.deleteAllMessages();
-        dbHelper.deleteAllNearbyMessages();
-        dbHelper.deleteAllMyMessagesNotNearby(ServicesDataHolder.getInstance().getUsername());
+        dbHelper.dropDatabase(activity);
     }
 
 }

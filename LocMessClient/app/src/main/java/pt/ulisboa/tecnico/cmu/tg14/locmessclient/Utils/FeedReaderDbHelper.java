@@ -171,6 +171,10 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
+    public void dropDatabase(Context context) {
+        context.deleteDatabase(DATABASE_NAME);
+    }
+
     public void onDowngrade(int oldVersion, int newVersion) {
         SQLiteDatabase db = this.getWritableDatabase();
 
