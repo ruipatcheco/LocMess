@@ -1,26 +1,15 @@
-package pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils;
+package pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.Network;
 
 import android.util.Base64;
-import android.util.Log;
 
 import com.android.volley.AuthFailureError;
-import com.android.volley.NetworkResponse;
-import com.android.volley.ParseError;
-import com.android.volley.Request;
 import com.android.volley.Response;
-import com.android.volley.toolbox.HttpHeaderParser;
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
-
-import static android.content.ContentValues.TAG;
 
 /**
  * Created by tiago on 22/04/2017.

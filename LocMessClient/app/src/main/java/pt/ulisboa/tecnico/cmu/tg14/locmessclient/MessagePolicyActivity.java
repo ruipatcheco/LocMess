@@ -2,6 +2,7 @@ package pt.ulisboa.tecnico.cmu.tg14.locmessclient;
 
 import android.app.Activity;
 import android.content.Intent;
+
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -24,13 +25,16 @@ import java.util.regex.Pattern;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.OperationStatus;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnResponseListener;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderDbHelper;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.Network.ServerActions;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Profile;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.ServicesDataHolder;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnResponseListener;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderDbHelper;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.Model;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Adapters.ProfileChoiceAdapter;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServerActions;
+
 
 public class MessagePolicyActivity extends AppCompatActivity {
 
@@ -173,7 +177,7 @@ public class MessagePolicyActivity extends AppCompatActivity {
         for(Profile profile : mProfileList ){
             list.add(new Model(profile));
         }
-        /*
+        /*FIXME
         list.add(new Model(new Profile("Windows7", "value", "tiago")));
         list.add(new Model(new Profile("Suse", "value", "tiago")));
         list.add(new Model(new Profile("Eclipse", "value", "tiago")));

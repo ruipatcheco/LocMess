@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils;
+package pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.Network;
 
 import android.support.annotation.NonNull;
 

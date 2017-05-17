@@ -6,7 +6,6 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.Credentials;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -22,7 +21,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -39,7 +37,7 @@ import java.util.List;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.ServicesDataHolder;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnResponseListener;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServerActions;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.Network.ServerActions;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -335,7 +333,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
                // Simulate network access.
                final ServerActions serverActions = new ServerActions(mActivity);
-               serverActions.goodLogin(mUsername, mPassword, new OnResponseListener<Boolean>() {
+               serverActions.login(mUsername, mPassword, new OnResponseListener<Boolean>() {
                     @Override
                     public void onHTTPResponse(Boolean response) {
 
