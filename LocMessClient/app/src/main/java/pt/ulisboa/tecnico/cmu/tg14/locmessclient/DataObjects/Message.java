@@ -1,5 +1,6 @@
 package pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects;
 
+import java.io.DataOutput;
 import java.util.List;
 import java.util.UUID;
 
@@ -7,7 +8,7 @@ import java.util.UUID;
  * Created by brigadinhos on 26/04/2017.
  */
 
-public class Message {
+public class Message extends DataObject {
 
     private UUID id;
     private long creationTime;

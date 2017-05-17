@@ -4,7 +4,7 @@ package pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects;
  * Created by basilio on 06-05-2017.
  */
 
-public class Profile {
+public class Profile extends DataObject {
     private String key;
     private String value;
     private String username;

@@ -140,7 +140,10 @@ public class MessagePolicyActivity extends AppCompatActivity {
                 message.setBlackList(blackList);
 
                 dbHelper.insertMessage(message);
-
+                if (mIsDecentralized) {
+                    // add the message to mule table because is decentralized
+                    dbHelper.insertMessageMule(message);
+                }
 
                 finish();
             }
