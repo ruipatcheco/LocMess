@@ -1,7 +1,6 @@
 package pt.ulisboa.tecnico.cmu.tg14.locmessclient;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
@@ -12,8 +11,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,24 +22,11 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.ExecutionException;
 
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.HashResult;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.OperationStatus;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.ServicesDataHolder;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.MessageNotFoundException;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.PublisherNotFoundException;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnResponseListener;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderContract;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderDbHelper;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServerActions;
-
-import static android.content.ContentValues.TAG;
 
 
 /**

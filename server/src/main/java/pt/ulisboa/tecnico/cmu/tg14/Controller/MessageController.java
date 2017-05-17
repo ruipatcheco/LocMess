@@ -16,6 +16,7 @@ import pt.ulisboa.tecnico.cmu.tg14.Implementation.ProfileImpl;
 import pt.ulisboa.tecnico.cmu.tg14.Model.Message;
 import pt.ulisboa.tecnico.cmu.tg14.Model.MessageKeys;
 import pt.ulisboa.tecnico.cmu.tg14.Model.Profile;
+import pt.ulisboa.tecnico.cmu.tg14.Security.SessionVerifier;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -39,12 +40,16 @@ public class MessageController {
             (MessageImpl)context.getBean("messageImpl");
 
     @RequestMapping(value = "/create", method = RequestMethod.PUT)
-    public OperationStatus create(@RequestBody MessageMover messageMover){
+    public ResponseEntity<OperationStatus> create(String sessionID,@RequestBody MessageMover messageMover){
         //@RequestParam(value="startTime") Long startTime,@RequestParam(value="endTime") Long endTime,@RequestParam(value="creationTime") Long creationTime,@RequestParam(value="content") String content,@RequestParam(value="publisher") String publisher,@RequestParam(value="location") String location){
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName(); //get logged in username
         Timestamp endTime  = messageMover.getEndTime();
+
+        if(!SessionVerifier.isValid(sessionID)){
+            return new ResponseEntity(HttpStatus.UNAUTHORIZED);
+        }
 
         System.out.println("create message endtime ->" + endTime);
 
@@ -62,19 +67,19 @@ public class MessageController {
 
         OperationStatus status = new OperationStatus();
         status.setOK();
-        return status;
+        return new ResponseEntity<OperationStatus>(status,HttpStatus.OK);
     }
 
 
     @RequestMapping(value = "/delete", method = RequestMethod.PUT)
-    public ResponseEntity<OperationStatus> delete(@RequestParam(value = "id") String id){
+    public ResponseEntity<OperationStatus> delete(String sessionID,@RequestParam(value = "id") String id){
         UUID msgId = UUID.fromString(id);
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName(); //get logged in username
         Message msg = messageImpl.getMessage(msgId);
         OperationStatus status = new OperationStatus();
 
-        if(msg.getPublisher().equals(username)){
+        if(msg.getPublisher().equals(username) && SessionVerifier.isValid(sessionID)){
             messageImpl.delete(msgId);
             status.setOK();
         }else{
@@ -85,16 +90,25 @@ public class MessageController {
     }
 
     @RequestMapping("/get")
-    public Message get(@RequestParam(value = "id") String id){
+    public ResponseEntity<Message> get(String sessionID,@RequestParam(value = "id") String id){
+/*
+* TODO verify white and black list
+* */
+        if(!SessionVerifier.isValid(sessionID)){
+            return new ResponseEntity(HttpStatus.UNAUTHORIZED);
+        }
         Message m = messageImpl.getMessage(UUID.fromString(id));
-        return m;
+        return new ResponseEntity(m,HttpStatus.OK);
     }
 
     @RequestMapping(value = "/getMessagesByLocation", method = RequestMethod.POST)
-    public List<Message> getMessagesByLocation(@RequestBody LocationMover locationMover){
-        List<Message> messageList = messageImpl.getMessagesByLocation(locationMover.getName());
+    public ResponseEntity<List<Message>> getMessagesByLocation(String sessionID,@RequestBody LocationMover locationMover){
+        if(!SessionVerifier.isValid(sessionID)){
+            return new ResponseEntity(HttpStatus.UNAUTHORIZED);
+        }
 
-        return isAllowed(messageList);
+        List<Message> messageList = messageImpl.getMessagesByLocation(locationMover.getName());
+        return new ResponseEntity<List<Message>>(isAllowed(messageList),HttpStatus.OK);
     }
 
 
@@ -195,10 +209,15 @@ public class MessageController {
     }
 
     @RequestMapping(value = "/myMessages")
-    public List<Message> getMyMessages(){
+    public ResponseEntity<List<Message>> getMyMessages(String sessionID){
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName(); //get logged in username
-        return messageImpl.getMessagesByUsername(username);
+
+        if(!SessionVerifier.isValid(sessionID)){
+            return new ResponseEntity(HttpStatus.UNAUTHORIZED);
+        }
+
+        return new ResponseEntity<>(messageImpl.getMessagesByUsername(username),HttpStatus.OK);
     }
 
 }

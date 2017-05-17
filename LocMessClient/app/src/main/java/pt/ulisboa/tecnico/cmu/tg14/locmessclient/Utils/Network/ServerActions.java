@@ -1,15 +1,17 @@
-package pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils;
+package pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.Network;
 
 import android.content.Context;
 import android.util.Base64;
 import android.util.Log;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -21,7 +23,9 @@ import org.json.JSONObject;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.HashResult;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.LocationQuery;
@@ -30,7 +34,9 @@ import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.OperationStatus;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Profile;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.ServicesDataHolder;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnResponseListener;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.Network.Ssl.HttpsTrustManager;
 
 import static android.content.ContentValues.TAG;
 
@@ -38,21 +44,27 @@ import static android.content.ContentValues.TAG;
  * Created by trosado on 31/03/17.
  */
 public class ServerActions {
-    private final static  String addr = "194.210.223.254";
-    private final static String port = "8080";
-    private final static String endpoint = "http://"+addr+":"+port+"/api";
+    private final static  String addr = "194.210.220.237";
+    private final static String port = "8443";
+    private final static String endpoint = "https://"+addr+":"+port+"/api";
     private static RequestQueue queue;
-    //FIXME to remove
-    private final static String username = "test";
-    private final static String password = "test";
-    //FIXME to remove
+
+    private static String username = "";
+    private static String password = "";
+    private static String sessionID = "";
+    private static String sessionIdURL = "";
+
+
 
     public ServerActions(Context context) {
         queue = Volley.newRequestQueue(context);
+        ServicesDataHolder dataHolder = ServicesDataHolder.getInstance();
+        username = dataHolder.getUsername();
+        password = dataHolder.getPassword();
     }
 
     private void makeAuthenticatedRequest(int method, String url, JSONObject jsonObject, final OnResponseListener listener){
-
+        HttpsTrustManager.allowAllSSL();
         JsonObjectAuthenticatedRequest request = new JsonObjectAuthenticatedRequest(method,url,username,password,jsonObject,new Response.Listener<JSONObject>() {            @Override
             public void onResponse(JSONObject response) {
                 Gson gson = new Gson();
@@ -73,7 +85,8 @@ public class ServerActions {
 
 
     public void insertProfile( Profile p,final OnResponseListener listener){
-        String url = endpoint+"/profile/create";
+
+        String url = generateURL("/profile/create");
         try{
             Gson gson = new Gson();
             JSONObject jsonObject = new JSONObject(gson.toJson(p));
@@ -88,7 +101,7 @@ public class ServerActions {
 
 
     public void removeProfile( Profile p,OnResponseListener listener){
-        String url = endpoint+"/profile/delete";
+        String url = generateURL("/profile/delete");
         try{
             Gson gson = new Gson();
             JSONObject jsonObject = new JSONObject(gson.toJson(p));
@@ -101,7 +114,7 @@ public class ServerActions {
     }
 
     public List<Profile> getMyProfileKeys(final OnResponseListener listener) {
-        String url = endpoint + "/profile/myList";
+        String url = generateURL("/profile/myList");
 
         final List<Profile> profiles = new ArrayList<>();
         JsonArrayAuthenticatedRequest stringRequest = new JsonArrayAuthenticatedRequest(url,username,password, new Response.Listener<JSONArray>() {
@@ -139,9 +152,10 @@ public class ServerActions {
     }
 
     public List<Profile> getProfileKeys(final OnResponseListener listener) {
-        String url = endpoint + "/profile/listAll";
+        String url = generateURL("/profile/listAll");
 
         final List<Profile> profiles = new ArrayList<>();
+        HttpsTrustManager.allowAllSSL();
         JsonArrayAuthenticatedRequest stringRequest = new JsonArrayAuthenticatedRequest(url,username,password, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
@@ -174,6 +188,7 @@ public class ServerActions {
     }
 
     private void makeSimpleRequest(int method, String url, JSONObject jsonObject, final OnResponseListener listener){
+        HttpsTrustManager.allowAllSSL();
         JsonObjectRequest request = new JsonObjectRequest(method,url,jsonObject,new Response.Listener<JSONObject>() {            @Override
         public void onResponse(JSONObject response) {
             Gson gson = new Gson();
@@ -193,7 +208,7 @@ public class ServerActions {
     }
 
     public void createUser(String username,String password,final OnResponseListener listener){
-        String url = endpoint +"/user/create";
+        String url = generateURL("/user/create");
 
         try{
             JSONObject jsonObject = new JSONObject();
@@ -210,7 +225,7 @@ public class ServerActions {
     }
 
     public void updatePassword(String username,String password,final OnResponseListener listener) throws Exception {
-        String url = endpoint+"/user/updatePassword";
+        String url = generateURL("/user/updatePassword");
 
         Log.e(TAG, "updatePassword: Still need update" );
 
@@ -227,7 +242,7 @@ public class ServerActions {
     }
 
     public void createLocation(Location location,final OnResponseListener listener){
-        String url = endpoint+"/location/create";
+        String url = generateURL("/location/create");
 
         try{
             Gson gson = new Gson();
@@ -244,7 +259,7 @@ public class ServerActions {
     }
 
     public void getMyMessages(final OnResponseListener listener){
-        String url = endpoint+"/message/myMessages";
+        String url = generateURL("/message/myMessages");
 
         final List<Message> messages = new ArrayList<>();
         final Gson gson = new Gson();
@@ -277,13 +292,13 @@ public class ServerActions {
     }
 
     public static List<Message> getMessagesFromLocation(Location location, final OnResponseListener listener){
-        String url = endpoint+"/message/getMessagesByLocation";
+        String url = generateURL("/message/getMessagesByLocation");
 
         final List<Message> messages = new ArrayList<>();
         Gson gson = new Gson();
         try {
             JSONObject jsonObject = new JSONObject(gson.toJson(location));
-
+            HttpsTrustManager.allowAllSSL();
             JsonArrayFromJsonObjectAuthenticatedRequest request = new JsonArrayFromJsonObjectAuthenticatedRequest(Request.Method.POST,url,username,password,jsonObject,null, new Response.Listener<JSONArray>() {
                 @Override
                 public void onResponse(JSONArray response) {
@@ -324,9 +339,10 @@ public class ServerActions {
     }
 
     public List<Location> getAllLocations(final OnResponseListener listener) {
-        String url = endpoint + "/location/list";
+        String url = generateURL("/location/list");
 
         final List<Location> locations = new ArrayList<>();
+        HttpsTrustManager.allowAllSSL();
         JsonArrayAuthenticatedRequest stringRequest = new JsonArrayAuthenticatedRequest(url,username,password, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
@@ -359,7 +375,8 @@ public class ServerActions {
     }
 
     public void getListLocationHash(final OnResponseListener<String> listener){
-        String url = endpoint + "/location/list/hash";
+        String url = generateURL("/location/list/hash");
+        HttpsTrustManager.allowAllSSL();
         JsonObjectAuthenticatedRequest request = new JsonObjectAuthenticatedRequest(Request.Method.GET,url,username,password,null,new Response.Listener<JSONObject>() {
 
 
@@ -384,10 +401,11 @@ public class ServerActions {
 
 
     public List<Location> getNearLocations(LocationQuery query, final OnResponseListener listener){
-        String url = endpoint+"/location/nearbyLocations";
+        String url = generateURL("/location/nearbyLocations");
 
         final List<Location> locations = new ArrayList<>();
         //Log.d(TAG, "request: "+query.toJSON());
+        HttpsTrustManager.allowAllSSL();
         JsonArrayFromJsonObjectAuthenticatedRequest request = new JsonArrayFromJsonObjectAuthenticatedRequest(Request.Method.POST,url,username,password,query.toJSON(),null, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
@@ -422,7 +440,7 @@ public class ServerActions {
 
 
     public void createMessage(MessageServer message,final OnResponseListener listener) {
-        String url = endpoint+"/message/create";
+        String url = generateURL("/message/create");
         try {
             Gson  gson = new Gson();
             JSONObject jsonObject = new JSONObject(gson.toJson(message));
@@ -434,7 +452,7 @@ public class ServerActions {
     }
 
     public void removeMessage( MessageServer m,OnResponseListener listener){
-        String url = endpoint+"/message/delete";
+        String url = generateURL("/message/delete");
         try {
             url += "?id="+URLEncoder.encode(m.getId().toString(),"UTF-8");
             //Log.d(TAG, "removeMessage:"+m.getId());
@@ -448,12 +466,64 @@ public class ServerActions {
 
     public void removeLocation(String name,OnResponseListener listener){
         try {
-            String url = endpoint+"/location/delete";
-            url+="?name="+URLEncoder.encode(name,"UTF-8");
+            String url = generateURL("/location/delete");
+            url+="&name="+URLEncoder.encode(name,"UTF-8");
             makeAuthenticatedRequest(Request.Method.DELETE, url, null, listener);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
     }
 
+    public void login(final String username, final String password, final OnResponseListener<Boolean> listener){
+        String url = endpoint+"/user/login";
+        final boolean[] loggedin = {false};
+        HttpsTrustManager.allowAllSSL();
+        StringRequest strReq = new StringRequest(Request.Method.GET,
+               url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d(TAG,"String session id: "+response.toString());
+                        try {
+                            sessionID = URLEncoder.encode(response,"UTF-8");
+                            sessionIdURL = "?sessionID="+sessionID;
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        }
+                        listener.onHTTPResponse(true);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d(TAG, "Error: " + error.getMessage());
+                        listener.onHTTPResponse(false);
+                    }
+                }) {
+
+            @Override
+            protected Response<String> parseNetworkResponse(NetworkResponse response) {
+                int mStatusCode = response.statusCode;
+                return super.parseNetworkResponse(response);
+            }
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+                String credentials = username+":"+password;
+                String auth = "Basic "
+                        + Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
+                headers.put("Content-Type", "application/json");
+                headers.put("Authorization", auth);
+                return headers;
+            }};
+
+        queue.add(strReq);
+    }
+
+    private static String generateURL(String path){
+        return endpoint+path+sessionIdURL;
+    }
+
 }
+
