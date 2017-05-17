@@ -5,6 +5,7 @@
         android:id="@+id/nav_options">
         <item
             android:id="@+id/nav_messages"
+            android:checked="true"
             android:icon="@drawable/ic_messages"
             android:title="Messages" />
         <item

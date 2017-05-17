@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity
     private ListView mDrawerList;
     private FloatingActionButton mFab;
     Activity activity;
+    NavigationView navigationView;
 
 
     private ServiceManager mServiceManager;
@@ -78,7 +79,7 @@ public class MainActivity extends AppCompatActivity
         toggle.syncState();
 
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         FragmentManager fm = getFragmentManager();
         FragmentTransaction fragmentTransaction = fm.beginTransaction();
@@ -127,7 +128,7 @@ public class MainActivity extends AppCompatActivity
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(final MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
         FragmentManager fm = getFragmentManager();
@@ -184,6 +185,8 @@ public class MainActivity extends AppCompatActivity
                         public void onClick(DialogInterface dialog,int id) {
                             // if this button is clicked, just close
                             // the dialog box and do nothing
+                            navigationView.getMenu().getItem(0).setChecked(true);
+                            item.setChecked(false);
                             dialog.cancel();
                         }
                     });
