@@ -4,12 +4,16 @@ import android.content.Context;
 import android.util.Base64;
 import android.util.Log;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -21,7 +25,9 @@ import org.json.JSONObject;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.HashResult;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.LocationQuery;
@@ -30,6 +36,7 @@ import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.OperationStatus;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Profile;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.ServicesDataHolder;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnResponseListener;
 
 import static android.content.ContentValues.TAG;
@@ -42,13 +49,16 @@ public class ServerActions {
     private final static String port = "8080";
     private final static String endpoint = "http://"+addr+":"+port+"/api";
     private static RequestQueue queue;
-    //FIXME to remove
-    private final static String username = "test";
-    private final static String password = "test";
-    //FIXME to remove
+
+    private static String username = "";
+    private static String password = "";
+
 
     public ServerActions(Context context) {
         queue = Volley.newRequestQueue(context);
+        ServicesDataHolder dataHolder = ServicesDataHolder.getInstance();
+        username = dataHolder.getUsername();
+        password = dataHolder.getPassword();
     }
 
     private void makeAuthenticatedRequest(int method, String url, JSONObject jsonObject, final OnResponseListener listener){
@@ -456,4 +466,49 @@ public class ServerActions {
         }
     }
 
+
+    public void goodLogin(final String username, final String password, final OnResponseListener<Boolean> listener){
+        String url = endpoint+"/profile/myList";
+
+        final boolean[] loggedin = {false};
+
+        StringRequest strReq = new StringRequest(Request.Method.GET,
+               url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d(TAG, response.toString());
+                        listener.onHTTPResponse(true);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d(TAG, "Error: " + error.getMessage());
+                        listener.onHTTPResponse(false);
+                    }
+                }) {
+
+            @Override
+            protected Response<String> parseNetworkResponse(NetworkResponse response) {
+                int mStatusCode = response.statusCode;
+                return super.parseNetworkResponse(response);
+            }
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+                String credentials = username+":"+password;
+                String auth = "Basic "
+                        + Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
+                headers.put("Content-Type", "application/json");
+                headers.put("Authorization", auth);
+                return headers;
+            }};
+
+        queue.add(strReq);
+    }
+
 }
+
+

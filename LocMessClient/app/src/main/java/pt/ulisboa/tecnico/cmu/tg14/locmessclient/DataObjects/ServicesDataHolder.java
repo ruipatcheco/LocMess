@@ -18,8 +18,9 @@ public class ServicesDataHolder {
     private Float longitude;
     private Float latitude;
 
-    //FIXME -> retirar e fazer como deve ser
-    private String username = "test";
+    private String username;
+    private String password;
+
 
     private AbstractMap<UUID,Message> messageMap; //FIXME may not be needed
     private List<Location> nearLocations;
@@ -44,6 +45,8 @@ public class ServicesDataHolder {
         messageMap = new HashMap<>();
         nearLocations = new ArrayList<>();
         removedLocations = new ArrayList<>();
+        username = "";
+        password = "";
 
     }
 
@@ -102,6 +105,11 @@ public class ServicesDataHolder {
         this.username = username;
     }
 
+    public String getPassword() { return password; }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
     public AbstractMap<String, String> getBleContent() {
         return bleContent;
     }
@@ -162,4 +170,5 @@ public class ServicesDataHolder {
     public void setKillThread(boolean killThread) {
         this.killThread = killThread;
     }
+
 }

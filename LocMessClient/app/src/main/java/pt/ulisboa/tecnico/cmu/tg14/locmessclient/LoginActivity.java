@@ -6,6 +6,7 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Credentials;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -31,11 +32,14 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.ServicesDataHolder;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnResponseListener;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServerActions;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -182,7 +186,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         View focusView = null;
 
         // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
+        if (TextUtils.isEmpty(password)) {
             mPasswordView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
             cancel = true;
@@ -191,10 +195,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         // Check for a valid email address.
         if (TextUtils.isEmpty(email)) {
             mEmailView.setError(getString(R.string.error_field_required));
-            focusView = mEmailView;
-            cancel = true;
-        } else if (!isEmailValid(email)) {
-            mEmailView.setError(getString(R.string.error_invalid_email));
             focusView = mEmailView;
             cancel = true;
         }
@@ -318,6 +318,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      */
     public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
+        private static final String TAG = "LoginTask" ;
         private final String mUsername;
         private final String mPassword;
 
@@ -331,7 +332,28 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // TODO: attempt authentication against a network service.
 
             try {
-                // Simulate network access.
+
+               // Simulate network access.
+               final ServerActions serverActions = new ServerActions(mActivity);
+               serverActions.goodLogin(mUsername, mPassword, new OnResponseListener<Boolean>() {
+                    @Override
+                    public void onHTTPResponse(Boolean response) {
+
+                        if(response){
+                            ServicesDataHolder servicesDataHolder = ServicesDataHolder.getInstance();
+                            servicesDataHolder.setUsername(mUsername);
+                            servicesDataHolder.setPassword(mPassword);
+                            Intent intent = new Intent(mActivity,MainActivity.class);
+                            startActivity(intent);
+
+                        }else {
+                            Intent intent = new Intent(mActivity,LoginActivity.class);
+                            Toast.makeText(mActivity, "Wrong credentials", Toast.LENGTH_SHORT).show();
+                            startActivity(intent);
+                        }
+                        finish();
+                    }
+                });
                 Thread.sleep(2000);
             } catch (InterruptedException e) {
                 return false;
