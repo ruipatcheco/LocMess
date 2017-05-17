@@ -1,19 +1,14 @@
 package pt.ulisboa.tecnico.cmu.tg14.locmessclient;
 
-import android.Manifest;
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.app.Service;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -26,23 +21,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.LocationQuery;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Location;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.ServicesDataHolder;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners.OnLocationReceivedListener;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Receivers.BluetoothReceiver;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Receivers.GPSReceiver;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Receivers.WifiReceiver;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.BluetoothService;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.GPSService;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.MasterService;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.WifiService;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServerActions;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderDbHelper;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServiceManager;
 
 
@@ -54,6 +35,7 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG = "Main Activity" ;
     private ListView mDrawerList;
     private FloatingActionButton mFab;
+    Activity activity;
 
 
     private ServiceManager mServiceManager;
@@ -63,11 +45,18 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        if (getIntent().getBooleanExtra("EXIT", false)) {
+            Log.d("EXIT", "LOGOUT GO TO LOGIN ACTIVITY");
+            Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+            startActivity(intent);
+            finish();
+        }
+
         mServiceManager = ServiceManager.getInstance(this); //This starts all the needed Services
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        final Activity activity = this;
+        activity = this;
 
         mDrawerList = (ListView) findViewById(R.id.nav_options);
         //mDrawerList.setItemChecked(0,true);
@@ -172,6 +161,38 @@ public class MainActivity extends AppCompatActivity
             //Log.d("Menu","profile");
 
         } else if (id == R.id.nav_log_out) {
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
+
+            String aux = getResources().getString(R.string.prompt_delete_key);
+
+            alertDialogBuilder.setTitle(aux);
+
+            // set dialog message
+            alertDialogBuilder
+                    //.setMessage("Click yes to exit!")
+                    .setCancelable(false)
+                    .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog,int id) {
+                            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            intent.putExtra("EXIT", true);
+                            logout();
+                            startActivity(intent);
+                        }
+                    })
+                    .setNegativeButton("No",new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog,int id) {
+                            // if this button is clicked, just close
+                            // the dialog box and do nothing
+                            dialog.cancel();
+                        }
+                    });
+
+            // create alert dialog
+            AlertDialog alertDialog = alertDialogBuilder.create();
+
+            // show it
+            alertDialog.show();
             //Log.d("Menu","Log");
         }
 
@@ -183,6 +204,16 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onFragmentInteraction(Uri uri) {
         //Log.d("URI",uri.toString());
+    }
+
+    private void logout() {
+        // delete all sensitive data from database
+        // TODO : do I need to stop services?
+        FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(getApplicationContext());
+        dbHelper.deleteAllProfiles();
+        dbHelper.deleteAllMessages();
+        dbHelper.deleteAllNearbyMessages();
+        dbHelper.deleteAllMyMessagesNotNearby(ServicesDataHolder.getInstance().getUsername());
     }
 
 }

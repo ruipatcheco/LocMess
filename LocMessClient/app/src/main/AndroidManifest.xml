@@ -12,7 +12,7 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.VIBRATE" />
-    <uses-permission  android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <uses-feature android:name="android.hardware.location.gps" />
 
@@ -25,11 +25,11 @@
         <activity
             android:name=".LoginActivity"
             android:label="@string/app_name"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".RegisterActivity"
             android:label="@string/title_activity_register"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".MainActivity"
             android:label="@string/title_activity_main"
@@ -61,12 +61,12 @@
         <service android:name=".Services.BluetoothService" />
         <service android:name=".Services.GPSService" />
         <service android:name=".Services.WifiService" />
-        <service android:name=".Services.MasterService"/>
+        <service android:name=".Services.MasterService" />
         <service android:name=".Services.DBService" />
 
         <activity
             android:name=".MessageView"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait" />
 
         <receiver android:name=".Receivers.NetworkStateReceiver">
             <intent-filter>

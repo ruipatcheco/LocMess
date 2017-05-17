@@ -3,6 +3,7 @@
 
     <!-- Strings related to addprofile -->
     <string name="prompt_delete_key">Do you want to delete </string>
+    <string name="prompt_logout_action">Do you really want to logout? </string>
 
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
@@ -59,7 +60,7 @@
     <string name="title_activity_add_key_pair">Add Key Pair</string>
     <string name="message_location_activity_centralized">Centralized</string>
     <string name="message_location_activity_decentralized">Decentralized</string>
-    <string name="message_view_publisher_title" >Publisher :</string>
+    <string name="message_view_publisher_title">Publisher :</string>
     <string name="message_view_content_title">Content :</string>
 
 
