@@ -43,7 +43,7 @@ import static android.content.ContentValues.TAG;
  * Created by trosado on 31/03/17.
  */
 public class ServerActions {
-    private final static  String addr = "193.136.167.169";
+    private final static  String addr = "193.136.167.224";
     private final static String port = "8443";
     private final static String endpoint = "https://"+addr+":"+port+"/api";
     private static RequestQueue queue;
@@ -495,51 +495,6 @@ public class ServerActions {
                     public void onErrorResponse(VolleyError error) {
                         Log.d(TAG, "Error: " + error.getMessage());
                         listener.onHTTPResponse(false);
-                    }
-                }) {
-
-            @Override
-            protected Response<String> parseNetworkResponse(NetworkResponse response) {
-                int mStatusCode = response.statusCode;
-                return super.parseNetworkResponse(response);
-            }
-
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String> headers = new HashMap<>();
-                String credentials = username+":"+password;
-                String auth = "Basic "
-                        + Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
-                headers.put("Content-Type", "application/json");
-                headers.put("Authorization", auth);
-                return headers;
-            }};
-
-        queue.add(strReq);
-    }
-
-    public void logout() {
-        String url = generateURL("/user/logout");
-        final boolean[] loggedin = {false};
-        HttpsTrustManager.allowAllSSL();
-        StringRequest strReq = new StringRequest(Request.Method.GET,
-                url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        Log.d(TAG,"String session id: "+response.toString());
-                        try {
-                            sessionID = URLEncoder.encode(response,"UTF-8");
-                            sessionIdURL = "?sessionID="+sessionID;
-                        } catch (UnsupportedEncodingException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.d(TAG, "Error: " + error.getMessage());
                     }
                 }) {
 
