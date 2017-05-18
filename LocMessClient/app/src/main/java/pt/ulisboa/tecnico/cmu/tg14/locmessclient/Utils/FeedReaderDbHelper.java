@@ -134,8 +134,17 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
     private static final String SQL_DELETE_ENTRIES = "DROP TABLE IF EXISTS ";
 
+    private static FeedReaderDbHelper mInstance = null;
+
     public FeedReaderDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    }
+
+    public static FeedReaderDbHelper getInstance(Context context){
+        if (mInstance == null) {
+            mInstance = new FeedReaderDbHelper(context.getApplicationContext());
+        }
+        return mInstance;
     }
 
     public void onCreate(SQLiteDatabase db) {
@@ -190,7 +199,6 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
     public void dropLocation() {
         SQLiteDatabase db = this.getWritableDatabase();
-
         db.execSQL(SQL_DELETE_ENTRIES + FeedEntry.LOCATION_TABLE_NAME);
     }
 
@@ -209,7 +217,8 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         contentValues.put(FeedEntry.LOCATION_COLUMN_LON, lon);
         contentValues.put(FeedEntry.LOCATION_COLUMN_RAD, radius);
         contentValues.put(FeedEntry.LOCATION_COLUMN_CENTRALIZED, centralized);
-        db.insert(FeedEntry.LOCATION_TABLE_NAME, null, contentValues);
+        if(!db.isReadOnly())
+            db.insert(FeedEntry.LOCATION_TABLE_NAME, null, contentValues);
         //Log.d("insertAllLocations: ","added to DB location " + name + ssid + ble + lat + lon + radius);
     }
 
@@ -247,8 +256,9 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         }
 
         cursor.moveToFirst();
-
-        return associateLocation(cursor);
+        Location loc = associateLocation(cursor);
+        cursor.close();
+        return loc;
     }
 
     public ArrayList<Location> getAllLocations() {
@@ -283,6 +293,8 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
             locations.add(associateLocation(cursor));
             cursor.moveToNext();
         }
+        cursor.close();
+
         return locations;
     }
 
@@ -318,6 +330,8 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
             locations.add(associateLocation(cursor));
             cursor.moveToNext();
         }
+        cursor.close();
+
         return locations;
     }
 
@@ -349,6 +363,8 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
             locations.add(cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.LOCATION_COLUMN_NAME)));
             cursor.moveToNext();
         }
+        cursor.close();
+
         return locations;
     }
 
@@ -394,6 +410,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
             bOutput.write(digest.digest(name.getBytes("UTF-8")));
             cursor.moveToNext();
         }
+        cursor.close();
 
         byte[] locationsNameHash = digest.digest(bOutput.toByteArray());
 
@@ -493,8 +510,9 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         }
 
         cursor.moveToFirst();
-
-        return associateMessageMule(cursor);
+        Message msg = associateMessageMule(cursor);
+        cursor.close();
+        return msg;
     }
 
     public ArrayList<Message> getAllMuleMessages() {
@@ -529,6 +547,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
             messages.add(associateMessageMule(cursor));
             cursor.moveToNext();
         }
+        cursor.close();
         return messages;
     }
 
@@ -562,6 +581,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         if(isCentralizedAux.equals("false")){
             isCentralized = false;
         }
+
 
 
         return new Message(
@@ -705,7 +725,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
             keys.add(associateMessageKeys(cursor));
             cursor.moveToNext();
         }
-
+        cursor.close();
         return keys;
 
     }
@@ -763,9 +783,8 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         contentValues.put(FeedEntry.MESSAGE_COLUMN_ADDEDDECENTRALIZED, "false");
         contentValues.put(FeedEntry.MESSAGE_COLUMN_DELETEDDECENTRALIZED, "false");
         contentValues.put(FeedEntry.MESSAGE_COLUMN_NEARBY, "true");
-
-
-        db.insert(FeedEntry.MESSAGE_TABLE_NAME, null, contentValues);
+        if(!db.isReadOnly())
+            db.insert(FeedEntry.MESSAGE_TABLE_NAME, null, contentValues);
     }
 
     public void updateMessageInsertedToServer(String uuid) throws MultipleRowsAfectedException, MessageNotFoundException {
@@ -812,8 +831,9 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         }
 
         cursor.moveToFirst();
-
-        return associateMessage(cursor);
+        Message temp = associateMessage(cursor);
+        cursor.close();
+        return temp;
     }
 
     public List<Message> getMessagesFromUser(String publisher) throws PublisherNotFoundException {
@@ -845,6 +865,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
             messages.add(associateMessage(cursor));
             cursor.moveToNext();
         }
+        cursor.close();
         return messages;
     }
 
@@ -874,6 +895,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
             messages.add(associateMessage(cursor));
             cursor.moveToNext();
         }
+        cursor.close();
         return messages;
     }
 
@@ -900,6 +922,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
             messages.add(associateMessage(cursor));
             cursor.moveToNext();
         }
+        cursor.close();
         return messages;
     }
 
@@ -926,6 +949,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
             messages.add(associateMessage(cursor));
             cursor.moveToNext();
         }
+        cursor.close();
         return messages;
     }
 
@@ -952,6 +976,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
             messages.add(associateMessage(cursor));
             cursor.moveToNext();
         }
+        cursor.close();
         return messages;
     }
 
@@ -988,7 +1013,9 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         String whereClause = FeedEntry.MESSAGE_COLUMN_NEARBY + " = ?";
         String[] whereArgs = new String[] { "true" };
 
-        int removed = db.delete(table, whereClause, whereArgs);
+        int removed = 0;
+        if(!db.isReadOnly())
+            removed = db.delete(table, whereClause, whereArgs);
 
         //Log.d("DBService", "deleteAllNearbyMessages -> " + removed);
 
@@ -1193,8 +1220,9 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         }
 
         cursor.moveToFirst();
-
-        return associateProfile(cursor).getValue();
+        String profile = associateProfile(cursor).getValue();
+        cursor.close();
+        return profile;
     }
 
     public HashMap<String, String> getAllProfiles() {
@@ -1227,6 +1255,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
             profiles.put(profile.getKey(), profile.getValue());
             cursor.moveToNext();
         }
+        cursor.close();
         return profiles;
     }
 
@@ -1261,6 +1290,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
             profiles.add(associateProfile(cursor));
             cursor.moveToNext();
         }
+        cursor.close();
         return profiles;
     }
 
@@ -1339,6 +1369,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
             profiles.add(associateProfile(cursor));
             cursor.moveToNext();
         }
+        cursor.close();
         return profiles;
     }
 
@@ -1373,6 +1404,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
             profiles.add(associateProfile(cursor));
             cursor.moveToNext();
         }
+        cursor.close();
         return profiles;
     }
 
@@ -1463,13 +1495,14 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
             profiles.add(associateServerProfiles(cursor));
             cursor.moveToNext();
         }
+        cursor.close();
         return profiles;
     }
 
     public void deleteAllServerProfiles() {
         SQLiteDatabase db = this.getWritableDatabase();
-
-        db.execSQL("delete from "+ FeedEntry.SERVER_PROFILES_TABLE_NAME);
+        if(!db.isReadOnly())
+            db.execSQL("delete from "+ FeedEntry.SERVER_PROFILES_TABLE_NAME);
     }
 
     private Profile associateServerProfiles(Cursor cursor) {
@@ -1541,7 +1574,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
             whiteList.add(associateProfile(cursor));
             cursor.moveToNext();
         }
-
+        cursor.close();
         return whiteList;
     }
 
@@ -1577,7 +1610,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
             whiteList.add(associateProfile(cursor));
             cursor.moveToNext();
         }
-
+        cursor.close();
         return whiteList;
     }
 
@@ -1597,6 +1630,13 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         db.execSQL("delete from "+ FeedEntry.MULE_PROFILE_TABLE_NAME);
     }
 
-
-
+    public void deleteAll() {
+        this.deleteAllMessages();
+        this.deleteAllLocations();
+        this.deleteAllMessageMules();
+        this.deleteAllProfiles();
+        this.deleteAllMuleProfiles();
+        this.deleteAllServerProfiles();
+        this.deleteAllNearbyMessages();
+    }
 }

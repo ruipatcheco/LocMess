@@ -25,6 +25,11 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.ServicesDataHolder;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.BluetoothService;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.DBService;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.GPSService;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.MasterService;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.WifiService;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderDbHelper;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.Network.ServerActions;
@@ -208,6 +213,16 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        stopService(new Intent(this,GPSService.class));
+        stopService(new Intent(this,WifiService.class));
+        stopService(new Intent(this,BluetoothService.class));
+        stopService(new Intent(this,DBService.class));
+        stopService(new Intent(this, MasterService.class));
+    }
+
+    @Override
     public void onFragmentInteraction(Uri uri) {
         //Log.d("URI",uri.toString());
     }
@@ -215,9 +230,16 @@ public class MainActivity extends AppCompatActivity
     private void logout() {
         // delete all sensitive data from database
         // TODO : do I need to stop services?
-        // TODO : >>>>> PUT THIS ON ASSYNCTASK <<<<<
-        new FeedReaderDbHelper(getApplicationContext()).dropDatabase(activity);
-        new ServerActions(activity).logout();
+        FeedReaderDbHelper dbHelper = FeedReaderDbHelper.getInstance(getApplicationContext());
+      //  dbHelper.dropDatabase(activity);
+        dbHelper.deleteAll();
+        ServiceManager serviceManager = ServiceManager.getInstance();
+        serviceManager.stopServices();
+        ServicesDataHolder dataHolder = ServicesDataHolder.getInstance();
+        dataHolder.setUsername("");
+        dataHolder.setPassword("");
+
+
     }
 
 }

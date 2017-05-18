@@ -168,7 +168,7 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
                     addGPS();
                 }
 
-                FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(getApplicationContext());
+                FeedReaderDbHelper dbHelper = FeedReaderDbHelper.getInstance(getApplicationContext());
                 dbHelper.insertLocation(mLocation.getName(),mLocation.getSsid(),mLocation.getBle(),mLocation.getLatitude(),mLocation.getLongitude(),mLocation.getRadius(),"false");
 
                 finish();

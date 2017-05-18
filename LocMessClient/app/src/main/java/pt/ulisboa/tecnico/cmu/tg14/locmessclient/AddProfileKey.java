@@ -94,7 +94,7 @@ public class AddProfileKey extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if(!keyValueMap.isEmpty()){
-                    FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(activity);
+                    FeedReaderDbHelper dbHelper = FeedReaderDbHelper.getInstance(activity);
                     dbHelper.insertAllProfiles(keyValueMap);
 
 

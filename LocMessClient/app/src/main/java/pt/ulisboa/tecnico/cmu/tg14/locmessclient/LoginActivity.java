@@ -21,6 +21,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -281,7 +282,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             emails.add(cursor.getString(ProfileQuery.ADDRESS));
             cursor.moveToNext();
         }
-
+        cursor.close();
         addEmailsToAutoComplete(emails);
     }
 
@@ -327,7 +328,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
 
             try {
 
@@ -341,6 +341,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                             ServicesDataHolder servicesDataHolder = ServicesDataHolder.getInstance();
                             servicesDataHolder.setUsername(mUsername);
                             servicesDataHolder.setPassword(mPassword);
+                            Log.d(TAG, "onHTTPResponse: Username:"+servicesDataHolder.getUsername()+" P: "+servicesDataHolder.getPassword());
                             Intent intent = new Intent(mActivity,MainActivity.class);
                             startActivity(intent);
 
@@ -357,18 +358,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 return false;
             }
 
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mUsername)) {
-                    // Account exists, return true if the password matches.
-                    if(pieces[1].equals(mPassword)){
-                        ServicesDataHolder dataHolder = ServicesDataHolder.getInstance();
-                        dataHolder.setUsername(mUsername);
-                    }
-
-                    return true;
-                }
-            }
 
             // TODO: register the new account here.
             return true;

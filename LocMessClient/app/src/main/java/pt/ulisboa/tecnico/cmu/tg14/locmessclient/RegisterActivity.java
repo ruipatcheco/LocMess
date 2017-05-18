@@ -259,6 +259,7 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
             emails.add(cursor.getString(ProfileQuery.ADDRESS));
             cursor.moveToNext();
         }
+        cursor.close();
 
         addEmailsToAutoComplete(emails);
     }

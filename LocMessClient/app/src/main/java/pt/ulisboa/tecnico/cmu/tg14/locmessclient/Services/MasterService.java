@@ -86,7 +86,7 @@ public class MasterService extends Service  implements OnLocationReceivedListene
     public void onDestroy() {
         super.onDestroy();
         //Log.d("MasterService: ", "onDestroy -> unregistering receivers");
-        serviceManager.unRegisterReceivers();
+        //serviceManager.unRegisterReceivers();
         //Log.d("MasterService: ", "onDestroy -> stopping services");
         serviceManager.stopServices();
     }

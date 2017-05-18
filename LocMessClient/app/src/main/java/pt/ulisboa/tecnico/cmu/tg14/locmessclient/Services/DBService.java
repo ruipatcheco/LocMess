@@ -17,6 +17,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.LocationQuery;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DTO.MessageServer;
@@ -50,7 +52,8 @@ public class DBService extends Service implements OnResponseListener<String> {
     private boolean updateProfiles = true;
     private boolean updateOldProfileKeys = true;
     private boolean updateOldMessages = true;
-
+    private boolean stop = false;
+    private Future runnableManager;
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -58,11 +61,19 @@ public class DBService extends Service implements OnResponseListener<String> {
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        this.stop = true;
+        Log.d(TAG, "onDestroy: GOT DESTROiED");
+        runnableManager.cancel(true);
+    }
+
+    @Override
     public void onCreate() {
 
         //Log.d("DBUpdater","DB Updater Started");
         serverActions = new ServerActions(this);
-        dbHelper = new FeedReaderDbHelper(getApplicationContext());
+        dbHelper = FeedReaderDbHelper.getInstance(getApplicationContext());
 
         //Do once
         if(dataHolder.isCentralizedMode()) {
@@ -75,8 +86,7 @@ public class DBService extends Service implements OnResponseListener<String> {
         runnable = new Runnable() {
             public void run() {
 
-
-                if(dataHolder.isCentralizedMode()){
+                if(dataHolder.isCentralizedMode()||!stop){
 
                     //Log.d("DBService", "entered DBService");
 
@@ -138,10 +148,12 @@ public class DBService extends Service implements OnResponseListener<String> {
                     boolean isUpdated = checkDBEqualToServerDB();
 
                     if(!isUpdated){
-                        //Log.d("DBService", "Local Locations DB differs from server's, clearing local DB");
-
+                        Log.d("DBService", "Local Locations DB differs from server's, clearing local DB");
+                        Log.d("DBService", "dd"+dbHelper.getAllLocations().size());
                         dbHelper.deleteAllLocations();
+                        Log.d("DBService", "after this "+dbHelper.getAllLocations().size());
                         getAndInsertAllLocations();
+                        Log.d("DBService", "after "+dbHelper.getAllLocations().size());
                     }
 
                     ////////////////---------------LOCATIONS----------------------/////////////
@@ -156,11 +168,13 @@ public class DBService extends Service implements OnResponseListener<String> {
                     updateMessages();
                 }
 
-                handler.postDelayed(runnable, 5000);
+                handler.postDelayed(runnable, 20000);
             }
         };
 
-        handler.postDelayed(runnable, 2000);
+        runnableManager = Executors.newSingleThreadExecutor().submit(runnable);
+
+        handler.postDelayed(runnable, 500);
 
     }
 
@@ -429,8 +443,7 @@ public class DBService extends Service implements OnResponseListener<String> {
     private void updateNearLocations(){
         LocationQuery query = new LocationQuery(dataHolder.getLatitude(),dataHolder.getLongitude(),
                 dataHolder.getSsidNames(),dataHolder.getBleNames());
-        Gson gson = new Gson();
-        //Log.d(TAG,"DB service query "+gson.toJson(query));
+
         serverActions.getNearLocations(query, new OnResponseListener<List<Location>>() {
             @Override
             public void onHTTPResponse(List<Location> response) {
