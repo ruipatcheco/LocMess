@@ -90,7 +90,7 @@ public class MessageLocationActivity extends AppCompatActivity {
         i.putExtra("mMessageContent", mMessageContent);
         i.putExtra("mStartTime", mStartTime);
         i.putExtra("mEndTime", mEndTime);
-        i.putExtra("mIsDecentralized", mSwitch.isChecked());
+        i.putExtra("mIsDecentralized", mSwitch.isChecked());    // if false is centralized
         i.putExtra("mID", mID);
     }
 

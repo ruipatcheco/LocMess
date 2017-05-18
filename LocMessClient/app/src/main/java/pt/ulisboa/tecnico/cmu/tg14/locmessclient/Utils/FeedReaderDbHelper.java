@@ -464,6 +464,10 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         db.insert(FeedEntry.MULE_MESSAGE_TABLE_NAME, null, contentValues);
     }
 
+    public void insertMessageMule(Message message) {
+        insertMessageMule(message.getUUID().toString(), message.getCreationTime(), message.getStartTime(), message.getEndTime(), message.getContent(), message.getPublisher(), message.getLocation());
+    }
+
     public void insertAllMessageMule (List<Message> muleMessages) {
         for (Message message : muleMessages) {
             insertMessageMule(message.getUUID().toString(), message.getCreationTime(), message.getStartTime(), message.getEndTime(), message.getContent(), message.getPublisher(), message.getLocation());
@@ -1553,7 +1557,6 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         return whiteList;
     }
 
-
     public List<Profile> getMuleProfileBlackList(String uuid) throws ProfileNotFoundException {
         SQLiteDatabase db = this.getReadableDatabase();
 
@@ -1599,7 +1602,6 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
         return db.delete(table, whereClause, whereArgs) > 0;
     }
-
 
     public void deleteAllMuleProfiles() {
         SQLiteDatabase db = this.getWritableDatabase();
