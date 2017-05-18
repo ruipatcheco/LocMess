@@ -25,9 +25,13 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.Phaser;
 import java.util.concurrent.ThreadLocalRandom;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.DataObject;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Profile;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderDbHelper;
 
 import static android.support.v4.app.ActivityCompat.startActivityForResult;
 
@@ -140,4 +144,20 @@ public class BluetoothService extends Service {
         handler.postDelayed(runnable, 2000);
 
     }
+
+    public void sendMuleMessages() {
+        FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(context);
+        List<Message> muleMessages = dbHelper.getAllMuleMessages();
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        ObjectOutputStream objectOutputStream = null;
+        try {
+            objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
+            objectOutputStream.writeObject(muleMessages);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        mBluetoothConnection.write(byteArrayOutputStream.toByteArray());
+    }
+
 }

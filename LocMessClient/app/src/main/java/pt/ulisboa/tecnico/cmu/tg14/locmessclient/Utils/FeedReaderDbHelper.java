@@ -591,7 +591,6 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_CREATE_MESSAGEKEYS);
     }
 
-
     public void dropMessage() {
         SQLiteDatabase db = this.getWritableDatabase();
 
