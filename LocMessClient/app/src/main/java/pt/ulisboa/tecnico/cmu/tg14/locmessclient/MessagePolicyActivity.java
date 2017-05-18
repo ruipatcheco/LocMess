@@ -74,7 +74,7 @@ public class MessagePolicyActivity extends AppCompatActivity {
 
         activity = this;
 
-        dbHelper = new FeedReaderDbHelper(activity);
+        dbHelper = FeedReaderDbHelper.getInstance(activity);
 
 
         mKey = (EditText) findViewById(R.id.message_profile_key);

@@ -67,7 +67,7 @@ public class MessageView extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... params) {
-            FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(getApplicationContext());
+            FeedReaderDbHelper dbHelper = FeedReaderDbHelper.getInstance(getApplicationContext());
             Message dbMessage = null;
             try {
                 dbMessage = dbHelper.getMessage(messageID.toString());

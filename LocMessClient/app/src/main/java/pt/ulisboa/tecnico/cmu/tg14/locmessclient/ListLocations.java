@@ -194,7 +194,7 @@ public class ListLocations extends Fragment {
 
         @Override
         protected Void doInBackground(Void... params) {
-            FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(getActivity());
+            FeedReaderDbHelper dbHelper = FeedReaderDbHelper.getInstance(getActivity());
             dbHelper.deleteLocation(locationName);
 
             return null;

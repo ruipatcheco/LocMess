@@ -121,7 +121,7 @@ public class MessageLocationActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... params) {
-            FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(activity);
+            FeedReaderDbHelper dbHelper = FeedReaderDbHelper.getInstance(activity);
             List<String> dbLocationNames = dbHelper.getAllLocationsNames();
 
             for(String s: dbLocationNames){

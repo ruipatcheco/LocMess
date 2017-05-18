@@ -43,30 +43,26 @@ import static android.content.ContentValues.TAG;
  * Created by trosado on 31/03/17.
  */
 public class ServerActions {
-    private final static  String addr = "194.210.221.241";
+    private final static  String addr = "193.136.167.169";
     private final static String port = "8443";
     private final static String endpoint = "https://"+addr+":"+port+"/api";
     private static RequestQueue queue;
     private Context mContext;
 
-    private static String username = "";
-    private static String password = "";
     private static String sessionID = "";
     private static String sessionIdURL = "";
-
+    private static ServicesDataHolder dataHolder;
 
 
     public ServerActions(Context context) {
         queue = Volley.newRequestQueue(context);
         mContext = context;
-        ServicesDataHolder dataHolder = ServicesDataHolder.getInstance();
-        username = dataHolder.getUsername();
-        password = dataHolder.getPassword();
+        dataHolder = ServicesDataHolder.getInstance();
     }
 
     private void makeAuthenticatedRequest(int method, String url, JSONObject jsonObject, final OnResponseListener listener){
         new HttpsTrustManager(mContext).allowServerCertificate();
-        JsonObjectAuthenticatedRequest request = new JsonObjectAuthenticatedRequest(method,url,username,password,jsonObject,new Response.Listener<JSONObject>() {            @Override
+        JsonObjectAuthenticatedRequest request = new JsonObjectAuthenticatedRequest(method,url,dataHolder.getUsername(),dataHolder.getPassword(),jsonObject,new Response.Listener<JSONObject>() {            @Override
             public void onResponse(JSONObject response) {
                 Gson gson = new Gson();
                 //Log.d(TAG, "onResponse: " + response.toString());
@@ -118,7 +114,7 @@ public class ServerActions {
         String url = generateURL("/profile/myList");
 
         final List<Profile> profiles = new ArrayList<>();
-        JsonArrayAuthenticatedRequest stringRequest = new JsonArrayAuthenticatedRequest(url,username,password, new Response.Listener<JSONArray>() {
+        JsonArrayAuthenticatedRequest stringRequest = new JsonArrayAuthenticatedRequest(url,dataHolder.getUsername(),dataHolder.getPassword(), new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
                 for(int i = 0;i<response.length();i++){
@@ -157,7 +153,7 @@ public class ServerActions {
 
         final List<Profile> profiles = new ArrayList<>();
         new HttpsTrustManager(mContext).allowServerCertificate();
-        JsonArrayAuthenticatedRequest stringRequest = new JsonArrayAuthenticatedRequest(url,username,password, new Response.Listener<JSONArray>() {
+        JsonArrayAuthenticatedRequest stringRequest = new JsonArrayAuthenticatedRequest(url,dataHolder.getUsername(),dataHolder.getPassword(), new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
                 for(int i = 0;i<response.length();i++){
@@ -265,7 +261,7 @@ public class ServerActions {
         final List<Message> messages = new ArrayList<>();
         final Gson gson = new Gson();
 
-        JsonArrayAuthenticatedRequest request = new JsonArrayAuthenticatedRequest(url, username, password
+        JsonArrayAuthenticatedRequest request = new JsonArrayAuthenticatedRequest(url, dataHolder.getUsername(), dataHolder.getPassword()
                 , new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
@@ -300,7 +296,7 @@ public class ServerActions {
         try {
             JSONObject jsonObject = new JSONObject(gson.toJson(location));
             HttpsTrustManager.allowServerCertificate();
-            JsonArrayFromJsonObjectAuthenticatedRequest request = new JsonArrayFromJsonObjectAuthenticatedRequest(Request.Method.POST,url,username,password,jsonObject,null, new Response.Listener<JSONArray>() {
+            JsonArrayFromJsonObjectAuthenticatedRequest request = new JsonArrayFromJsonObjectAuthenticatedRequest(Request.Method.POST,url,dataHolder.getUsername(),dataHolder.getPassword(),jsonObject,null, new Response.Listener<JSONArray>() {
                 @Override
                 public void onResponse(JSONArray response) {
                     for(int i = 0;i<response.length();i++){
@@ -344,7 +340,7 @@ public class ServerActions {
 
         final List<Location> locations = new ArrayList<>();
         new HttpsTrustManager(mContext).allowServerCertificate();
-        JsonArrayAuthenticatedRequest stringRequest = new JsonArrayAuthenticatedRequest(url,username,password, new Response.Listener<JSONArray>() {
+        JsonArrayAuthenticatedRequest stringRequest = new JsonArrayAuthenticatedRequest(url,dataHolder.getUsername(),dataHolder.getPassword(), new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
                 for(int i = 0;i<response.length();i++){
@@ -378,7 +374,7 @@ public class ServerActions {
     public void getListLocationHash(final OnResponseListener<String> listener){
         String url = generateURL("/location/list/hash");
         new HttpsTrustManager(mContext).allowServerCertificate();
-        JsonObjectAuthenticatedRequest request = new JsonObjectAuthenticatedRequest(Request.Method.GET,url,username,password,null,new Response.Listener<JSONObject>() {
+        JsonObjectAuthenticatedRequest request = new JsonObjectAuthenticatedRequest(Request.Method.GET,url,dataHolder.getUsername(),dataHolder.getPassword(),null,new Response.Listener<JSONObject>() {
 
 
             @Override
@@ -407,7 +403,7 @@ public class ServerActions {
         final List<Location> locations = new ArrayList<>();
         //Log.d(TAG, "request: "+query.toJSON());
         new HttpsTrustManager(mContext).allowServerCertificate();
-        JsonArrayFromJsonObjectAuthenticatedRequest request = new JsonArrayFromJsonObjectAuthenticatedRequest(Request.Method.POST,url,username,password,query.toJSON(),null, new Response.Listener<JSONArray>() {
+        JsonArrayFromJsonObjectAuthenticatedRequest request = new JsonArrayFromJsonObjectAuthenticatedRequest(Request.Method.POST,url,dataHolder.getUsername(),dataHolder.getPassword(),query.toJSON(),null, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
                 for(int i = 0;i<response.length();i++){

@@ -208,7 +208,7 @@ public class ProfileFragment extends Fragment {
 
         @Override
         protected Void doInBackground(Void... params) {
-            FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(getActivity());
+            FeedReaderDbHelper dbHelper = FeedReaderDbHelper.getInstance(getActivity());
             List<Profile> profilesList = dbHelper.getMyProfiles();
 
             for(Profile p: profilesList){
@@ -244,7 +244,7 @@ public class ProfileFragment extends Fragment {
 
         @Override
         protected Void doInBackground(Void... params) {
-            FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(getActivity());
+            FeedReaderDbHelper dbHelper = FeedReaderDbHelper.getInstance(getActivity());
             try {
                 dbHelper.deleteProfileInTheFuture(k);
             } catch (ProfileNotFoundException e) {

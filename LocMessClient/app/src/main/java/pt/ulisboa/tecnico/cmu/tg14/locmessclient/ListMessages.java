@@ -114,7 +114,7 @@ public class ListMessages extends Fragment {
     }
 
     private void createDatabase(Context context, boolean deleteDatabase){
-        FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(context);
+        FeedReaderDbHelper dbHelper = FeedReaderDbHelper.getInstance(context);
         if (doesDatabaseExist(context, dbHelper.getDatabaseName()) && deleteDatabase){
             //context.deleteDatabase(FeedReaderDbHelper.DATABASE_NAME);
             //dbHelper.onDrop(dbHelper.getWritableDatabase());
@@ -266,7 +266,7 @@ public class ListMessages extends Fragment {
 
         @Override
         protected Void doInBackground(Void... params) {
-            FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(getActivity());
+            FeedReaderDbHelper dbHelper = FeedReaderDbHelper.getInstance(getActivity());
             List<Message> dbMessages = dbHelper.getAllNearbyMessages();
 
             for(Message m: dbMessages){
