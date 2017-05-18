@@ -148,10 +148,12 @@ public class DBService extends Service implements OnResponseListener<String> {
                     boolean isUpdated = checkDBEqualToServerDB();
 
                     if(!isUpdated){
-                        //Log.d("DBService", "Local Locations DB differs from server's, clearing local DB");
-
+                        Log.d("DBService", "Local Locations DB differs from server's, clearing local DB");
+                        Log.d("DBService", "dd"+dbHelper.getAllLocations().size());
                         dbHelper.deleteAllLocations();
+                        Log.d("DBService", "after this "+dbHelper.getAllLocations().size());
                         getAndInsertAllLocations();
+                        Log.d("DBService", "after "+dbHelper.getAllLocations().size());
                     }
 
                     ////////////////---------------LOCATIONS----------------------/////////////
@@ -166,13 +168,13 @@ public class DBService extends Service implements OnResponseListener<String> {
                     updateMessages();
                 }
 
-                handler.postDelayed(runnable, 5000);
+                handler.postDelayed(runnable, 20000);
             }
         };
 
         runnableManager = Executors.newSingleThreadExecutor().submit(runnable);
 
-        handler.postDelayed(runnable, 2000);
+        handler.postDelayed(runnable, 500);
 
     }
 

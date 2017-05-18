@@ -7,18 +7,16 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -44,7 +42,7 @@ public class ListMessages extends Fragment {
     private ListView mMessageListView;
     private List<Message> mMessageList;
     private ArrayAdapter<Message> arrayAdapter;
-
+    private Handler handler;
     private List<String> messageContentList;
 
 
@@ -74,6 +72,8 @@ public class ListMessages extends Fragment {
 
         getActivity().setTitle(R.string.fragment_list_messages_title);
 
+        handler = new Handler();
+        handler.postDelayed(new GetMessageFromDBThread(),500);
 
 
         FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
@@ -102,7 +102,7 @@ public class ListMessages extends Fragment {
 
         dataHolder.setCentralizedMode(isConnected);
 
-        Toast.makeText(getActivity(), "has internet connection = " + isConnected, Toast.LENGTH_LONG).show();
+       // Toast.makeText(getActivity(), "has internet connection = " + isConnected, Toast.LENGTH_LONG).show();
     }
 
     private void fillDatabase(Activity activity) {
@@ -218,8 +218,6 @@ public class ListMessages extends Fragment {
         arrayAdapter = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1, messageContentList);
 
 
-        new getMessagesFromDBTask().execute();
-
         mMessageListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
@@ -234,45 +232,27 @@ public class ListMessages extends Fragment {
 
     }
 
-    private class getMessagesFromDBTask extends AsyncTask<Void, Void, Void> {
 
+    private class GetMessageFromDBThread implements Runnable{
         private List<Message> auxList;
 
-
-
-        public getMessagesFromDBTask() {
+        @Override
+        public void run() {
             auxList = new ArrayList<>();
-        }
 
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-
-            mMessageListView.setAdapter(arrayAdapter);
-            mMessageList.clear();
-            for(Message m: auxList){
-                mMessageList.add(m);
-                messageContentList.add(m.getContent());
-            }
-            arrayAdapter.notifyDataSetChanged();
-            //Log.d("MessageLocationActivity","notify dataset changed");
-
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
             FeedReaderDbHelper dbHelper = FeedReaderDbHelper.getInstance(getActivity());
             List<Message> dbMessages = dbHelper.getAllNearbyMessages();
 
+            mMessageListView.setAdapter(arrayAdapter);
+            mMessageList.clear();
+            messageContentList.clear();
             for(Message m: dbMessages){
-                auxList.add(m);
+                mMessageList.add(m);
+                messageContentList.add(m.getContent());
             }
-            return null;
+
+            arrayAdapter.notifyDataSetChanged();
+            handler.postDelayed(this,5000);
         }
     }
 
