@@ -1,5 +1,7 @@
 package pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners;
 
+import android.bluetooth.BluetoothDevice;
+
 /**
  * Created by tiago on 25/03/2017.
  */
@@ -7,7 +9,7 @@ package pt.ulisboa.tecnico.cmu.tg14.locmessclient.Listeners;
 public interface OnLocationReceivedListener {
      void onGPSReceived(double lat, double lon);
      void onWifiReceived(String name,String ssid);
-     void onBleReceived(String name, String ble);
+     void onBleReceived(BluetoothDevice device);
      void clearGPSList();
      void clearWifiList();
      void clearBluetoothList();

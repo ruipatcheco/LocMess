@@ -24,7 +24,7 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
-    <string name="action_settings">Settings</string>
+    <string name="action_connect_mule">Connect as Mule</string>
     <string name="title_activity_add_message">Add Message</string>
     <string name="add_message_message_text">Message</string>
 
@@ -62,6 +62,11 @@
     <string name="message_location_activity_decentralized">Decentralized</string>
     <string name="message_view_publisher_title">Publisher :</string>
     <string name="message_view_content_title">Content :</string>
+    <string name="refresh_text">Refresh</string>
 
+
+    <string name="message_removed">Message removed</string>
+    <string name="location_removed">Location removed</string>
+    <string name="profile_removed">Profile removed</string>
 
 </resources>

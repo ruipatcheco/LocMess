@@ -3,6 +3,7 @@ package pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Service;
+import android.bluetooth.BluetoothDevice;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -14,6 +15,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -60,10 +62,10 @@ public class MasterService extends Service  implements OnLocationReceivedListene
     }
 
     @Override
-    public void onBleReceived(String name, String ble) {
-        AbstractMap<String,String> map = dataHolder.getBleContent();
-        map.put(name,ble);
-        dataHolder.setBleContent(map);
+    public void onBleReceived(BluetoothDevice device) {
+        List<BluetoothDevice> devices = dataHolder.getBleContent();
+        devices.add(device);
+        dataHolder.setBleContent(devices);
     }
 
     @Override
@@ -79,7 +81,7 @@ public class MasterService extends Service  implements OnLocationReceivedListene
 
     @Override
     public void clearBluetoothList() {
-        dataHolder.setBleContent(new HashMap<String, String>());
+        dataHolder.setBleContent(new ArrayList<BluetoothDevice>());
     }
 
     @Override

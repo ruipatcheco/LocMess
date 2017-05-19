@@ -1,5 +1,7 @@
 package pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects;
 
+import android.bluetooth.BluetoothDevice;
+
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,7 +15,7 @@ import java.util.UUID;
 
 public class ServicesDataHolder {
 
-    private AbstractMap<String,String> bleContent;
+    private List<BluetoothDevice> bleContent;
     private AbstractMap<String,String> ssidContent;
     private Float longitude;
     private Float latitude;
@@ -38,7 +40,7 @@ public class ServicesDataHolder {
 
     private ServicesDataHolder() {
 
-        bleContent = new HashMap<>();
+        bleContent = new ArrayList<>();
         ssidContent = new HashMap<>();
         latitude = new Float(0);
         longitude = new Float(0);
@@ -110,11 +112,11 @@ public class ServicesDataHolder {
     public void setPassword(String password) {
         this.password = password;
     }
-    public AbstractMap<String, String> getBleContent() {
+    public List<BluetoothDevice> getBleContent() {
         return bleContent;
     }
 
-    public void setBleContent(AbstractMap<String, String> bleContent) {
+    public void setBleContent(List<BluetoothDevice> bleContent) {
         this.bleContent = bleContent;
     }
 
@@ -143,7 +145,12 @@ public class ServicesDataHolder {
     }
 
     public List<String> getBleNames(){
-        return new ArrayList(bleContent.keySet());
+        List<String> bleNames = new ArrayList<>();
+        for(BluetoothDevice device : bleContent){
+            String name = (device.getName() == null) ? device.getAddress() : device.getName();
+            bleNames.add(name);
+        }
+        return bleNames;
     }
 
 

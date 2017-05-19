@@ -43,7 +43,7 @@ import static android.content.ContentValues.TAG;
  * Created by trosado on 31/03/17.
  */
 public class ServerActions {
-    private final static  String addr = "193.136.167.224";
+    private final static  String addr = "193.136.167.221";
     private final static String port = "8443";
     private final static String endpoint = "https://"+addr+":"+port+"/api";
     private static RequestQueue queue;
@@ -401,7 +401,7 @@ public class ServerActions {
         String url = generateURL("/location/nearbyLocations");
 
         final List<Location> locations = new ArrayList<>();
-        //Log.d(TAG, "request: "+query.toJSON());
+        Log.d(TAG, "request: "+query.toJSON());
         new HttpsTrustManager(mContext).allowServerCertificate();
         JsonArrayFromJsonObjectAuthenticatedRequest request = new JsonArrayFromJsonObjectAuthenticatedRequest(Request.Method.POST,url,dataHolder.getUsername(),dataHolder.getPassword(),query.toJSON(),null, new Response.Listener<JSONArray>() {
             @Override

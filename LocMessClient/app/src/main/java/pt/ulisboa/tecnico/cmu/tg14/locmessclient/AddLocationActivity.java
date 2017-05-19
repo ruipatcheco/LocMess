@@ -1,9 +1,9 @@
 package pt.ulisboa.tecnico.cmu.tg14.locmessclient;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothDevice;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -42,7 +42,6 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
     private EditText mLocationRadius;
 
 
-    private AbstractMap<String, String> nameBLEMAP;
     private List<String> namesBLE;
 
     private ServicesDataHolder dataHolder;
@@ -82,8 +81,7 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
         //Set visibility for radius
         mLocationRadius.setVisibility(View.INVISIBLE);
 
-        nameBLEMAP = dataHolder.getBleContent();
-        namesBLE = new ArrayList<>(nameBLEMAP.keySet());
+        namesBLE = dataHolder.getBleNames();
 
         nameWifiMap = dataHolder.getSsidContent();
         namesWifi = new ArrayList<>(nameWifiMap.keySet());
@@ -130,7 +128,7 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
                 switch (mType){
                     case BLE:
                         //Log.d(TAG, "onItemSelected: BT Name : "+name);
-                        //Log.d(TAG, "onItemSelected: BT Selected : "+nameBLEMAP.get(name));
+                        //Log.d(TAG, "onItemSelected: BT Selected : "+bleDevices.get(name));
                         mLocation.setBle(name);
                         break;
                     case WIFI:
@@ -265,8 +263,7 @@ public class AddLocationActivity extends AppCompatActivity implements CompoundBu
     }
 
     public void addBLE(){
-        nameBLEMAP = dataHolder.getBleContent();
-        for (String name: nameBLEMAP.keySet()){
+        for (String name: dataHolder.getBleNames()){
             namesBLE.add(name);
             //Log.d("AddLocationActivity","BLE: "+name);
         }

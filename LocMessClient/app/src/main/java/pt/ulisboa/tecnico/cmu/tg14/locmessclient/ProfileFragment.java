@@ -144,7 +144,7 @@ public class ProfileFragment extends Fragment {
                         .setCancelable(false)
                         .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,int id) {
-                                Toast.makeText(getActivity(),"DELETE MODAFOKAAAAA!!",Toast.LENGTH_LONG).show();
+                                Toast.makeText(getActivity(),getString(R.string.profile_removed),Toast.LENGTH_LONG).show();
 
                                 new DeleteProfileDatabaseTask(view,key).execute();
 
