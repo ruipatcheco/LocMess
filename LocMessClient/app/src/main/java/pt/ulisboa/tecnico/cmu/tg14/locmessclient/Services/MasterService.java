@@ -63,9 +63,8 @@ public class MasterService extends Service  implements OnLocationReceivedListene
 
     @Override
     public void onBleReceived(BluetoothDevice device) {
-        List<BluetoothDevice> devices = dataHolder.getBleContent();
-        devices.add(device);
-        dataHolder.setBleContent(devices);
+        dataHolder.addBleContent(device);
+
     }
 
     @Override
@@ -81,7 +80,7 @@ public class MasterService extends Service  implements OnLocationReceivedListene
 
     @Override
     public void clearBluetoothList() {
-        dataHolder.setBleContent(new ArrayList<BluetoothDevice>());
+        dataHolder.setBleContent(new HashMap<String,BluetoothDevice>());
     }
 
     @Override

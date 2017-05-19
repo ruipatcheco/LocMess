@@ -1,9 +1,12 @@
 package pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects;
 
+import android.bluetooth.BluetoothClass;
 import android.bluetooth.BluetoothDevice;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -15,7 +18,7 @@ import java.util.UUID;
 
 public class ServicesDataHolder {
 
-    private List<BluetoothDevice> bleContent;
+    private AbstractMap<String,BluetoothDevice> bleContent;
     private AbstractMap<String,String> ssidContent;
     private Float longitude;
     private Float latitude;
@@ -40,7 +43,7 @@ public class ServicesDataHolder {
 
     private ServicesDataHolder() {
 
-        bleContent = new ArrayList<>();
+        bleContent = new HashMap<>();
         ssidContent = new HashMap<>();
         latitude = new Float(0);
         longitude = new Float(0);
@@ -112,12 +115,16 @@ public class ServicesDataHolder {
     public void setPassword(String password) {
         this.password = password;
     }
-    public List<BluetoothDevice> getBleContent() {
+    public AbstractMap<String, BluetoothDevice> getBleContent() {
         return bleContent;
     }
 
-    public void setBleContent(List<BluetoothDevice> bleContent) {
+    public void setBleContent(AbstractMap<String,BluetoothDevice> bleContent) {
         this.bleContent = bleContent;
+    }
+    public void addBleContent(BluetoothDevice device){
+        String name = (device.getName() == null) ? device.getAddress() : device.getName();
+        this.bleContent.put(name,device);
     }
 
     public AbstractMap<String, String> getSsidContent() {
@@ -145,12 +152,7 @@ public class ServicesDataHolder {
     }
 
     public List<String> getBleNames(){
-        List<String> bleNames = new ArrayList<>();
-        for(BluetoothDevice device : bleContent){
-            String name = (device.getName() == null) ? device.getAddress() : device.getName();
-            bleNames.add(name);
-        }
-        return bleNames;
+        return new ArrayList<>(bleContent.keySet());
     }
 
 

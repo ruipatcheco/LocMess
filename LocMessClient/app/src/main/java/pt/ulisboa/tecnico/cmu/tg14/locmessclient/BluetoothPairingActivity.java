@@ -39,9 +39,7 @@ public class BluetoothPairingActivity extends AppCompatActivity {
 
             if (action.equals(BluetoothDevice.ACTION_FOUND)){
                 BluetoothDevice device = intent.getParcelableExtra (BluetoothDevice.EXTRA_DEVICE);
-                List<BluetoothDevice> list = dataHolder.getBleContent();
-                list.add(device);
-                dataHolder.setBleContent(list);
+                dataHolder.addBleContent(device);
                 names = dataHolder.getBleNames();
                 mDeviceListAdapter.notifyDataSetChanged();
             }
