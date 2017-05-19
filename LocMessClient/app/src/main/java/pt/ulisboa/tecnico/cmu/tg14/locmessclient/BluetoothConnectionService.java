@@ -18,7 +18,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Message;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Profile;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderDbHelper;
 
 /**
  * Created by User on 12/21/2016.
@@ -261,11 +263,16 @@ public class BluetoothConnectionService {
                 try {
                     bytes = mmInStream.read(buffer);
                     ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(buffer));
-                    List<Profile> profiles = (ArrayList<Profile>) ois.readObject();
+                    List<Message> muleMessages = (ArrayList<Message>) ois.readObject();
 
-                    for (Profile profile : profiles) {
-                        Log.d(TAG, "InputStream: " + profile.getKey() + "->" + profile.getValue());
+                    for (Message message : muleMessages) {
+                        Log.d(TAG, "InputStream: " + message.getPublisher()+ "->" + message.getContent());
                     }
+
+                   /* FeedReaderDbHelper dbHelper = FeedReaderDbHelper.getInstance();
+                    dbHelper.insertAllMessages(muleMessages);
+                    dbHelper.insertAllMessageMule(muleMessages);*/
+
                     //String incomingMessage = new String(buffer, 0, bytes);
                 } catch (IOException e) {
                     Log.e(TAG, "write: Error reading Input Stream. " + e.getMessage() );

@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.FileUriExposedException;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.UUID;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.Profile;
+import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderDbHelper;
 
 
 public class PairingActivity extends AppCompatActivity implements AdapterView.OnItemClickListener{
@@ -52,7 +54,6 @@ public class PairingActivity extends AppCompatActivity implements AdapterView.On
 
     ListView lvNewDevices;
 
-    List<Profile> profiles = new ArrayList<>();
 
 
     // Create a BroadcastReceiver for ACTION_FOUND
@@ -189,12 +190,6 @@ public class PairingActivity extends AppCompatActivity implements AdapterView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_paring);
 
-        profiles.add(new Profile("clube", "sporting"));
-        profiles.add(new Profile("país", "portugal"));
-        profiles.add(new Profile("tua", "mae"));
-        profiles.add(new Profile("eheh", "ohoh"));
-        profiles.add(new Profile("tu", "sabes"));
-
 
         Button btnONOFF = (Button) findViewById(R.id.btnONOFF);
         btnEnableDisable_Discoverable = (Button) findViewById(R.id.btnDiscoverable_on_off);
@@ -237,8 +232,11 @@ public class PairingActivity extends AppCompatActivity implements AdapterView.On
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 ObjectOutputStream oos = null;
                 try {
+
+                    FeedReaderDbHelper dbHelper = FeedReaderDbHelper.getInstance(getApplicationContext());
+
                     oos = new ObjectOutputStream(bos);
-                    oos.writeObject(profiles);
+                    oos.writeObject(dbHelper.getAllMuleMessages());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
