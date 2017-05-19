@@ -64,7 +64,8 @@ public class MasterService extends Service  implements OnLocationReceivedListene
     @Override
     public void onBleReceived(BluetoothDevice device) {
         dataHolder.addBleContent(device);
-
+        if(dataHolder.getBleAdapter() != null)
+            dataHolder.getBleAdapter().notifyDataSetChanged();
     }
 
     @Override

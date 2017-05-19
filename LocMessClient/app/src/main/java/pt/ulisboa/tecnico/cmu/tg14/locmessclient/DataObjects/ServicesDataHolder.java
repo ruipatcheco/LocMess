@@ -2,6 +2,7 @@ package pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects;
 
 import android.bluetooth.BluetoothClass;
 import android.bluetooth.BluetoothDevice;
+import android.widget.ArrayAdapter;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -36,6 +37,7 @@ public class ServicesDataHolder {
     private boolean killThread = false;
 
     private static final ServicesDataHolder ourInstance = new ServicesDataHolder();
+    private ArrayAdapter bleAdapter;
 
     public static ServicesDataHolder getInstance() {
         return ourInstance;
@@ -53,6 +55,10 @@ public class ServicesDataHolder {
         username = "";
         password = "";
 
+    }
+
+    public void setBleAdapter(ArrayAdapter bleAdapter) {
+        this.bleAdapter = bleAdapter;
     }
 
     public ArrayList<String> getRemovedLocations() {
@@ -180,4 +186,7 @@ public class ServicesDataHolder {
         this.killThread = killThread;
     }
 
+    public ArrayAdapter getBleAdapter() {
+        return bleAdapter;
+    }
 }

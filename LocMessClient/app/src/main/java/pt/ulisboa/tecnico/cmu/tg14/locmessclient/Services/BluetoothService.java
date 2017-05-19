@@ -94,9 +94,6 @@ public class BluetoothService extends Service {
         mHandler.postDelayed(runnable, 2000);
 
 
-        // Setup Server
-        BluetoothOperations bluetoothOperations = BluetoothOperations.getInstance(getApplicationContext());
-        bluetoothOperations.start();
 
 
     }

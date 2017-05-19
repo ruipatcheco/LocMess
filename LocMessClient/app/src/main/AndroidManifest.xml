@@ -78,7 +78,6 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".BluetoothPairingActivity"></activity>
     </application>
 
 </manifest>

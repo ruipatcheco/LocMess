@@ -3,7 +3,6 @@ package pt.ulisboa.tecnico.cmu.tg14.locmessclient;
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.bluetooth.BluetoothDevice;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -26,8 +25,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.DataObjects.ServicesDataHolder;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Exceptions.PublisherNotFoundException;
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.BluetoothOperations;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.BluetoothService;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.DBService;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.GPSService;
@@ -35,7 +32,6 @@ import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.MasterService;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Services.WifiService;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.FeedReaderDbHelper;
 
-import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.Network.ServerActions;
 import pt.ulisboa.tecnico.cmu.tg14.locmessclient.Utils.ServiceManager;
 
 
@@ -132,8 +128,6 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_connect_mule) {
-            Intent intent =  new Intent(this,BluetoothPairingActivity.class);
-            startActivity(intent);
 
 
 
