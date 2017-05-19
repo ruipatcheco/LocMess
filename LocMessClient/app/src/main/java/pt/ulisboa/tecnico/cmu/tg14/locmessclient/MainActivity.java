@@ -128,9 +128,8 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_connect_mule) {
-
-
-
+            Intent intent = new Intent(this,PairingActivity.class);
+            startActivity(intent);
 
             return true;
         }

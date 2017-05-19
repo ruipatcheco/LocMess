@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -20,14 +21,13 @@ import android.widget.ListView;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 
-public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener{
-    private static final String TAG = "MainActivity";
+public class PairingActivity extends AppCompatActivity implements AdapterView.OnItemClickListener{
+    private static final String TAG = "PairingActivity";
 
     BluetoothAdapter mBluetoothAdapter;
     Button btnEnableDisable_Discoverable;
@@ -75,6 +75,44 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         Log.d(TAG, "mBroadcastReceiver1: STATE TURNING ON");
                         break;
                 }
+            }
+        }
+    };
+
+    /**
+     * Broadcast Receiver for changes made to bluetooth states such as:
+     * 1) Discoverability mode on/off or expire.
+     */
+    private final BroadcastReceiver mBroadcastReceiver2 = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+
+            if (action.equals(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED)) {
+
+                int mode = intent.getIntExtra(BluetoothAdapter.EXTRA_SCAN_MODE, BluetoothAdapter.ERROR);
+
+                switch (mode) {
+                    //Device is in Discoverable Mode
+                    case BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE:
+                        Log.d(TAG, "mBroadcastReceiver2: Discoverability Enabled.");
+                        break;
+                    //Device not in discoverable mode
+                    case BluetoothAdapter.SCAN_MODE_CONNECTABLE:
+                        Log.d(TAG, "mBroadcastReceiver2: Discoverability Disabled. Able to receive connections.");
+                        break;
+                    case BluetoothAdapter.SCAN_MODE_NONE:
+                        Log.d(TAG, "mBroadcastReceiver2: Discoverability Disabled. Not able to receive connections.");
+                        break;
+                    case BluetoothAdapter.STATE_CONNECTING:
+                        Log.d(TAG, "mBroadcastReceiver2: Connecting....");
+                        break;
+                    case BluetoothAdapter.STATE_CONNECTED:
+                        Log.d(TAG, "mBroadcastReceiver2: Connected.");
+                        break;
+                }
+
             }
         }
     };
@@ -147,7 +185,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_paring);
 
         profiles.add(new Profile("clube", "sporting"));
         profiles.add(new Profile("país", "portugal"));
@@ -171,7 +209,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
-        lvNewDevices.setOnItemClickListener(MainActivity.this);
+        lvNewDevices.setOnItemClickListener(PairingActivity.this);
 
 
         btnONOFF.setOnClickListener(new View.OnClickListener() {
@@ -262,6 +300,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     public void btnDiscover(View view) {
         Log.d(TAG, "btnDiscover: Looking for unpaired devices.");
 
@@ -294,6 +333,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
      *
      * NOTE: This will only execute on versions > LOLLIPOP because it is not needed otherwise.
      */
+    @RequiresApi(api = Build.VERSION_CODES.M)
     private void checkBTPermissions() {
         if(Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP){
             int permissionCheck = this.checkSelfPermission("Manifest.permission.ACCESS_FINE_LOCATION");
@@ -326,7 +366,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             mBTDevices.get(i).createBond();
 
             mBTDevice = mBTDevices.get(i);
-            mBluetoothConnection = new BluetoothConnectionService(MainActivity.this);
+            mBluetoothConnection = new BluetoothConnectionService(PairingActivity.this);
         }
     }
 }

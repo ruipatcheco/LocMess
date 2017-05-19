@@ -45,6 +45,12 @@
             android:label="@string/title_activity_main"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity android:name=".PairingActivity"
+            android:screenOrientation="portrait">
+
+        </activity>
+
+
         <activity
             android:name=".AddMessage"
             android:screenOrientation="portrait" />
